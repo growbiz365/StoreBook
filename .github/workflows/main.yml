@@ -1,51 +1,28 @@
-name: Deploy Laravel Application
-
 on:
   push:
-    branches:
-      - main  # Trigger deployment on push to the main branch
-
+    branches: [ main ]
+name: 🚀 Deploy file on Arms_Portal
 jobs:
-  deploy:
-    name: Deploy Application
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Checkout the latest code from the repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
 
-      # Step 2: Set up PHP
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'  # Ensure this matches your Laravel PHP version
-          extensions: mbstring, bcmath, xml, intl, json, pdo, tokenizer, curl, fileinfo
+    - name: Use Node.js 14
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-      # Step 3: Install Composer dependencies
-      - name: Install Dependencies
-        run: |
-          composer install --optimize-autoloader
-      # Step 4: Deploy project to web host via FTP
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.3
-        with:
-          server: 92.112.189.65
-          username: u307319878.storebook
-          password: Tapsol55374@@@
-          local-dir: ./                       # Directory of the Laravel project
-          server-dir: /                       # Path to your server's root directory
-          exclude: /                    # Exclude the vendor directory
-
-      # Step 5: Set Permissions for Laravel Folders
-      - name: Set Permissions for Laravel Folders
-        run: |
-          chmod -R 775 storage
-          chmod -R 775 bootstrap/cache
-        shell: sh  # Corrected shell option
-
-      # Step 6: Cache Config (optional for optimization)
-      - name: Optimize Laravel Configuration
-        run: |
-          php artisan config:cache
-          php artisan route:cache
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.2.0
+      with:
+        server: ${{ secrets.FTP_SERVER  }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/public/**
