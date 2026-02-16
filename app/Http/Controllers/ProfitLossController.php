@@ -44,12 +44,19 @@ class ProfitLossController extends Controller
             // Get profit and loss data
             $profitLossData = $this->profitLossService->generateProfitLoss($businessId, $fromDate, $toDate, $basis);
             
+            // Add diagnostic information if requested (via query parameter)
+            $diagnostics = null;
+            if ($request->has('debug') && $request->get('debug') === '1') {
+                $diagnostics = $this->profitLossService->diagnoseProfitLossIssues($businessId, $fromDate, $toDate);
+            }
+            
             return view('finance.profit-loss.index', compact(
                 'business',
                 'profitLossData',
                 'fromDate',
                 'toDate',
-                'basis'
+                'basis',
+                'diagnostics'
             ));
             
         } catch (\Exception $e) {

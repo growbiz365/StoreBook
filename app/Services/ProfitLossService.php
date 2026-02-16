@@ -74,10 +74,9 @@ class ProfitLossService
         $accountType = $account->type;
         $balance = $this->getAccountBalance($account, $fromDate, $toDate, $basis);
 
-        // Skip zero or negative balance accounts
-        // For P&L reports, we only show positive balances
-        // Negative balances can occur with reversals, but should net to zero
-        if ($balance <= 0) {
+        // Skip zero balance accounts
+        // Note: We now show accounts with balance, even if negative (which shouldn't normally happen in P&L)
+        if ($balance == 0) {
             return;
         }
 
@@ -85,36 +84,117 @@ class ProfitLossService
             'id' => $account->id,
             'code' => $account->code,
             'name' => $account->name,
-            'balance' => $balance
+            'balance' => abs($balance) // Use absolute value for display
         ];
 
         switch ($accountType) {
             case 'income':
-                $profitLossData['revenue'][] = $accountData;
+                // Check if it's non-operating income
+                if ($this->isNonOperatingIncome($account)) {
+                    $profitLossData['other_income'][] = $accountData;
+                } else {
+                    // Operating income (revenue from sales, services, etc.)
+                    $profitLossData['revenue'][] = $accountData;
+                }
                 break;
 
             case 'expense':
                 // Check if it's a COGS account by name or code
-                if (str_contains(strtolower($account->name), 'cost of goods sold') || 
-                    str_contains(strtolower($account->name), 'cogs') ||
-                    str_contains($account->code, '4051')) {
+                if ($this->isCostOfGoodsSold($account)) {
                     $profitLossData['cost_of_goods_sold'][] = $accountData;
+                } elseif ($this->isNonOperatingExpense($account)) {
+                    // Non-operating expenses (interest, losses, etc.)
+                    $profitLossData['other_expenses'][] = $accountData;
                 } else {
+                    // Operating expenses (salaries, rent, utilities, etc.)
                     $profitLossData['operating_expenses'][] = $accountData;
                 }
                 break;
         }
     }
+    
+    /**
+     * Check if account is Cost of Goods Sold
+     */
+    private function isCostOfGoodsSold($account)
+    {
+        $accountNameLower = strtolower($account->name);
+        $accountCodeLower = strtolower($account->code);
+        
+        return str_contains($accountNameLower, 'cost of goods sold') || 
+               str_contains($accountNameLower, 'cogs') ||
+               str_contains($accountNameLower, 'cost of sales') ||
+               str_contains($accountCodeLower, '4051') ||
+               str_contains($accountCodeLower, '5000'); // Common COGS codes
+    }
+    
+    /**
+     * Check if income account is non-operating
+     */
+    private function isNonOperatingIncome($account)
+    {
+        $accountNameLower = strtolower($account->name);
+        
+        $nonOperatingKeywords = [
+            'interest income',
+            'interest received',
+            'dividend income',
+            'investment income',
+            'gain on sale',
+            'other income',
+            'miscellaneous income',
+            'rental income' // If not primary business
+        ];
+        
+        foreach ($nonOperatingKeywords as $keyword) {
+            if (str_contains($accountNameLower, $keyword)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if expense account is non-operating
+     */
+    private function isNonOperatingExpense($account)
+    {
+        $accountNameLower = strtolower($account->name);
+        
+        // Note: "OTHER EXPENSE" is treated as operating expense (general business expenses)
+        // Only specific non-operating expenses are classified as such
+        $nonOperatingKeywords = [
+            'interest expense',
+            'interest paid',
+            'bank charges',
+            'bank fees',
+            'loss on sale',
+            'loss on disposal',
+            'finance charges',
+            'finance costs',
+            'penalties',
+            'fines',
+            'legal fees',
+            'tax penalties'
+        ];
+        
+        foreach ($nonOperatingKeywords as $keyword) {
+            if (str_contains($accountNameLower, $keyword)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * Get account balance for the specified period
+     * IMPORTANT: This method calculates the NET balance after considering all journal entries
+     * including original postings and any reversals from cancellations/edits
      */
     private function getAccountBalance($account, $fromDate, $toDate, $basis)
     {
-        $query = JournalEntry::where('business_id', $account->business_id)
-            ->where('account_head', $account->id)
-            ->whereBetween('date_added', [$fromDate, $toDate]);
-
         // Handle cash basis accounting
         if ($basis === 'cash') {
             // For cash basis, we need to check if the account represents cash transactions
@@ -124,35 +204,43 @@ class ProfitLossService
             }
         }
 
-        // Get all journal entries for calculation
-        $journalEntries = $query->get();
+        // Get all journal entries for this account in the date range
+        // Include ALL entries (both original and reversals) - they will net out correctly
+        $journalEntries = JournalEntry::where('business_id', $account->business_id)
+            ->where('account_head', $account->id)
+            ->whereBetween('date_added', [$fromDate, $toDate])
+            ->get();
         
-        $totalDebits = $journalEntries->sum('debit_amount');
-        $totalCredits = $journalEntries->sum('credit_amount');
+        // Calculate NET balances by summing ALL debits and credits
+        // Original entries: Dr COGS 3000, Cr Revenue 3000
+        // Reversal entries: Cr COGS 3000, Dr Revenue 3000
+        // Net result: COGS = 0, Revenue = 0 (correctly cancelled)
+        $totalDebits = 0;
+        $totalCredits = 0;
+        
+        // Sum all debits and credits (including reversals)
+        foreach ($journalEntries as $entry) {
+            $totalDebits += $entry->debit_amount;
+            $totalCredits += $entry->credit_amount;
+        }
 
         // Calculate balance based on account type
         $balance = 0;
         
         if ($account->type === 'income') {
-            // For income accounts: Credit - Debit (net credit)
-            // Reversals will have debits that offset original credits
-            // Income should be positive (credits increase income)
+            // For income accounts: Credits - Debits = Net Income
+            // Normal sale: Cr Revenue 1000 → Balance = +1000
+            // Reversal: Dr Revenue 1000 → Balance = 0 (cancelled out)
             $balance = $totalCredits - $totalDebits;
-            // Ensure income is never negative in P&L (if negative due to reversals, show 0)
-            if ($balance < 0) {
-                $balance = 0;
-            }
         } elseif ($account->type === 'expense') {
-            // For expense accounts: Debit - Credit (net debit)
-            // Reversals will have credits that offset original debits
-            // Expenses should be positive (debits increase expenses)
+            // For expense accounts: Debits - Credits = Net Expense
+            // Normal COGS: Dr COGS 600 → Balance = +600
+            // Reversal: Cr COGS 600 → Balance = 0 (cancelled out)
             $balance = $totalDebits - $totalCredits;
-            // Ensure expenses are never negative in P&L (if negative due to reversals, show 0)
-            if ($balance < 0) {
-                $balance = 0;
-            }
         }
 
+        // Return the net balance
+        // This represents the actual income/expense after all reversals
         return $balance;
     }
 
@@ -201,5 +289,86 @@ class ProfitLossService
         // Calculate net profit
         $profitLossData['net_profit'] = $profitLossData['operating_profit'] + $profitLossData['totals']['other_income'] - $profitLossData['totals']['other_expenses'];
         $profitLossData['totals']['net_profit'] = $profitLossData['net_profit'];
+    }
+    
+    /**
+     * Diagnostic method to check journal entry integrity
+     * This helps identify issues with COGS and Revenue calculations
+     */
+    public function diagnoseProfitLossIssues($businessId, $fromDate, $toDate)
+    {
+        $fromDate = Carbon::parse($fromDate)->startOfDay();
+        $toDate = Carbon::parse($toDate)->endOfDay();
+        
+        $diagnostics = [];
+        
+        // Get Revenue account
+        $revenueAccount = ChartOfAccount::where('business_id', $businessId)
+            ->where(function($q) {
+                $q->where('name', 'like', '%Sales%')
+                  ->orWhere('name', 'like', '%Revenue%')
+                  ->orWhere('name', 'like', '%Income%');
+            })
+            ->where('type', 'income')
+            ->first();
+            
+        if ($revenueAccount) {
+            $revenueEntries = JournalEntry::where('business_id', $businessId)
+                ->where('account_head', $revenueAccount->id)
+                ->whereBetween('date_added', [$fromDate, $toDate])
+                ->orderBy('date_added', 'desc')
+                ->get();
+                
+            $diagnostics['revenue'] = [
+                'account_name' => $revenueAccount->name,
+                'total_entries' => $revenueEntries->count(),
+                'total_credits' => $revenueEntries->sum('credit_amount'),
+                'total_debits' => $revenueEntries->sum('debit_amount'),
+                'net_balance' => $revenueEntries->sum('credit_amount') - $revenueEntries->sum('debit_amount'),
+                'entries_by_type' => [
+                    'normal' => $revenueEntries->filter(function($e) {
+                        return !str_contains(strtolower($e->comments ?? ''), 'reversal');
+                    })->count(),
+                    'reversals' => $revenueEntries->filter(function($e) {
+                        return str_contains(strtolower($e->comments ?? ''), 'reversal');
+                    })->count(),
+                ]
+            ];
+        }
+        
+        // Get COGS account
+        $cogsAccount = ChartOfAccount::where('business_id', $businessId)
+            ->where(function($q) {
+                $q->where('name', 'like', '%Cost of Goods%')
+                  ->orWhere('name', 'like', '%COGS%');
+            })
+            ->where('type', 'expense')
+            ->first();
+            
+        if ($cogsAccount) {
+            $cogsEntries = JournalEntry::where('business_id', $businessId)
+                ->where('account_head', $cogsAccount->id)
+                ->whereBetween('date_added', [$fromDate, $toDate])
+                ->orderBy('date_added', 'desc')
+                ->get();
+                
+            $diagnostics['cogs'] = [
+                'account_name' => $cogsAccount->name,
+                'total_entries' => $cogsEntries->count(),
+                'total_debits' => $cogsEntries->sum('debit_amount'),
+                'total_credits' => $cogsEntries->sum('credit_amount'),
+                'net_balance' => $cogsEntries->sum('debit_amount') - $cogsEntries->sum('credit_amount'),
+                'entries_by_type' => [
+                    'normal' => $cogsEntries->filter(function($e) {
+                        return !str_contains(strtolower($e->comments ?? ''), 'reversal');
+                    })->count(),
+                    'reversals' => $cogsEntries->filter(function($e) {
+                        return str_contains(strtolower($e->comments ?? ''), 'reversal');
+                    })->count(),
+                ]
+            ];
+        }
+        
+        return $diagnostics;
     }
 }

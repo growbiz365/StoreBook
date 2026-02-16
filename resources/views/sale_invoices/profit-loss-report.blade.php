@@ -478,10 +478,10 @@
                         <tfoot>
                             <tr>
                                 <td colspan="4" class="text-right"><strong>Totals:</strong></td>
-                                <td class="text-right amount">-</td>
-                                <td class="text-right amount">{{ number_format($totalUnitCost, 2) }}</td>
+                                <td class="text-right amount">{{ number_format($totalQuantity, 0) }}</td>
+                                <td class="text-right amount" title="Average Unit Cost">{{ number_format($avgUnitCost, 2) }}</td>
                                 <td class="text-right amount">{{ number_format($totalCost, 2) }}</td>
-                                <td class="text-right amount">{{ number_format($totalSaleRate, 2) }}</td>
+                                <td class="text-right amount" title="Average Sale Rate">{{ number_format($avgSaleRate, 2) }}</td>
                                 <td class="text-right amount">{{ number_format($totalSales, 2) }}</td>
                                 <td class="text-right amount {{ $totalProfit >= 0 ? 'profit' : 'loss' }}">
                                     {{ number_format($totalProfit, 2) }}

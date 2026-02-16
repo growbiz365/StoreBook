@@ -535,6 +535,49 @@
             </div>
             @endif
 
+            @if(isset($diagnostics) && $diagnostics)
+            <div class="excluded-accounts-notice" style="background-color: #d1ecf1; border-color: #bee5eb;">
+                <h4 style="color: #0c5460;">
+                    <svg style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    Journal Entry Diagnostics
+                </h4>
+                
+                @if(isset($diagnostics['revenue']))
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #0c5460;">Revenue Account: {{ $diagnostics['revenue']['account_name'] }}</strong>
+                    <ul style="color: #0c5460;">
+                        <li>Total Entries: {{ $diagnostics['revenue']['total_entries'] }}</li>
+                        <li>Total Credits: Rs. {{ number_format($diagnostics['revenue']['total_credits'], 2) }}</li>
+                        <li>Total Debits: Rs. {{ number_format($diagnostics['revenue']['total_debits'], 2) }}</li>
+                        <li>Net Balance: Rs. {{ number_format($diagnostics['revenue']['net_balance'], 2) }}</li>
+                        <li>Normal Entries: {{ $diagnostics['revenue']['entries_by_type']['normal'] }}</li>
+                        <li>Reversal Entries: {{ $diagnostics['revenue']['entries_by_type']['reversals'] }}</li>
+                    </ul>
+                </div>
+                @endif
+                
+                @if(isset($diagnostics['cogs']))
+                <div>
+                    <strong style="color: #0c5460;">COGS Account: {{ $diagnostics['cogs']['account_name'] }}</strong>
+                    <ul style="color: #0c5460;">
+                        <li>Total Entries: {{ $diagnostics['cogs']['total_entries'] }}</li>
+                        <li>Total Debits: Rs. {{ number_format($diagnostics['cogs']['total_debits'], 2) }}</li>
+                        <li>Total Credits: Rs. {{ number_format($diagnostics['cogs']['total_credits'], 2) }}</li>
+                        <li>Net Balance: Rs. {{ number_format($diagnostics['cogs']['net_balance'], 2) }}</li>
+                        <li>Normal Entries: {{ $diagnostics['cogs']['entries_by_type']['normal'] }}</li>
+                        <li>Reversal Entries: {{ $diagnostics['cogs']['entries_by_type']['reversals'] }}</li>
+                    </ul>
+                </div>
+                @endif
+                
+                <p style="color: #0c5460; margin-top: 15px; font-size: 11px;">
+                    To view diagnostics, add <code>?debug=1</code> to the URL.
+                </p>
+            </div>
+            @endif
+
             <div class="filters">
                 <form action="{{ route('profit-loss.index') }}" method="GET" class="filter-form">
                     <div class="filter-inputs">
@@ -572,19 +615,38 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Operating Income Total -->
+                    <!-- Operating Income Section -->
                     <tr>
+                        <td class="account-name level-1"><strong>Operating Income</strong></td>
+                        <td></td>
+                    </tr>
+                    
+                    @foreach($profitLossData['revenue'] as $account)
+                    <tr>
+                        <td class="account-name level-4">{{ $account['name'] }}</td>
+                        <td>{{ number_format($account['balance'], 2) }}</td>
+                    </tr>
+                    @endforeach
+                    
+                    <tr class="total-row">
                         <td class="account-name">Total for Operating Income</td>
                         <td>{{ number_format($profitLossData['totals']['revenue'], 2) }}</td>
                     </tr>
 
-                    <!-- Cost of Goods Sold -->
+                    <!-- Cost of Goods Sold Section -->
                     <tr>
                         <td class="account-name level-1"><strong>Cost of Goods Sold</strong></td>
                         <td></td>
                     </tr>
                     
+                    @foreach($profitLossData['cost_of_goods_sold'] as $account)
                     <tr>
+                        <td class="account-name level-4">{{ $account['name'] }}</td>
+                        <td>{{ number_format($account['balance'], 2) }}</td>
+                    </tr>
+                    @endforeach
+                    
+                    <tr class="total-row">
                         <td class="account-name">Total for Cost of Goods Sold</td>
                         <td>{{ number_format($profitLossData['totals']['cost_of_goods_sold'], 2) }}</td>
                     </tr>
@@ -595,13 +657,20 @@
                         <td>{{ number_format($profitLossData['totals']['gross_profit'], 2) }}</td>
                     </tr>
 
-                    <!-- Operating Expenses -->
+                    <!-- Operating Expenses Section -->
                     <tr>
                         <td class="account-name level-1"><strong>Operating Expense</strong></td>
                         <td></td>
                     </tr>
                     
+                    @foreach($profitLossData['operating_expenses'] as $account)
                     <tr>
+                        <td class="account-name level-4">{{ $account['name'] }}</td>
+                        <td>{{ number_format($account['balance'], 2) }}</td>
+                    </tr>
+                    @endforeach
+                    
+                    <tr class="total-row">
                         <td class="account-name">Total for Operating Expense</td>
                         <td>{{ number_format($profitLossData['totals']['operating_expenses'], 2) }}</td>
                     </tr>
@@ -612,27 +681,45 @@
                         <td>{{ number_format($profitLossData['totals']['operating_profit'], 2) }}</td>
                     </tr>
 
-                    <!-- Non Operating Income -->
+                    <!-- Non Operating Income Section -->
+                    @if(count($profitLossData['other_income']) > 0 || $profitLossData['totals']['other_income'] > 0)
                     <tr>
                         <td class="account-name level-1"><strong>Non Operating Income</strong></td>
                         <td></td>
                     </tr>
                     
+                    @foreach($profitLossData['other_income'] as $account)
                     <tr>
+                        <td class="account-name level-4">{{ $account['name'] }}</td>
+                        <td>{{ number_format($account['balance'], 2) }}</td>
+                    </tr>
+                    @endforeach
+                    
+                    <tr class="total-row">
                         <td class="account-name">Total for Non Operating Income</td>
                         <td>{{ number_format($profitLossData['totals']['other_income'], 2) }}</td>
                     </tr>
+                    @endif
 
-                    <!-- Non Operating Expenses -->
+                    <!-- Non Operating Expenses Section -->
+                    @if(count($profitLossData['other_expenses']) > 0 || $profitLossData['totals']['other_expenses'] > 0)
                     <tr>
                         <td class="account-name level-1"><strong>Non Operating Expense</strong></td>
                         <td></td>
                     </tr>
                     
+                    @foreach($profitLossData['other_expenses'] as $account)
                     <tr>
+                        <td class="account-name level-4">{{ $account['name'] }}</td>
+                        <td>{{ number_format($account['balance'], 2) }}</td>
+                    </tr>
+                    @endforeach
+                    
+                    <tr class="total-row">
                         <td class="account-name">Total for Non Operating Expense</td>
                         <td>{{ number_format($profitLossData['totals']['other_expenses'], 2) }}</td>
                     </tr>
+                    @endif
 
                     <!-- Net Profit/Loss -->
                     <tr class="net-profit-row {{ $profitLossData['totals']['net_profit'] < 0 ? 'negative' : '' }}">

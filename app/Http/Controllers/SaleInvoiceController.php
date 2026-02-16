@@ -157,14 +157,10 @@ class SaleInvoiceController extends Controller
             $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
         }
 
-        // Arms data loading disabled - StoreBook is items-only
-        // $arms = Arm::where('business_id', $businessId)
-        //     ->where('status', 'available')
-        //     ->orderBy('serial_no')
-        //     ->get();
-
-        // Empty collection for arms data to prevent errors in views
-        $arms = collect();
+        $arms = Arm::where('business_id', $businessId)
+            ->where('status', 'available')
+            ->orderBy('serial_no')
+            ->get();
 
         return view('sale_invoices.create', compact('customers', 'banks', 'generalItems', 'arms'));
     }
@@ -2019,13 +2015,13 @@ class SaleInvoiceController extends Controller
         $totalSales = 0;
         $totalCost = 0;
         $totalProfit = 0;
-        $totalUnitCost = 0;
-        $totalSaleRate = 0;
+        $totalQuantity = 0;
         
         foreach ($saleInvoices as $invoice) {
             // Process general items
             foreach ($invoice->generalLines as $line) {
-                // Get cost from stock ledger entries
+                // Calculate cost based on CURRENT stock ledger entries
+                // Get the net quantity and cost from stock ledger for this invoice
                 $stockEntries = GeneralItemStockLedger::where('general_item_id', $line->general_item_id)
                     ->where('reference_no', $invoice->invoice_number)
                     ->where('transaction_type', 'sale')
@@ -2039,18 +2035,32 @@ class SaleInvoiceController extends Controller
                     ->where('quantity', '>', 0)
                     ->get();
                 
-                // Calculate total cost
-                $lineTotalCost = 0;
-                foreach ($stockEntries as $entry) {
-                    $lineTotalCost += abs($entry->total_cost);
-                }
-                foreach ($reversalEntries as $reversal) {
-                    $lineTotalCost -= $reversal->total_cost;
-                }
-                $lineTotalCost = max(0, $lineTotalCost);
+                // Calculate NET quantity and cost from ledger
+                $netQuantitySold = 0;
+                $netTotalCost = 0;
                 
-                // Calculate unit cost
-                $unitCost = $line->quantity > 0 ? ($lineTotalCost / $line->quantity) : 0;
+                // Sum up sale entries (negative quantities)
+                foreach ($stockEntries as $entry) {
+                    $netQuantitySold += abs($entry->quantity); // Convert to positive
+                    $netTotalCost += abs($entry->total_cost);
+                }
+                
+                // Subtract reversal entries (they restore inventory)
+                foreach ($reversalEntries as $reversal) {
+                    $netQuantitySold -= $reversal->quantity;
+                    $netTotalCost -= $reversal->total_cost;
+                }
+                
+                // Ensure values are non-negative
+                $netQuantitySold = max(0, $netQuantitySold);
+                $netTotalCost = max(0, $netTotalCost);
+                
+                // Calculate unit cost based on NET values from ledger
+                $unitCost = $netQuantitySold > 0 ? ($netTotalCost / $netQuantitySold) : 0;
+                
+                // Calculate total cost based on CURRENT line quantity and unit cost
+                // This ensures consistency: quantity × unit_cost = total_cost
+                $lineTotalCost = $line->quantity * $unitCost;
                 
                 // Calculate sales
                 $totalSalesAmount = $line->quantity * $line->sale_price;
@@ -2075,8 +2085,7 @@ class SaleInvoiceController extends Controller
                 $totalSales += $totalSalesAmount;
                 $totalCost += $lineTotalCost;
                 $totalProfit += $profitLoss;
-                $totalUnitCost += $unitCost;
-                $totalSaleRate += $line->sale_price;
+                $totalQuantity += $line->quantity;
             }
             
             // Process arms
@@ -2108,10 +2117,13 @@ class SaleInvoiceController extends Controller
                 $totalSales += $totalSalesAmount;
                 $totalCost += $totalCostAmount;
                 $totalProfit += $profitLoss;
-                $totalUnitCost += $unitCost;
-                $totalSaleRate += $line->sale_price;
+                $totalQuantity += 1; // Arms are always quantity 1
             }
         }
+        
+        // Calculate weighted averages for display
+        $avgUnitCost = $totalQuantity > 0 ? ($totalCost / $totalQuantity) : 0;
+        $avgSaleRate = $totalQuantity > 0 ? ($totalSales / $totalQuantity) : 0;
         
         // Get business info
         $business = \App\Models\Business::find($businessId);
@@ -2121,8 +2133,9 @@ class SaleInvoiceController extends Controller
             'totalSales',
             'totalCost',
             'totalProfit',
-            'totalUnitCost',
-            'totalSaleRate',
+            'totalQuantity',
+            'avgUnitCost',
+            'avgSaleRate',
             'business',
             'invoiceNumber',
             'fromDate',
