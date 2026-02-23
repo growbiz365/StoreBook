@@ -5,20 +5,20 @@
     <div class="fixed inset-0 -z-10 bg-gradient-to-br from-purple-50/30 via-white to-teal-50/20 pointer-events-none"></div>
     
     <!-- Header Section - Enhanced Glass Morphism -->
-    <div class="relative backdrop-blur-xl bg-white/70 rounded-2xl shadow-xl shadow-purple-500/5 border border-white/60 p-6 lg:p-8 mb-8 mt-4 overflow-hidden group">
+    <div class="relative backdrop-blur-xl bg-white/70 rounded-2xl shadow-xl shadow-purple-500/5 border border-white/60 p-4 lg:p-5 mb-4 mt-2 overflow-hidden group">
         <!-- Animated Background Orbs -->
         <div class="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-purple-400/20 to-teal-400/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
         <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-gradient-to-tr from-purple-400/15 to-indigo-400/15 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-700"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-teal-300/10 to-purple-300/10 rounded-full blur-2xl"></div>
 
-        <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <!-- Left Section - Welcome Content -->
-            <div class="flex items-start lg:items-center gap-4 lg:gap-5 flex-1">
+            <div class="flex items-start lg:items-center gap-3 lg:gap-4 flex-1">
                 <!-- Premium Icon with Glow -->
                 <div class="relative flex-shrink-0">
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-                    <div class="relative bg-gradient-to-br from-purple-600 via-purple-700 to-teal-600 p-3.5 lg:p-4 rounded-2xl shadow-xl transform group-hover:scale-105 transition-all duration-300">
-                        <svg class="h-6 w-6 lg:h-7 lg:w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="relative bg-gradient-to-br from-purple-600 via-purple-700 to-teal-600 p-2.5 lg:p-3 rounded-2xl shadow-xl transform group-hover:scale-105 transition-all duration-300">
+                        <svg class="h-5 w-5 lg:h-6 lg:w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                     </div>
@@ -26,10 +26,10 @@
                 
                 <!-- Welcome Text -->
                 <div class="flex-1 min-w-0">
-                    <h1 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-teal-800 bg-clip-text text-transparent mb-2 leading-tight">
+                    <h1 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-teal-800 bg-clip-text text-transparent mb-1 leading-tight">
                         Welcome back, <span class="bg-gradient-to-r from-purple-700 to-teal-700 bg-clip-text text-transparent">{{ Auth::user()->name }}</span>!
                     </h1>
-                    <p class="text-sm lg:text-base text-gray-600 mb-3">Here's what's happening with your business today</p>
+                    <p class="text-xs lg:text-sm text-gray-600 mb-1.5">Here's what's happening with your business today</p>
                     
                     <!-- System Status -->
                     <div class="flex items-center gap-2.5">
@@ -43,31 +43,31 @@
             </div>
 
             <!-- Right Section - Premium Time Display -->
-            <div class="flex items-center gap-4 lg:gap-5 flex-shrink-0">
+            <div class="flex items-center gap-3 lg:gap-4 flex-shrink-0">
                 <!-- Date Display -->
-                <div class="text-right space-y-1 hidden sm:block">
-                    <div class="text-sm lg:text-base font-bold text-gray-900" id="current-day">{{ now()->setTimezone($businessTimezone ?? 'Asia/Karachi')->format('l') }}</div>
-                    <div class="text-xs lg:text-sm text-gray-500 font-medium" id="current-date">{{ now()->setTimezone($businessTimezone ?? 'Asia/Karachi')->format('M d, Y') }}</div>
+                <div class="text-right space-y-0.5 hidden sm:block">
+                    <div class="text-xs lg:text-sm font-bold text-gray-900" id="current-day">{{ now()->setTimezone($businessTimezone ?? 'Asia/Karachi')->format('l') }}</div>
+                    <div class="text-xs text-gray-500 font-medium" id="current-date">{{ now()->setTimezone($businessTimezone ?? 'Asia/Karachi')->format('M d, Y') }}</div>
                 </div>
                 
                 <!-- Separator -->
-                <div class="hidden sm:block h-12 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent"></div>
+                <div class="hidden sm:block h-8 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent"></div>
                 
                 <!-- Enhanced Watch Display -->
-                <div class="relative backdrop-blur-sm bg-gradient-to-br from-white/90 via-purple-50/90 to-teal-50/90 rounded-2xl px-4 py-3 lg:px-5 lg:py-3.5 border border-white/60 shadow-xl hover:shadow-2xl transition-all duration-300 group/time overflow-hidden">
+                <div class="relative backdrop-blur-sm bg-gradient-to-br from-white/90 via-purple-50/90 to-teal-50/90 rounded-xl px-3 py-2 lg:px-4 lg:py-2.5 border border-white/60 shadow-xl hover:shadow-2xl transition-all duration-300 group/time overflow-hidden">
                     <!-- Animated Background Glow -->
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-teal-500/20 to-purple-500/20 opacity-0 group-hover/time:opacity-100 transition-opacity duration-500"></div>
                     <div class="absolute -top-10 -right-10 w-24 h-24 bg-purple-400/30 rounded-full blur-2xl group-hover/time:scale-150 transition-transform duration-700"></div>
                     <div class="absolute -bottom-10 -left-10 w-20 h-20 bg-teal-400/30 rounded-full blur-2xl group-hover/time:scale-150 transition-transform duration-700"></div>
                     
-                    <div class="relative flex items-center gap-3 lg:gap-4">
+                    <div class="relative flex items-center gap-2.5 lg:gap-3">
                         <!-- Watch Face -->
                         <div class="relative flex-shrink-0">
                             <!-- Outer Glow Ring -->
                             <div class="absolute inset-0 bg-gradient-to-br from-purple-600 via-purple-700 to-teal-600 rounded-full blur-md opacity-50 group-hover/time:opacity-70 transition-opacity duration-300"></div>
                             
                             <!-- Watch Case -->
-                            <div class="relative w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-slate-800 via-gray-800 to-slate-900 rounded-full p-0.5 shadow-2xl ring-1 ring-white/30">
+                            <div class="relative w-9 h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-slate-800 via-gray-800 to-slate-900 rounded-full p-0.5 shadow-2xl ring-1 ring-white/30">
                                 <!-- Inner Bezel -->
                                 <div class="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800 rounded-full p-1 relative overflow-hidden">
                                     <!-- Watch Face Background -->
@@ -117,9 +117,9 @@
                         </div>
                         
                         <!-- Digital Time Display -->
-                        <div class="flex flex-col gap-0.5">
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="text-base lg:text-lg font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-teal-800 bg-clip-text text-transparent" id="current-time">{{ now()->setTimezone($businessTimezone ?? 'Asia/Karachi')->format('g:i A') }}</span>
+                        <div class="flex flex-col gap-0">
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-sm lg:text-base font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-teal-800 bg-clip-text text-transparent" id="current-time">{{ now()->setTimezone($businessTimezone ?? 'Asia/Karachi')->format('g:i A') }}</span>
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <div class="w-1.5 h-1.5 bg-gradient-to-br from-purple-500 to-teal-500 rounded-full animate-pulse"></div>
@@ -137,9 +137,9 @@
 
 
     <!-- Key Statistics Cards - Enhanced Design -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <!-- Total Sales Card -->
-        <div class="relative bg-gradient-to-br from-emerald-50 via-emerald-50 to-emerald-100 rounded-xl shadow-sm border border-emerald-100 p-6 overflow-hidden group hover:shadow-lg transition-all duration-300">
+        <div class="relative bg-gradient-to-br from-emerald-50 via-emerald-50 to-emerald-100 rounded-xl shadow-sm border border-emerald-100 p-4 overflow-hidden group hover:shadow-lg transition-all duration-300">
             <!-- Decorative elements -->
             <div class="absolute top-0 right-0 w-24 h-24 opacity-10">
                 <svg viewBox="0 0 100 100" class="w-full h-full">
@@ -152,23 +152,23 @@
 
             <div class="relative flex items-start">
                 <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
                 </div>
-                <div class="ml-4 flex-1">
+                <div class="ml-3 flex-1">
                     <div class="flex items-center justify-between">
-                        <p class="text-sm font-semibold text-emerald-700 uppercase tracking-wide">Total Sales</p>
+                        <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Total Sales</p>
                         <div class="flex items-center space-x-1">
                             <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
                             <div class="w-1 h-1 bg-emerald-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-2xl font-bold text-emerald-900 mt-1">{{ number_format($stats['total_sales'] ?? 0) }}</p>
-                    <div class="flex items-center mt-3">
-                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-emerald-100 text-emerald-700">
+                    <p class="text-xl font-bold text-emerald-900 mt-0.5">{{ number_format($stats['total_sales'] ?? 0) }}</p>
+                    <div class="flex items-center mt-2">
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
                             {{ $todayStats['today_sales'] ?? 0 }} today • {{ $statusDistributions['sales']['posted'] ?? 0 }} posted
                         </span>
                     </div>
@@ -177,7 +177,7 @@
         </div>
 
         <!-- Total Purchases Card -->
-        <div class="relative bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-100 p-6 overflow-hidden group hover:shadow-lg transition-all duration-300">
+        <div class="relative bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-100 p-4 overflow-hidden group hover:shadow-lg transition-all duration-300">
             <!-- Decorative elements -->
             <div class="absolute top-0 right-0 w-24 h-24 opacity-10">
                 <svg viewBox="0 0 100 100" class="w-full h-full">
@@ -190,23 +190,23 @@
 
             <div class="relative flex items-start">
                 <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
                     </div>
                 </div>
-                <div class="ml-4 flex-1">
+                <div class="ml-3 flex-1">
                     <div class="flex items-center justify-between">
-                        <p class="text-sm font-semibold text-blue-700 uppercase tracking-wide">Total Purchases</p>
+                        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide">Total Purchases</p>
                         <div class="flex items-center space-x-1">
                             <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
                             <div class="w-1 h-1 bg-blue-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-2xl font-bold text-blue-900 mt-1">{{ number_format($stats['total_purchases'] ?? 0) }}</p>
-                    <div class="flex items-center mt-3">
-                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700">
+                    <p class="text-xl font-bold text-blue-900 mt-0.5">{{ number_format($stats['total_purchases'] ?? 0) }}</p>
+                    <div class="flex items-center mt-2">
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
                             {{ $todayStats['today_purchases'] ?? 0 }} today • {{ $statusDistributions['purchases']['posted'] ?? 0 }} posted
                         </span>
                     </div>
@@ -215,7 +215,7 @@
         </div>
 
         <!-- Current Stock Card -->
-        <div class="relative bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-100 p-6 overflow-hidden group hover:shadow-lg transition-all duration-300">
+        <div class="relative bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-100 p-4 overflow-hidden group hover:shadow-lg transition-all duration-300">
             <!-- Decorative elements -->
             <div class="absolute top-0 right-0 w-24 h-24 opacity-10">
                 <svg viewBox="0 0 100 100" class="w-full h-full">
@@ -228,23 +228,23 @@
 
             <div class="relative flex items-start">
                 <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
                     </div>
                 </div>
-                <div class="ml-4 flex-1">
+                <div class="ml-3 flex-1">
                     <div class="flex items-center justify-between">
-                        <p class="text-sm font-semibold text-purple-700 uppercase tracking-wide">Current Stock</p>
+                        <p class="text-xs font-semibold text-purple-700 uppercase tracking-wide">Current Stock</p>
                         <div class="flex items-center space-x-1">
                             <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
                             <div class="w-1 h-1 bg-purple-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-2xl font-bold text-purple-900 mt-1">{{ number_format($inventoryStats['general_items_stock'] ?? 0) }}</p>
-                    <div class="flex items-center mt-3">
-                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-700">
+                    <p class="text-xl font-bold text-purple-900 mt-0.5">{{ number_format($inventoryStats['general_items_stock'] ?? 0) }}</p>
+                    <div class="flex items-center mt-2">
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">
                             {{ $stats['total_general_items'] ?? 0 }} items
                         </span>
                     </div>
@@ -253,7 +253,7 @@
         </div>
 
         <!-- Sales Revenue Card -->
-        <div class="relative bg-gradient-to-br from-teal-50 via-teal-50 to-teal-100 rounded-xl shadow-sm border border-teal-100 p-6 overflow-hidden group hover:shadow-lg transition-all duration-300">
+        <div class="relative bg-gradient-to-br from-teal-50 via-teal-50 to-teal-100 rounded-xl shadow-sm border border-teal-100 p-4 overflow-hidden group hover:shadow-lg transition-all duration-300">
             <!-- Decorative elements -->
             <div class="absolute top-0 right-0 w-24 h-24 opacity-10">
                 <svg viewBox="0 0 100 100" class="w-full h-full">
@@ -266,23 +266,23 @@
 
             <div class="relative flex items-start">
                 <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                         </svg>
                     </div>
                 </div>
-                <div class="ml-4 flex-1">
+                <div class="ml-3 flex-1">
                     <div class="flex items-center justify-between">
-                        <p class="text-sm font-semibold text-teal-700 uppercase tracking-wide">Sales Revenue</p>
+                        <p class="text-xs font-semibold text-teal-700 uppercase tracking-wide">Sales Revenue</p>
                         <div class="flex items-center space-x-1">
                             <div class="w-2 h-2 bg-teal-400 rounded-full"></div>
                             <div class="w-1 h-1 bg-teal-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-2xl font-bold text-teal-900 mt-1">PKR {{ number_format($financialStats['total_sales_revenue'] ?? 0, 0) }}</p>
-                    <div class="flex items-center mt-3">
-                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-teal-100 text-teal-700">
+                    <p class="text-xl font-bold text-teal-900 mt-0.5">PKR {{ number_format($financialStats['total_sales_revenue'] ?? 0, 0) }}</p>
+                    <div class="flex items-center mt-2">
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-700">
                             PKR {{ number_format($todayStats['today_sales_amount'] ?? 0, 0) }} today
                         </span>
                     </div>
@@ -292,32 +292,32 @@
     </div>
 
     <!-- Quick Actions Section -->
-    <div class="relative backdrop-blur-xl bg-white/70 rounded-2xl shadow-xl shadow-purple-500/5 border border-white/60 p-6 lg:p-8 mb-8 overflow-hidden group">
+    <div class="relative backdrop-blur-xl bg-white/70 rounded-2xl shadow-xl shadow-purple-500/5 border border-white/60 p-4 lg:p-5 mb-4 overflow-hidden group">
         <!-- Animated Background Orbs -->
         <div class="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-purple-400/10 to-teal-400/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
         <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-400/10 to-indigo-400/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
         
         <!-- Section Header -->
-        <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
             <div class="flex-1">
-                <div class="flex items-center gap-3 mb-2">
+                <div class="flex items-center gap-2.5 mb-1">
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-teal-600 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-purple-600 to-teal-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-purple-600 to-teal-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h2 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-teal-800 bg-clip-text text-transparent">
+                        <h2 class="text-lg lg:text-xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-teal-800 bg-clip-text text-transparent">
                             Quick Actions
                         </h2>
-                        <p class="text-sm text-gray-600 mt-0.5">Access your most frequently used features</p>
+                        <p class="text-xs text-gray-600 mt-0">Access your most frequently used features</p>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 px-4 py-2 backdrop-blur-sm bg-gradient-to-r from-emerald-50/80 to-teal-50/80 rounded-xl border border-emerald-200/50 shadow-sm">
+            <div class="flex items-center space-x-2 px-3 py-1.5 backdrop-blur-sm bg-gradient-to-r from-emerald-50/80 to-teal-50/80 rounded-lg border border-emerald-200/50 shadow-sm">
                 <div class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -327,24 +327,24 @@
         </div>
         
         <!-- Quick Actions Grid -->
-        <div class="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
+        <div class="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-3">
             @can('create sales')
             <a href="{{ route('sale-invoices.create') }}"
-                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-4 lg:p-5 hover:shadow-xl hover:shadow-emerald-500/20 hover:-translate-y-1 hover:scale-105 transition-all duration-300 overflow-hidden">
+                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-emerald-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-green-500/0 group-hover:from-emerald-500/10 group-hover:to-green-500/5 transition-all duration-300 rounded-xl"></div>
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-emerald-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative flex flex-col items-center text-center space-y-3">
+                <div class="relative flex flex-col items-center text-center space-y-2">
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-                        <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <span class="text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition-colors duration-200 block">New Sale</span>
-                        <span class="text-xs text-gray-500 mt-0.5 block">Create invoice</span>
+                        <span class="text-xs font-bold text-gray-900 group-hover:text-emerald-700 transition-colors duration-200 block">New Sale</span>
+                        <span class="text-xs text-gray-500 mt-0 block">Create invoice</span>
                     </div>
                 </div>
             </a>
@@ -352,63 +352,63 @@
 
             @can('create sales')
             <a href="{{ route('approvals.create') }}"
-                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-4 lg:p-5 hover:shadow-xl hover:shadow-teal-500/20 hover:-translate-y-1 hover:scale-105 transition-all duration-300 overflow-hidden">
+                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-teal-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-teal-500/0 to-cyan-500/0 group-hover:from-teal-500/10 group-hover:to-cyan-500/5 transition-all duration-300 rounded-xl"></div>
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-teal-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative flex flex-col items-center text-center space-y-3">
+                <div class="relative flex flex-col items-center text-center space-y-2">
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-                        <div class="relative w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <span class="text-sm font-bold text-gray-900 group-hover:text-teal-700 transition-colors duration-200 block">New Approval</span>
-                        <span class="text-xs text-gray-500 mt-0.5 block">Give on approval</span>
+                        <span class="text-xs font-bold text-gray-900 group-hover:text-teal-700 transition-colors duration-200 block">New Approval</span>
+                        <span class="text-xs text-gray-500 mt-0 block">Give on approval</span>
                     </div>
                 </div>
             </a>
             @endcan
             
             <a href="{{ route('approvals.index') }}"
-                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-4 lg:p-5 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-1 hover:scale-105 transition-all duration-300 overflow-hidden">
+                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:to-indigo-500/5 transition-all duration-300 rounded-xl"></div>
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-blue-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative flex flex-col items-center text-center space-y-3">
+                <div class="relative flex flex-col items-center text-center space-y-2">
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-                        <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <span class="text-sm font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-200 block">Approvals</span>
-                        <span class="text-xs text-gray-500 mt-0.5 block">View pending</span>
+                        <span class="text-xs font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-200 block">Approvals</span>
+                        <span class="text-xs text-gray-500 mt-0 block">View pending</span>
                     </div>
                 </div>
             </a>
 
             @can('create purchases')
             <a href="{{ route('purchases.create') }}"
-                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-4 lg:p-5 hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-1 hover:scale-105 transition-all duration-300 overflow-hidden">
+                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-indigo-500/0 group-hover:from-purple-500/10 group-hover:to-indigo-500/5 transition-all duration-300 rounded-xl"></div>
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-purple-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative flex flex-col items-center text-center space-y-3">
+                <div class="relative flex flex-col items-center text-center space-y-2">
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-                        <div class="relative w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <span class="text-sm font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-200 block">New Purchase</span>
-                        <span class="text-xs text-gray-500 mt-0.5 block">Place order</span>
+                        <span class="text-xs font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-200 block">New Purchase</span>
+                        <span class="text-xs text-gray-500 mt-0 block">Place order</span>
                     </div>
                 </div>
             </a>
@@ -416,21 +416,21 @@
 
             @can('view parties')
             <a href="{{ route('parties.index') }}"
-                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-4 lg:p-5 hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-1 hover:scale-105 transition-all duration-300 overflow-hidden">
+                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/5 transition-all duration-300 rounded-xl"></div>
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-purple-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative flex flex-col items-center text-center space-y-3">
+                <div class="relative flex flex-col items-center text-center space-y-2">
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-                        <div class="relative w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <span class="text-sm font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-200 block">Parties</span>
-                        <span class="text-xs text-gray-500 mt-0.5 block">All contacts</span>
+                        <span class="text-xs font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-200 block">Parties</span>
+                        <span class="text-xs text-gray-500 mt-0 block">All contacts</span>
                     </div>
                 </div>
             </a>
@@ -439,53 +439,53 @@
     </div>
 
     <!-- Status Distribution Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <!-- Sales Status Chart -->
-        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-emerald-500/5 border border-white/60 p-6 lg:p-8 overflow-hidden group">
+        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-emerald-500/5 border border-white/60 p-4 lg:p-5 overflow-hidden group">
             <div class="absolute -top-16 -right-16 w-40 h-40 bg-gradient-to-br from-emerald-400/15 to-green-400/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             
             <!-- Section Header -->
-            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-                <div class="flex items-center gap-3">
+            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                <div class="flex items-center gap-2.5">
                     <div class="relative">
                         <div class="absolute inset-0 bg-emerald-500 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-emerald-500 to-green-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg lg:text-xl font-bold text-gray-900">Sales Status</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">Current status distribution</p>
+                        <h3 class="text-base lg:text-lg font-bold text-gray-900">Sales Status</h3>
+                        <p class="text-xs text-gray-500 mt-0">Current status distribution</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 to-emerald-900 bg-clip-text text-transparent">{{ $stats['total_sales'] ?? 0 }}</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Total</div>
+                    <div class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-900 to-emerald-900 bg-clip-text text-transparent">{{ $stats['total_sales'] ?? 0 }}</div>
+                    <div class="text-xs text-gray-500 mt-0">Total</div>
                 </div>
             </div>
             
-            <div class="relative space-y-3">
+            <div class="relative space-y-2">
                 <!-- Modern Segmented Status Pills -->
-                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-4 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-3">
+                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-3 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2.5">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-emerald-500 rounded-lg blur opacity-50"></div>
-                                <div class="relative w-9 h-9 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
+                                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div>
-                                <div class="text-sm font-semibold text-gray-900">Posted</div>
+                                <div class="text-xs font-semibold text-gray-900">Posted</div>
                                 <div class="text-xs text-gray-500">Finalized sales</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold text-emerald-600">{{ $statusDistributions['sales']['posted'] }}</div>
+                            <div class="text-lg font-bold text-emerald-600">{{ $statusDistributions['sales']['posted'] }}</div>
                             <div class="text-xs text-gray-500">invoices</div>
                         </div>
                     </div>
@@ -494,24 +494,24 @@
                     </div>
                 </div>
 
-                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-4 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-3">
+                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-3 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2.5">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-amber-500 rounded-lg blur opacity-50"></div>
-                                <div class="relative w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center shadow-md">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="relative w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center shadow-md">
+                                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div>
-                                <div class="text-sm font-semibold text-gray-900">Draft</div>
+                                <div class="text-xs font-semibold text-gray-900">Draft</div>
                                 <div class="text-xs text-gray-500">Pending completion</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold text-amber-600">{{ $statusDistributions['sales']['draft'] }}</div>
+                            <div class="text-lg font-bold text-amber-600">{{ $statusDistributions['sales']['draft'] }}</div>
                             <div class="text-xs text-gray-500">invoices</div>
                         </div>
                     </div>
@@ -520,24 +520,24 @@
                     </div>
                 </div>
 
-                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-4 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-3">
+                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-3 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2.5">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-red-500 rounded-lg blur opacity-50"></div>
-                                <div class="relative w-9 h-9 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center shadow-md">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="relative w-8 h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center shadow-md">
+                                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div>
-                                <div class="text-sm font-semibold text-gray-900">Cancelled</div>
+                                <div class="text-xs font-semibold text-gray-900">Cancelled</div>
                                 <div class="text-xs text-gray-500">Voided transactions</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold text-red-600">{{ $statusDistributions['sales']['cancelled'] }}</div>
+                            <div class="text-lg font-bold text-red-600">{{ $statusDistributions['sales']['cancelled'] }}</div>
                             <div class="text-xs text-gray-500">invoices</div>
                         </div>
                     </div>
@@ -549,50 +549,50 @@
         </div>
 
         <!-- Purchase Status Chart -->
-        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-blue-500/5 border border-white/60 p-6 lg:p-8 overflow-hidden group">
+        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-blue-500/5 border border-white/60 p-4 lg:p-5 overflow-hidden group">
             <div class="absolute -top-16 -right-16 w-40 h-40 bg-gradient-to-br from-blue-400/15 to-indigo-400/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             
             <!-- Section Header -->
-            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-                <div class="flex items-center gap-3">
+            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                <div class="flex items-center gap-2.5">
                     <div class="relative">
                         <div class="absolute inset-0 bg-blue-500 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg lg:text-xl font-bold text-gray-900">Purchase Status</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">Current status distribution</p>
+                        <h3 class="text-base lg:text-lg font-bold text-gray-900">Purchase Status</h3>
+                        <p class="text-xs text-gray-500 mt-0">Current status distribution</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">{{ $stats['total_purchases'] ?? 0 }}</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Total</div>
+                    <div class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">{{ $stats['total_purchases'] ?? 0 }}</div>
+                    <div class="text-xs text-gray-500 mt-0">Total</div>
                 </div>
             </div>
             
-            <div class="relative space-y-3">
-                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-4 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-3">
+            <div class="relative space-y-2">
+                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-3 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2.5">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-blue-500 rounded-lg blur opacity-50"></div>
-                                <div class="relative w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="relative w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div>
-                                <div class="text-sm font-semibold text-gray-900">Posted</div>
+                                <div class="text-xs font-semibold text-gray-900">Posted</div>
                                 <div class="text-xs text-gray-500">Finalized purchases</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold text-blue-600">{{ $statusDistributions['purchases']['posted'] }}</div>
+                            <div class="text-lg font-bold text-blue-600">{{ $statusDistributions['purchases']['posted'] }}</div>
                             <div class="text-xs text-gray-500">orders</div>
                         </div>
                     </div>
@@ -601,24 +601,24 @@
                     </div>
                 </div>
 
-                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-4 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-3">
+                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-3 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2.5">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-amber-500 rounded-lg blur opacity-50"></div>
-                                <div class="relative w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center shadow-md">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="relative w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center shadow-md">
+                                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div>
-                                <div class="text-sm font-semibold text-gray-900">Draft</div>
+                                <div class="text-xs font-semibold text-gray-900">Draft</div>
                                 <div class="text-xs text-gray-500">Pending completion</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold text-amber-600">{{ $statusDistributions['purchases']['draft'] }}</div>
+                            <div class="text-lg font-bold text-amber-600">{{ $statusDistributions['purchases']['draft'] }}</div>
                             <div class="text-xs text-gray-500">orders</div>
                         </div>
                     </div>
@@ -627,24 +627,24 @@
                     </div>
                 </div>
 
-                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-4 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-3">
+                <div class="backdrop-blur-sm bg-gradient-to-r from-white/90 to-white/70 rounded-lg p-3 border border-white/60 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2.5">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-red-500 rounded-lg blur opacity-50"></div>
-                                <div class="relative w-9 h-9 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center shadow-md">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="relative w-8 h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center shadow-md">
+                                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                 </div>
                             </div>
                             <div>
-                                <div class="text-sm font-semibold text-gray-900">Cancelled</div>
+                                <div class="text-xs font-semibold text-gray-900">Cancelled</div>
                                 <div class="text-xs text-gray-500">Voided transactions</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold text-red-600">{{ $statusDistributions['purchases']['cancelled'] }}</div>
+                            <div class="text-lg font-bold text-red-600">{{ $statusDistributions['purchases']['cancelled'] }}</div>
                             <div class="text-xs text-gray-500">orders</div>
                         </div>
                     </div>
@@ -657,28 +657,28 @@
     </div>
 
     <!-- Recent Activities Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <!-- Recent Sales Timeline -->
-        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-emerald-500/5 border border-white/60 p-6 lg:p-8 overflow-hidden group">
+        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-emerald-500/5 border border-white/60 p-4 lg:p-5 overflow-hidden group">
             <div class="absolute -top-16 -left-16 w-40 h-40 bg-gradient-to-br from-emerald-400/10 to-green-400/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             
             <!-- Section Header -->
-            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-                <div class="flex items-center gap-3">
+            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                <div class="flex items-center gap-2.5">
                     <div class="relative">
                         <div class="absolute inset-0 bg-emerald-500 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-emerald-500 to-green-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg lg:text-xl font-bold text-gray-900">Recent Sales</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">Latest sales activities</p>
+                        <h3 class="text-base lg:text-lg font-bold text-gray-900">Recent Sales</h3>
+                        <p class="text-xs text-gray-500 mt-0">Latest sales activities</p>
                     </div>
                 </div>
-                <a href="{{ route('sale-invoices.index') }}" class="group flex items-center space-x-2 px-4 py-2 backdrop-blur-sm bg-gradient-to-r from-emerald-50/80 to-green-50/80 hover:from-emerald-100/80 hover:to-green-100/80 rounded-xl border border-emerald-200/50 transition-all duration-300 hover:shadow-md">
+                <a href="{{ route('sale-invoices.index') }}" class="group flex items-center space-x-2 px-3 py-1.5 backdrop-blur-sm bg-gradient-to-r from-emerald-50/80 to-green-50/80 hover:from-emerald-100/80 hover:to-green-100/80 rounded-lg border border-emerald-200/50 transition-all duration-300 hover:shadow-md">
                     <span class="text-xs font-semibold text-emerald-700">View all</span>
                     <svg class="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -686,31 +686,31 @@
                 </a>
             </div>
             
-            <div class="relative space-y-3">
+            <div class="relative space-y-2">
                 @forelse($recentActivities['recent_sales'] as $index => $sale)
                 <div class="relative group/item">
                     <!-- Timeline connector -->
                     @if(!$loop->last)
-                    <div class="absolute left-5 top-12 bottom-0 w-0.5 bg-gradient-to-b from-emerald-200 to-transparent"></div>
+                    <div class="absolute left-4 top-10 bottom-0 w-0.5 bg-gradient-to-b from-emerald-200 to-transparent"></div>
                     @endif
                     
-                    <div class="relative flex items-start space-x-3 p-3.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="relative flex items-start space-x-2.5 p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                         <!-- Timeline dot with glow -->
                         <div class="relative flex-shrink-0">
                             <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg blur-md opacity-0 group-hover/item:opacity-60 transition-opacity duration-300"></div>
-                            <div class="relative w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center shadow-md group-hover/item:scale-110 group-hover/item:rotate-6 transition-all duration-300">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="relative w-9 h-9 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center shadow-md group-hover/item:scale-110 group-hover/item:rotate-6 transition-all duration-300">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                             </div>
                         </div>
                         
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-sm font-bold text-gray-900 group-hover/item:text-emerald-700 transition-colors duration-200">Sale #{{ $sale->invoice_number }}</span>
-                                <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $sale->created_at->diffForHumans() }}</span>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-gray-900 group-hover/item:text-emerald-700 transition-colors duration-200">Sale #{{ $sale->invoice_number }}</span>
+                                <span class="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">{{ $sale->created_at->diffForHumans() }}</span>
                             </div>
-                            <p class="text-sm text-gray-700 font-medium mb-2">{{ $sale->party->name ?? 'Cash Sale' }}</p>
+                            <p class="text-xs text-gray-700 font-medium mb-1">{{ $sale->party->name ?? 'Cash Sale' }}</p>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-1.5">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold shadow-sm {{ $sale->status === 'posted' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : ($sale->status === 'draft' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-red-100 text-red-700 border border-red-200') }}">
@@ -718,22 +718,22 @@
                                     </span>
                                     <span class="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">{{ ucfirst($sale->sale_type) }}</span>
                                 </div>
-                                <span class="text-sm font-bold text-gray-900">PKR {{ number_format($sale->total_amount) }}</span>
+                                <span class="text-xs font-bold text-gray-900">PKR {{ number_format($sale->total_amount) }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="text-center py-12">
-                    <div class="relative mx-auto mb-4 w-16 h-16">
+                <div class="text-center py-8">
+                    <div class="relative mx-auto mb-2 w-12 h-12">
                         <div class="absolute inset-0 bg-gray-200 rounded-full blur-xl opacity-50"></div>
-                        <div class="relative w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-lg">
-                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-sm font-bold text-gray-900 mb-1">No sales yet</h3>
+                    <h3 class="text-xs font-bold text-gray-900 mb-0.5">No sales yet</h3>
                     <p class="text-xs text-gray-500">Get started by creating your first sale.</p>
                 </div>
                 @endforelse
@@ -741,26 +741,26 @@
         </div>
 
         <!-- Recent Purchases Timeline -->
-        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-blue-500/5 border border-white/60 p-6 lg:p-8 overflow-hidden group">
+        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-blue-500/5 border border-white/60 p-4 lg:p-5 overflow-hidden group">
             <div class="absolute -top-16 -left-16 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-indigo-400/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             
             <!-- Section Header -->
-            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-                <div class="flex items-center gap-3">
+            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                <div class="flex items-center gap-2.5">
                     <div class="relative">
                         <div class="absolute inset-0 bg-blue-500 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg lg:text-xl font-bold text-gray-900">Recent Purchases</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">Latest purchase activities</p>
+                        <h3 class="text-base lg:text-lg font-bold text-gray-900">Recent Purchases</h3>
+                        <p class="text-xs text-gray-500 mt-0">Latest purchase activities</p>
                     </div>
                 </div>
-                <a href="{{ route('purchases.index') }}" class="group flex items-center space-x-2 px-4 py-2 backdrop-blur-sm bg-gradient-to-r from-blue-50/80 to-indigo-50/80 hover:from-blue-100/80 hover:to-indigo-100/80 rounded-xl border border-blue-200/50 transition-all duration-300 hover:shadow-md">
+                <a href="{{ route('purchases.index') }}" class="group flex items-center space-x-2 px-3 py-1.5 backdrop-blur-sm bg-gradient-to-r from-blue-50/80 to-indigo-50/80 hover:from-blue-100/80 hover:to-indigo-100/80 rounded-lg border border-blue-200/50 transition-all duration-300 hover:shadow-md">
                     <span class="text-xs font-semibold text-blue-700">View all</span>
                     <svg class="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -768,29 +768,29 @@
                 </a>
             </div>
             
-            <div class="relative space-y-3">
+            <div class="relative space-y-2">
                 @forelse($recentActivities['recent_purchases'] as $purchase)
                 <div class="relative group/item">
                     @if(!$loop->last)
-                    <div class="absolute left-5 top-12 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 to-transparent"></div>
+                    <div class="absolute left-4 top-10 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 to-transparent"></div>
                     @endif
                     
-                    <div class="relative flex items-start space-x-3 p-3.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="relative flex items-start space-x-2.5 p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                         <div class="relative flex-shrink-0">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg blur-md opacity-0 group-hover/item:opacity-60 transition-opacity duration-300"></div>
-                            <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md group-hover/item:scale-110 group-hover/item:rotate-6 transition-all duration-300">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="relative w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md group-hover/item:scale-110 group-hover/item:rotate-6 transition-all duration-300">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                                 </svg>
                             </div>
                         </div>
                         
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-sm font-bold text-gray-900 group-hover/item:text-blue-700 transition-colors duration-200">Purchase #{{ $purchase->invoice_number }}</span>
-                                <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $purchase->created_at->diffForHumans() }}</span>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-gray-900 group-hover/item:text-blue-700 transition-colors duration-200">Purchase #{{ $purchase->invoice_number }}</span>
+                                <span class="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">{{ $purchase->created_at->diffForHumans() }}</span>
                             </div>
-                            <p class="text-sm text-gray-700 font-medium mb-2">{{ $purchase->party->name ?? 'Cash Purchase' }}</p>
+                            <p class="text-xs text-gray-700 font-medium mb-1">{{ $purchase->party->name ?? 'Cash Purchase' }}</p>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-1.5">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold shadow-sm {{ $purchase->status === 'posted' ? 'bg-blue-100 text-blue-700 border border-blue-200' : ($purchase->status === 'draft' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-red-100 text-red-700 border border-red-200') }}">
@@ -798,22 +798,22 @@
                                     </span>
                                     <span class="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">{{ ucfirst($purchase->payment_type) }}</span>
                                 </div>
-                                <span class="text-sm font-bold text-gray-900">PKR {{ number_format($purchase->total_amount) }}</span>
+                                <span class="text-xs font-bold text-gray-900">PKR {{ number_format($purchase->total_amount) }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="text-center py-12">
-                    <div class="relative mx-auto mb-4 w-16 h-16">
+                <div class="text-center py-8">
+                    <div class="relative mx-auto mb-2 w-12 h-12">
                         <div class="absolute inset-0 bg-gray-200 rounded-full blur-xl opacity-50"></div>
-                        <div class="relative w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-lg">
-                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-sm font-bold text-gray-900 mb-1">No purchases yet</h3>
+                    <h3 class="text-xs font-bold text-gray-900 mb-0.5">No purchases yet</h3>
                     <p class="text-xs text-gray-500">Get started by creating your first purchase.</p>
                 </div>
                 @endforelse
@@ -827,63 +827,63 @@
 
 
     <!-- Inventory Alerts & Reports Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <!-- Low Stock Alerts -->
-        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-amber-500/5 border border-white/60 p-6 lg:p-8 overflow-hidden group">
+        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-amber-500/5 border border-white/60 p-4 lg:p-5 overflow-hidden group">
             <div class="absolute -top-16 -right-16 w-40 h-40 bg-gradient-to-br from-amber-400/10 to-orange-400/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             
             <!-- Section Header -->
-            <div class="relative mb-6">
-                <div class="flex items-center gap-3 mb-2">
+            <div class="relative mb-4">
+                <div class="flex items-center gap-2.5 mb-1">
                     <div class="relative">
                         <div class="absolute inset-0 bg-amber-500 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-amber-500 to-orange-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-amber-500 to-orange-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">Low Stock</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">Items needing restocking</p>
+                        <h3 class="text-base font-bold text-gray-900">Low Stock</h3>
+                        <p class="text-xs text-gray-500 mt-0">Items needing restocking</p>
                     </div>
                 </div>
             </div>
             
-            <div class="relative space-y-3">
+            <div class="relative space-y-2">
                 @if($inventoryStats['low_stock_items'] > 0)
-                    <div class="backdrop-blur-sm bg-gradient-to-r from-amber-50/90 to-orange-50/80 rounded-lg p-4 border border-amber-200/50 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div class="backdrop-blur-sm bg-gradient-to-r from-amber-50/90 to-orange-50/80 rounded-lg p-3 border border-amber-200/50 shadow-md hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2.5">
                                 <div class="relative">
                                     <div class="absolute inset-0 bg-amber-500 rounded-lg blur opacity-50"></div>
-                                    <div class="relative w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="relative w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                         </svg>
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="text-xl font-bold text-amber-700">{{ $inventoryStats['low_stock_items'] }}</div>
+                                    <div class="text-lg font-bold text-amber-700">{{ $inventoryStats['low_stock_items'] }}</div>
                                     <div class="text-xs text-gray-600 font-medium">Items below reorder level</div>
                                 </div>
                             </div>
-                            <a href="{{ route('general-items.index') }}" class="px-3 py-1.5 bg-white/80 hover:bg-white rounded-lg border border-amber-200 text-amber-700 hover:text-amber-800 font-semibold text-xs transition-all duration-300 hover:shadow-md">
+                            <a href="{{ route('general-items.index') }}" class="px-2.5 py-1 bg-white/80 hover:bg-white rounded-lg border border-amber-200 text-amber-700 hover:text-amber-800 font-semibold text-xs transition-all duration-300 hover:shadow-md">
                                 View
                             </a>
                         </div>
                     </div>
                 @else
-                    <div class="text-center py-8">
-                        <div class="relative mx-auto mb-3 w-14 h-14">
+                    <div class="text-center py-5">
+                        <div class="relative mx-auto mb-2 w-12 h-12">
                             <div class="absolute inset-0 bg-emerald-200 rounded-full blur-xl opacity-30"></div>
-                            <div class="relative w-14 h-14 bg-gradient-to-br from-emerald-100 to-green-200 rounded-full flex items-center justify-center shadow-lg">
-                                <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-200 rounded-full flex items-center justify-center shadow-lg">
+                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <h3 class="text-sm font-bold text-gray-900 mb-1">All items well stocked</h3>
+                        <h3 class="text-xs font-bold text-gray-900 mb-0.5">All items well stocked</h3>
                         <p class="text-xs text-gray-500">No low stock alerts</p>
                     </div>
                 @endif
@@ -891,40 +891,40 @@
         </div>
 
         <!-- Quick Reports -->
-        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-purple-500/5 border border-white/60 p-6 lg:p-8 overflow-hidden group">
+        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-purple-500/5 border border-white/60 p-4 lg:p-5 overflow-hidden group">
             <div class="absolute -top-16 -right-16 w-40 h-40 bg-gradient-to-br from-purple-400/10 to-indigo-400/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             
             <!-- Section Header -->
-            <div class="relative mb-6">
-                <div class="flex items-center gap-3 mb-2">
+            <div class="relative mb-4">
+                <div class="flex items-center gap-2.5 mb-1">
                     <div class="relative">
                         <div class="absolute inset-0 bg-purple-500 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-purple-600 to-indigo-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-purple-600 to-indigo-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">Quick Reports</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">Access important reports</p>
+                        <h3 class="text-base font-bold text-gray-900">Quick Reports</h3>
+                        <p class="text-xs text-gray-500 mt-0">Access important reports</p>
                     </div>
                 </div>
             </div>
             
-            <div class="relative space-y-2.5">
-                <a href="{{ route('banks.balances-report') }}" class="group/link flex items-center justify-between p-3 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                    <div class="flex items-center space-x-3">
+            <div class="relative space-y-2">
+                <a href="{{ route('banks.balances-report') }}" class="group/link flex items-center justify-between p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="flex items-center space-x-2.5">
                         <div class="relative">
                             <div class="absolute inset-0 bg-blue-500 rounded-lg blur opacity-0 group-hover/link:opacity-50 transition-opacity duration-300"></div>
-                            <div class="relative w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md group-hover/link:scale-110 transition-transform duration-300">
-                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="relative w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md group-hover/link:scale-110 transition-transform duration-300">
+                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                 </svg>
                             </div>
                         </div>
                         <div>
-                            <span class="text-sm font-semibold text-gray-900 group-hover/link:text-blue-700 transition-colors">Bank Balances</span>
+                            <span class="text-xs font-semibold text-gray-900 group-hover/link:text-blue-700 transition-colors">Bank Balances</span>
                             <div class="text-xs text-gray-500">Current accounts</div>
                         </div>
                     </div>
@@ -933,18 +933,18 @@
                     </svg>
                 </a>
 
-                <a href="{{ route('parties.balances-report') }}" class="group/link flex items-center justify-between p-3 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                    <div class="flex items-center space-x-3">
+                <a href="{{ route('parties.balances-report') }}" class="group/link flex items-center justify-between p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="flex items-center space-x-2.5">
                         <div class="relative">
                             <div class="absolute inset-0 bg-purple-500 rounded-lg blur opacity-0 group-hover/link:opacity-50 transition-opacity duration-300"></div>
-                            <div class="relative w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover/link:scale-110 transition-transform duration-300">
-                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="relative w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover/link:scale-110 transition-transform duration-300">
+                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
                             </div>
                         </div>
                         <div>
-                            <span class="text-sm font-semibold text-gray-900 group-hover/link:text-purple-700 transition-colors">Party Balances</span>
+                            <span class="text-xs font-semibold text-gray-900 group-hover/link:text-purple-700 transition-colors">Party Balances</span>
                             <div class="text-xs text-gray-500">Customer & supplier</div>
                         </div>
                     </div>
@@ -977,55 +977,55 @@
         </div>
 
         <!-- System Overview -->
-        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-slate-500/5 border border-white/60 p-6 lg:p-8 overflow-hidden group">
+        <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-slate-500/5 border border-white/60 p-4 lg:p-5 overflow-hidden group">
             <div class="absolute -top-16 -right-16 w-40 h-40 bg-gradient-to-br from-slate-400/10 to-gray-400/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             
             <!-- Section Header -->
-            <div class="relative mb-6">
-                <div class="flex items-center gap-3 mb-2">
+            <div class="relative mb-4">
+                <div class="flex items-center gap-2.5 mb-1">
                     <div class="relative">
                         <div class="absolute inset-0 bg-slate-500 rounded-xl blur-lg opacity-40"></div>
-                        <div class="relative bg-gradient-to-br from-slate-600 to-gray-600 p-2.5 rounded-xl shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="relative bg-gradient-to-br from-slate-600 to-gray-600 p-2 rounded-xl shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">System Overview</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">Key system metrics</p>
+                        <h3 class="text-base font-bold text-gray-900">System Overview</h3>
+                        <p class="text-xs text-gray-500 mt-0">Key system metrics</p>
                     </div>
                 </div>
             </div>
             
-            <div class="relative space-y-3">
-                <div class="flex items-center justify-between p-3 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
+            <div class="relative space-y-2">
+                <div class="flex items-center justify-between p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"></div>
-                        <span class="text-sm font-semibold text-gray-700">Total Returns</span>
+                        <span class="text-xs font-semibold text-gray-700">Total Returns</span>
                     </div>
-                    <span class="text-base font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">{{ $stats['total_sale_returns'] + $stats['total_purchase_returns'] }}</span>
+                    <span class="text-sm font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">{{ $stats['total_sale_returns'] + $stats['total_purchase_returns'] }}</span>
                 </div>
-                <div class="flex items-center justify-between p-3 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
-                        <span class="text-sm font-semibold text-gray-700">Journal Entries</span>
+                        <span class="text-xs font-semibold text-gray-700">Journal Entries</span>
                     </div>
-                    <span class="text-base font-bold bg-gradient-to-r from-gray-900 to-purple-900 bg-clip-text text-transparent">{{ number_format($stats['total_journal_entries']) }}</span>
+                    <span class="text-sm font-bold bg-gradient-to-r from-gray-900 to-purple-900 bg-clip-text text-transparent">{{ number_format($stats['total_journal_entries']) }}</span>
                 </div>
-                <div class="flex items-center justify-between p-3 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-                        <span class="text-sm font-semibold text-gray-700">Bank Accounts</span>
+                        <span class="text-xs font-semibold text-gray-700">Bank Accounts</span>
                     </div>
-                    <span class="text-base font-bold bg-gradient-to-r from-gray-900 to-emerald-900 bg-clip-text text-transparent">{{ $stats['total_banks'] }}</span>
+                    <span class="text-sm font-bold bg-gradient-to-r from-gray-900 to-emerald-900 bg-clip-text text-transparent">{{ $stats['total_banks'] }}</span>
                 </div>
-                <div class="flex items-center justify-between p-3 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between p-2.5 backdrop-blur-sm bg-white/90 rounded-lg border border-white/60 hover:shadow-md transition-all duration-300">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500"></div>
-                        <span class="text-sm font-semibold text-gray-700">Total Items</span>
+                        <span class="text-xs font-semibold text-gray-700">Total Items</span>
                     </div>
-                    <span class="text-base font-bold bg-gradient-to-r from-gray-900 to-orange-900 bg-clip-text text-transparent">{{ $stats['total_general_items']}}</span>
+                    <span class="text-sm font-bold bg-gradient-to-r from-gray-900 to-orange-900 bg-clip-text text-transparent">{{ $stats['total_general_items']}}</span>
                 </div>
             </div>
         </div>
