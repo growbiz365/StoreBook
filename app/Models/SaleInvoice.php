@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use App\Models\GeneralItemStockLedger;
+use App\Models\Arm;
 use App\Models\ArmsStockLedger;
 use App\Models\ArmHistory;
 use App\Models\JournalEntry;
@@ -251,13 +252,10 @@ class SaleInvoice extends Model
             $hasChanges = $this->hasMeaningfulChanges($newGeneralLines, $newArmLines, $invoiceData);
 
             if ($hasChanges) {
-                // Step 2: Store original values for comparison
-                $originalTotal = $this->total_amount;
-                $originalSaleType = $this->sale_type;
-                $originalBankId = $this->bank_id;
-
-                // Step 3: Reverse original stock and journal entries
-                $this->reverseInventoryImpacts($newGeneralLines, $newArmLines);
+                // Step 3: Clear existing stock ledger entries (avoids duplicates on repeated edits),
+                // reverse arms being removed, and reverse journal entries
+                $this->clearExistingStockLedgerEntriesForEdit();
+                $this->reverseArmsForEdit($newArmLines);
                 $this->reverseJournalEntriesForEdit();
 
                 // Step 4: Update invoice data
@@ -316,27 +314,13 @@ class SaleInvoice extends Model
                 $this->calculateTotals();
                 $this->save();
 
-                // Step 8: Check if final result is different from original
-                $finalTotal = $this->total_amount;
-                $finalSaleType = $this->sale_type;
-                $finalBankId = $this->bank_id;
-
-                $isFinalResultDifferent = (
-                    $originalTotal != $finalTotal ||
-                    $originalSaleType != $finalSaleType ||
-                    $originalBankId != $finalBankId
-                );
-
-                if ($isFinalResultDifferent) {
-                    // Step 9: Apply new stock deductions and journal entries
-                    // Don't call postSaleInvoice() as it will create duplicate entries
-                    // Instead, manually create the new stock ledger entries and journal entries
-                    $this->createStockLedgerEntriesForEdit();
-                    $this->createJournalEntries();
-                } else {
-                    // Step 9: Just update status to posted (no new journal entries needed)
-                    $this->update(['status' => 'posted']);
-                }
+                // Step 9: We cleared/reversed stock and journal in step 3, so we must always recreate
+                // stock ledger entries and journal/ledger entries (regardless of whether
+                // total/type/bank changed). Otherwise the invoice would be posted without
+                // any journal or bank/party ledger entries.
+                $this->createStockLedgerEntriesForEdit();
+                $this->createJournalEntries();
+                $this->update(['status' => 'posted']);
             } else {
                 // No meaningful changes - just update the invoice data without affecting stock/journal
                 $this->update($invoiceData);
@@ -505,8 +489,138 @@ class SaleInvoice extends Model
     }
 
     /**
+     * Clear existing stock ledger entries for this invoice (sale + reversal) when editing.
+     * This prevents duplicate ledger entries when the same invoice is edited multiple times.
+     * Instead of creating new reversals on each edit (which accumulate), we delete all
+     * sale and reversal entries and restore batches - then createStockLedgerEntriesForEdit
+     * will create fresh entries.
+     */
+    private function clearExistingStockLedgerEntriesForEdit(): void
+    {
+        $businessId = $this->business_id;
+
+        $this->load(['generalLines.generalItem', 'party']);
+
+        // Get all sale entries for this invoice
+        $allSaleEntries = GeneralItemStockLedger::where('business_id', $businessId)
+            ->where('reference_no', $this->invoice_number)
+            ->where('transaction_type', 'sale')
+            ->where('quantity', '<', 0)
+            ->orderBy('id')
+            ->get();
+
+        // Get all reversal entries for this invoice
+        $allReversalEntries = GeneralItemStockLedger::where('business_id', $businessId)
+            ->where('reference_no', 'like', $this->invoice_number . '%')
+            ->where('transaction_type', 'reversal')
+            ->where('quantity', '>', 0)
+            ->get();
+
+        // Calculate net quantity to restore per item (sale - reversal)
+        $netToRestoreByItem = [];
+        foreach ($allSaleEntries as $entry) {
+            $itemId = $entry->general_item_id;
+            $netToRestoreByItem[$itemId] = ($netToRestoreByItem[$itemId] ?? 0) + abs($entry->quantity);
+        }
+        foreach ($allReversalEntries as $entry) {
+            $itemId = $entry->general_item_id;
+            $netToRestoreByItem[$itemId] = ($netToRestoreByItem[$itemId] ?? 0) - $entry->quantity;
+        }
+
+        // Restore batches: process sale entries from most recent (DESC), restore qty to batches
+        foreach ($netToRestoreByItem as $itemId => $qtyToRestore) {
+            if ($qtyToRestore <= 0) {
+                continue;
+            }
+            $saleEntriesForItem = $allSaleEntries->where('general_item_id', $itemId)->sortByDesc('id');
+            $remaining = $qtyToRestore;
+            foreach ($saleEntriesForItem as $entry) {
+                if ($remaining <= 0) {
+                    break;
+                }
+                $restoreQty = min(abs($entry->quantity), $remaining);
+                $batch = GeneralBatch::find($entry->batch_id);
+                if ($batch) {
+                    $batch->increment('qty_remaining', $restoreQty);
+                }
+                $remaining -= $restoreQty;
+            }
+        }
+
+        // Delete all sale and reversal entries for this invoice
+        GeneralItemStockLedger::where('business_id', $businessId)
+            ->where(function ($q) {
+                $q->where('reference_no', $this->invoice_number)
+                    ->orWhere('reference_no', 'like', $this->invoice_number . '-%');
+            })
+            ->whereIn('transaction_type', ['sale', 'reversal'])
+            ->delete();
+
+        // Recalculate balances for all affected items
+        $affectedItemIds = $allSaleEntries->pluck('general_item_id')
+            ->merge($allReversalEntries->pluck('general_item_id'))
+            ->unique()
+            ->values();
+        foreach ($affectedItemIds as $itemId) {
+            GeneralItemStockLedger::recalculateBalances($itemId);
+        }
+    }
+
+    /**
+     * Reverse arms that are being removed from the invoice during edit.
+     */
+    private function reverseArmsForEdit(array $newArmLines): void
+    {
+        $newArmIds = collect($newArmLines)->pluck('arm_id')->toArray();
+        $this->load(['armLines.arm', 'party']);
+        $businessId = $this->business_id;
+        $userId = auth()->id() ?? 1;
+
+        foreach ($this->armLines as $line) {
+            if (!empty($newArmLines) && in_array($line->arm_id, $newArmIds)) {
+                continue; // Arm stays
+            }
+            $arm = Arm::find($line->arm_id);
+            if (!$arm) {
+                continue;
+            }
+            ArmsStockLedger::create([
+                'business_id' => $businessId,
+                'arm_id' => $line->arm_id,
+                'transaction_date' => now(),
+                'transaction_type' => 'reversal',
+                'quantity_in' => 1, // Restore arm (opposite of original quantity_out = 1)
+                'quantity_out' => 0,
+                'balance' => 1,
+                'reference_id' => $this->invoice_number . '-REV',
+                'remarks' => 'Sale reversal for ' . ($this->party->name ?? 'Customer'),
+            ]);
+            $originalSalePrice = $arm->purchase_price;
+            $saleHistory = ArmHistory::where('arm_id', $arm->id)->where('action', 'sale')->orderBy('created_at', 'desc')->first();
+            if ($saleHistory && isset($saleHistory->old_values['sale_price'])) {
+                $originalSalePrice = $saleHistory->old_values['sale_price'];
+            }
+            $arm->update(['status' => 'available', 'sold_date' => null, 'sale_price' => $originalSalePrice]);
+            ArmHistory::create([
+                'business_id' => $businessId,
+                'arm_id' => $line->arm_id,
+                'action' => 'cancel',
+                'old_values' => ['status' => 'sold', 'sold_date' => $this->invoice_date, 'sale_price' => $line->sale_price],
+                'new_values' => ['status' => 'available', 'sold_date' => null, 'sale_price' => $originalSalePrice],
+                'transaction_date' => now(),
+                'price' => $line->sale_price,
+                'remarks' => 'Sale reversal for ' . ($this->party->name ?? 'Customer'),
+                'user_id' => $userId,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+        }
+    }
+
+    /**
      * Reverse inventory impacts for both general items and arms
      * For edits, only reverse items/arms that are being removed
+     * Used for CANCELLATION (performSoftDelete), not for edits.
      */
     public function reverseInventoryImpacts(array $newGeneralLines = [], array $newArmLines = []): void
     {
@@ -1256,6 +1370,46 @@ class SaleInvoice extends Model
             
             // Recalculate balances for this item after all entries are created
             GeneralItemStockLedger::recalculateBalances($line->general_item_id);
+        }
+
+        // Create arms stock ledger entries for arms newly added in this edit
+        // (arms that stayed already have entries; arms reversed were removed from invoice)
+        foreach ($this->armLines as $line) {
+            $arm = $line->arm;
+            if (!$arm || $arm->status === 'sold') {
+                continue; // Already sold (was in previous version of invoice)
+            }
+            // Newly added arm - mark as sold and create ledger entry
+            ArmsStockLedger::create([
+                'business_id' => $this->business_id,
+                'arm_id' => $line->arm_id,
+                'transaction_date' => $this->invoice_date,
+                'transaction_type' => 'sale',
+                'quantity_out' => 1,
+                'balance' => 0,
+                'reference_id' => $this->invoice_number,
+                'remarks' => 'Sale to ' . ($this->party->name ?? 'Customer'),
+            ]);
+            $oldValues = $arm->toArray();
+            $oldSalePrice = $arm->sale_price;
+            $arm->update([
+                'status' => 'sold',
+                'sold_date' => $this->invoice_date,
+                'sale_price' => $line->sale_price,
+            ]);
+            ArmHistory::create([
+                'business_id' => $this->business_id,
+                'arm_id' => $line->arm_id,
+                'action' => 'sale',
+                'old_values' => array_merge($oldValues, ['sale_price' => $oldSalePrice]),
+                'new_values' => $arm->fresh()->toArray(),
+                'transaction_date' => $this->invoice_date,
+                'price' => $line->sale_price,
+                'remarks' => 'Sale to ' . ($this->party->name ?? 'Customer'),
+                'user_id' => auth()->id(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
         }
     }
 
