@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Parties List - Party Management - Arms Portal')
+    @section('title', 'Parties List - Party Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'],['url' => '/party-management', 'label' => 'Party Management'],['url' => '/parties', 'label' => 'Parties']]" />
 
     <x-dynamic-heading title="Parties" />
@@ -54,7 +54,7 @@
                             <div class="text-sm text-gray-500">CNIC: {{ $party->cnic ?? 'N/A' }}</div>
                         </div>
                     </x-table-cell>
-                    <x-table-cell>{{ number_format($party->opening_balance, 2) }}</x-table-cell>
+                    <x-table-cell>{{ number_format(round($party->opening_balance), 0) }}</x-table-cell>
                     <x-table-cell>{{ ucfirst($party->opening_type ?? '-') }}</x-table-cell>
                     <x-table-cell>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $party->status == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">

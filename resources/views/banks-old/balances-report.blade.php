@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Balances Report - {{ $business->business_name }} - Bank Management - Arms Portal</title>
+    <title>Bank Balances Report - {{ $business->business_name }} - Bank Management - StoreBook</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         @page {
@@ -335,7 +335,7 @@
                                         @endif
                                     </td>
                                     <td class="amount {{ $account->balance >= 0 ? 'positive-balance' : 'negative-balance' }}">
-                                        {{ number_format($account->balance, 2) }}
+                                        {{ number_format(round($account->balance), 0) }}
                                     </td>
                                 </tr>
                             @empty
@@ -346,7 +346,7 @@
                             <tr class="total-row">
                                 <td colspan="2" style="text-align: right"><strong>Total Bank Balance</strong></td>
                                 <td class="amount {{ $bankTotal >= 0 ? 'positive-balance' : 'negative-balance' }}">
-                                    {{ number_format($bankTotal, 2) }}
+                                    {{ number_format(round($bankTotal), 0) }}
                                 </td>
                             </tr>
                         </tbody>
@@ -379,7 +379,7 @@
                                         @endif
                                     </td>
                                     <td class="amount {{ $account->balance >= 0 ? 'positive-balance' : 'negative-balance' }}">
-                                        {{ number_format($account->balance, 2) }}
+                                        {{ number_format(round($account->balance), 0) }}
                                     </td>
                                 </tr>
                             @empty
@@ -390,7 +390,7 @@
                             <tr class="total-row">
                                 <td colspan="2" style="text-align: right"><strong>Total Cash Balance</strong></td>
                                 <td class="amount {{ $cashTotal >= 0 ? 'positive-balance' : 'negative-balance' }}">
-                                    {{ number_format($cashTotal, 2) }}
+                                    {{ number_format(round($cashTotal), 0) }}
                                 </td>
                             </tr>
                         </tbody>
@@ -402,7 +402,7 @@
             <div class="grand-total">
                 <div class="grand-total-label">Total Balance (Bank + Cash)</div>
                 <div class="grand-total-amount" style="color: {{ ($bankTotal + $cashTotal) >= 0 ? '#009900' : '#cc0000' }}">
-                    {{ number_format($bankTotal + $cashTotal, 2) }}
+                    {{ number_format(round($bankTotal + $cashTotal), 0) }}
                 </div>
             </div>
 

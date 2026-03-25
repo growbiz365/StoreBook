@@ -105,10 +105,14 @@ class SaleReturnController extends Controller
             $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
         }
 
-        $arms = Arm::where('business_id', $businessId)
-            ->where('status', 'sold') // Only show sold arms for return
-            ->orderBy('serial_no')
-            ->get();
+        // Arms data loading disabled - StoreBook is items-only
+        // $arms = Arm::where('business_id', $businessId)
+        //     ->where('status', 'sold') // Only show sold arms for return
+        //     ->orderBy('serial_no')
+        //     ->get();
+
+        // Empty collection for arms data to prevent errors in views
+        $arms = collect();
 
         // Get recent sale invoices for reference
         $saleInvoices = SaleInvoice::where('business_id', $businessId)
@@ -999,15 +1003,15 @@ class SaleReturnController extends Controller
                 'date_added' => $saleReturn->return_date,
             ]);
         } else {
-            // Cash return - credit bank/cash account (we refund customer - money goes out, asset decreases)
+            // Cash return - debit bank account (customer pays us back)
             if ($saleReturn->bank_id) {
                 $bank = \App\Models\Bank::find($saleReturn->bank_id);
                 if ($bank && $bank->chart_of_account_id) {
                     JournalEntry::create([
                         'business_id' => $businessId,
                         'account_head' => $bank->chart_of_account_id,
-                        'debit_amount' => 0,
-                        'credit_amount' => $saleReturn->total_amount,
+                        'debit_amount' => $saleReturn->total_amount,
+                        'credit_amount' => 0,
                         'voucher_id' => $saleReturn->id,
                         'voucher_type' => 'SaleReturn',
                         'comments' => 'Sale Return ' . $saleReturn->return_number,

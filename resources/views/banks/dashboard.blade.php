@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Bank Management Dashboard - StoreBook')
+    @section('title', 'Bank Management Dashboard - Arms Portal')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => '#', 'label' => 'Bank Management']]" />
 
     <!-- Header Section -->
@@ -60,7 +60,7 @@
                 <div class="ml-4">
                     <h2 class="text-sm font-medium text-gray-900">Total Amount</h2>
                     <p class="text-2xl font-semibold {{ $totalBalance >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                        {{ number_format(round($totalBalance), 0) }}
+                        {{ number_format($totalBalance, 2) }}
                     </p>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                 </div>
                 <div class="ml-4">
                     <h2 class="text-sm font-medium text-gray-900">Cash Balance</h2>
-                    <p class="text-2xl font-semibold text-gray-700">{{ number_format(round($cashBalance), 0) }}</p>
+                    <p class="text-2xl font-semibold text-gray-700">{{ number_format($cashBalance, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -91,7 +91,7 @@
                 </div>
                 <div class="ml-4">
                     <h2 class="text-sm font-medium text-gray-900">Bank Balance</h2>
-                    <p class="text-2xl font-semibold text-gray-700">{{ number_format(round($bankBalance), 0) }}</p>
+                    <p class="text-2xl font-semibold text-gray-700">{{ number_format($bankBalance, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -130,7 +130,7 @@
                                     <td class="px-2 py-1 text-gray-500 whitespace-nowrap">{{ $transfer->transfer_date->format('d M Y') }}</td>
                                     <td class="px-2 py-1 text-gray-900">{{ strtoupper($transfer->fromAccount->chartOfAccount->name ?? $transfer->fromAccount->account_name) }}</td>
                                     <td class="px-2 py-1 text-gray-900">{{ strtoupper($transfer->toAccount->chartOfAccount->name ?? $transfer->toAccount->account_name) }}</td>
-                                    <td class="px-2 py-1 text-gray-900 text-right">{{ number_format(round($transfer->amount), 0) }}</td>
+                                    <td class="px-2 py-1 text-gray-900 text-right">{{ number_format($transfer->amount, 2) }}</td>
                                 </tr>
                             @empty
                                 <tr>

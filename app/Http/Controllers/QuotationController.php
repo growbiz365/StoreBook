@@ -130,7 +130,7 @@ class QuotationController extends Controller
 
             // Validate main quotation data
             $validator = Validator::make($request->all(), [
-                'party_id' => 'required|exists:parties,id',
+                'party_id' => 'nullable|required_if:payment_type,credit|exists:parties,id',
                 'payment_type' => 'required|in:cash,credit',
                 'bank_id' => 'nullable|required_if:payment_type,cash|exists:banks,id',
                 'quotation_date' => 'required|date',
@@ -306,7 +306,7 @@ class QuotationController extends Controller
 
             // Validate main quotation data
             $validator = Validator::make($request->all(), [
-                'party_id' => 'required|exists:parties,id',
+                'party_id' => 'nullable|required_if:payment_type,credit|exists:parties,id',
                 'payment_type' => 'required|in:cash,credit',
                 'bank_id' => 'nullable|required_if:payment_type,cash|exists:banks,id',
                 'quotation_date' => 'required|date',

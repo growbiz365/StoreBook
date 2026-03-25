@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Edit Bank Account - Bank Management - Arms Portal')
+    @section('title', 'Edit Bank Account - Bank Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[
         ['url' => '/', 'label' => 'Home'],
        ['url' => '/bank-management', 'label' => 'Bank Management'],
@@ -76,8 +76,8 @@
                 <!-- Opening Balance -->
                 <div>
                     <x-input-label for="opening_balance">Opening Balance</x-input-label>
-                    <x-text-input id="opening_balance" name="opening_balance" type="number" step="0.01" class="mt-1 block w-full"
-                        :value="old('opening_balance', $bank->opening_balance)" placeholder="0.00" />
+                    <x-text-input id="opening_balance" name="opening_balance" type="number" step="1" class="mt-1 block w-full"
+                        :value="old('opening_balance', round($bank->opening_balance))" placeholder="0" />
                     <x-input-error :messages="$errors->get('opening_balance')" class="mt-1" />
                 </div>
 

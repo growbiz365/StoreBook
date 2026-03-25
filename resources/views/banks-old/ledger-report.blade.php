@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Ledger Report - {{ $business->business_name }} - Bank Management - Arms Portal</title>
+    <title>Bank Ledger Report - {{ $business->business_name }} - Bank Management - StoreBook</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         @page {
@@ -332,15 +332,15 @@
                 <div class="summary-grid">
                     <div class="summary-card">
                         <h4>Total Deposits</h4>
-                        <div class="summary-value">{{ number_format($totals['deposits'], 2) }}</div>
+                        <div class="summary-value">{{ number_format(round($totals['deposits']), 0) }}</div>
                     </div>
                     <div class="summary-card">
                         <h4>Total Withdrawals</h4>
-                        <div class="summary-value">{{ number_format($totals['withdrawals'], 2) }}</div>
+                        <div class="summary-value">{{ number_format(round($totals['withdrawals']), 0) }}</div>
                     </div>
                     <div class="summary-card">
                         <h4>Balance</h4>
-                        <div class="summary-value">{{ number_format($totals['balance'], 2) }}</div>
+                        <div class="summary-value">{{ number_format(round($totals['balance']), 0) }}</div>
                     </div>
                 </div>
             @endif
@@ -408,7 +408,7 @@
                                 <td><strong>*** Opening Balance ***</strong></td>
                                 <td class="amount">-</td>
                                 <td class="amount">-</td>
-                                <td class="amount">{{ number_format($openingBalance, 2) }}</td>
+                                <td class="amount">{{ number_format(round($openingBalance), 0) }}</td>
                             </tr>
 
                             @foreach($ledgerEntries as $entry)
@@ -418,28 +418,28 @@
                                     <td>{{ $entry->details ?? $entry->voucher_type }}</td>
                                     <td class="amount">
                                         @if($entry->deposit_amount > 0)
-                                            <span class="deposit-amount">{{ number_format($entry->deposit_amount, 2) }}</span>
+                                            <span class="deposit-amount">{{ number_format(round($entry->deposit_amount), 0) }}</span>
                                         @else
                                             -
                                         @endif
                                     </td>
                                     <td class="amount">
                                         @if($entry->withdrawal_amount > 0)
-                                            <span class="withdrawal-amount">{{ number_format($entry->withdrawal_amount, 2) }}</span>
+                                            <span class="withdrawal-amount">{{ number_format(round($entry->withdrawal_amount), 0) }}</span>
                                         @else
                                             -
                                         @endif
                                     </td>
-                                    <td class="amount">{{ number_format($entry->running_balance, 2) }}</td>
+                                    <td class="amount">{{ number_format(round($entry->running_balance), 0) }}</td>
                                 </tr>
                             @endforeach
 
                             <!-- Total Row -->
                             <tr class="total-row">
                                 <td colspan="3" style="text-align: center"><strong>Total</strong></td>
-                                <td class="amount deposit-amount">{{ number_format($totals['deposits'], 2) }}</td>
-                                <td class="amount withdrawal-amount">{{ number_format($totals['withdrawals'], 2) }}</td>
-                                <td class="amount">{{ number_format($totals['balance'], 2) }}</td>
+                                <td class="amount deposit-amount">{{ number_format(round($totals['deposits']), 0) }}</td>
+                                <td class="amount withdrawal-amount">{{ number_format(round($totals['withdrawals']), 0) }}</td>
+                                <td class="amount">{{ number_format(round($totals['balance']), 0) }}</td>
                             </tr>
                         </tbody>
                     </table>

@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Add Party - Party Management - Arms Portal')
+    @section('title', 'Add Party - Party Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => '/party-management', 'label' => 'Party Management'],['url' => '/parties', 'label' => 'Parties'], ['url' => '#', 'label' => 'Add Party']]" />
 
     <x-dynamic-heading title="Add Party" />
@@ -76,7 +76,7 @@
                 <!-- Opening Balance -->
                 <div>
                     <x-input-label for="opening_balance">Opening Balance</x-input-label>
-                    <x-text-input id="opening_balance" type="number" step="0.01" name="opening_balance" value="{{ old('opening_balance') }}" placeholder="0.00" />
+                    <x-text-input id="opening_balance" type="number" step="1" name="opening_balance" value="{{ old('opening_balance') }}" placeholder="0" />
                     @error('opening_balance') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 

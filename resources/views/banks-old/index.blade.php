@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Bank Accounts List - Bank Management - Arms Portal')
+    @section('title', 'Bank Accounts List - Bank Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => '/bank-management', 'label' => 'Bank Management'], ['url' => '#', 'label' => 'Bank Accounts']]" />
 
     <x-dynamic-heading title="Bank & Cash Accounts" />
@@ -73,14 +73,14 @@
                 <x-table-cell>{{ $bank->bank_name ?: '-' }}</x-table-cell>
                 <x-table-cell>{{ $bank->chartOfAccount->code ?? '-' }}</x-table-cell>
                 <x-table-cell>
-                    {{ number_format($bank->opening_balance ?? 0, 2) }}
+                    {{ number_format(round($bank->opening_balance ?? 0), 0) }}
                 </x-table-cell>
                 <x-table-cell>
                     @php
                         $balance = $bank->ledgerEntries->sum('deposit_amount') - $bank->ledgerEntries->sum('withdrawal_amount');
                     @endphp
                     <span class="font-semibold {{ $balance < 0 ? 'text-red-600' : 'text-green-600' }}">
-                        {{ number_format($balance, 2) }}
+                        {{ number_format(round($balance), 0) }}
                     </span>
                 </x-table-cell>
                 <x-table-cell>

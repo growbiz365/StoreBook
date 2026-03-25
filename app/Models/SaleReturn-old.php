@@ -731,15 +731,15 @@ class SaleReturn extends Model
                 'date_added' => now(),
             ]);
         } else {
-            // Cash return cancellation - debit bank account (opposite of original credit; we credited for refund, so debit to reverse)
+            // Cash return cancellation - credit bank account (opposite of original debit)
             if ($this->bank_id) {
                 $bank = \App\Models\Bank::find($this->bank_id);
                 if ($bank && $bank->chart_of_account_id) {
                     JournalEntry::create([
                         'business_id' => $businessId,
                         'account_head' => $bank->chart_of_account_id,
-                        'debit_amount' => $this->total_amount,
-                        'credit_amount' => 0,
+                        'debit_amount' => 0,
+                        'credit_amount' => $this->total_amount, // Credit to reverse the original debit
                         'voucher_id' => $this->id,
                         'voucher_type' => 'SaleReturnCancellation',
                         'comments' => 'Sale Return Cancellation ' . $this->return_number,
@@ -747,7 +747,7 @@ class SaleReturn extends Model
                         'date_added' => now(),
                     ]);
 
-                    // Create bank ledger cancellation entry (opposite of original withdrawal)
+                    // Create bank ledger cancellation entry (opposite of original)
                     \App\Models\BankLedger::create([
                         'business_id' => $businessId,
                         'bank_id' => $this->bank_id,
@@ -1054,15 +1054,15 @@ class SaleReturn extends Model
                 'date_added' => $this->return_date,
             ]);
         } else {
-            // Cash return - credit bank/cash account (we refund customer - money goes out, asset decreases)
+            // Cash return - debit bank account (customer pays us back)
             if ($this->bank_id) {
                 $bank = \App\Models\Bank::find($this->bank_id);
                 if ($bank && $bank->chart_of_account_id) {
                     JournalEntry::create([
                         'business_id' => $businessId,
                         'account_head' => $bank->chart_of_account_id,
-                        'debit_amount' => 0,
-                        'credit_amount' => $this->total_amount,
+                        'debit_amount' => $this->total_amount,
+                        'credit_amount' => 0,
                         'voucher_id' => $this->id,
                         'voucher_type' => 'SaleReturn',
                         'comments' => 'Sale Return ' . $this->return_number,

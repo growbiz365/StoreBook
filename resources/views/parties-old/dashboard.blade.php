@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Party Management Dashboard - Arms Portal')
+    @section('title', 'Party Management Dashboard - StoreBook')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => '#', 'label' => 'Party Management']]" />
 
     <!-- Header Section -->

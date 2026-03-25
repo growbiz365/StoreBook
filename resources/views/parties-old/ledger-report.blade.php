@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Ledger Report - {{ $business->business_name }} - Bank Management - Arms Portal</title>
+    <title>Party Ledger Report - {{ $business->business_name }} - Party Management - StoreBook</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
     <style>
         @page {
             size: A4;
@@ -82,7 +84,7 @@
 
         .report-title h2 {
             margin: 0 0 10px 0;
-            font-size: 20px;
+            font-size: 18px; /* Match business name heading size */
             font-weight: 700;
             color: #1a1a1a;
         }
@@ -163,6 +165,59 @@
             box-sizing: border-box;
         }
 
+        /* Chosen Select Styling */
+        .chosen-container {
+            width: 100% !important;
+        }
+
+        .chosen-container-single .chosen-single {
+            height: 36px;
+            line-height: 34px;
+            padding: 0 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: white;
+        }
+
+        .chosen-container-single .chosen-single:hover {
+            border-color: #0d6efd;
+        }
+
+        .chosen-container-single .chosen-single:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .chosen-container-single .chosen-single div b {
+            background-position: 0px 2px;
+        }
+
+        .chosen-container-active .chosen-single div b {
+            background-position: -18px 2px;
+        }
+
+        .chosen-drop {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chosen-results {
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chosen-results li {
+            padding: 8px 12px;
+        }
+
+        .chosen-results li.highlighted {
+            background-color: #0d6efd;
+            color: white;
+        }
+
         input[type="date"] {
             padding-right: 30px;
         }
@@ -217,12 +272,12 @@
             font-weight: 500;
         }
 
-        .deposit-amount {
+        .credit-amount {
             color: #009900;
             font-weight: 600;
         }
 
-        .withdrawal-amount {
+        .debit-amount {
             color: #cc0000;
             font-weight: 600;
         }
@@ -242,6 +297,12 @@
             border-bottom: 2px solid #333;
         }
 
+        .urdu {
+            font-size: 11px;
+            color: #666;
+            display: block;
+        }
+
         @media print {
             body {
                 background: white;
@@ -251,6 +312,10 @@
             }
             .filters {
                 display: none;
+            }
+            div[style*="Total Records"] {
+                float: right !important;
+                margin: 15px 0 10px 0 !important;
             }
             .report-header {
                 display: flex !important;
@@ -269,10 +334,6 @@
             .report-title {
                 text-align: right !important;
             }
-            div[style*="Total Records"] {
-                float: right !important;
-                margin: 15px 0 10px 0 !important;
-            }
             th {
                 background-color: #f8f8f8 !important;
                 -webkit-print-color-adjust: exact;
@@ -287,56 +348,25 @@
     </style>
 </head>
 <body>
+    
     <div class="page-container">
         <div class="report-container">
-            <x-report-header :business="$business" title="Bank Ledger Report">
-                        @if($selectedBank)
-                            <div><strong>Account Name:</strong> {{ $selectedBank->chartOfAccount->name ?? $selectedBank->account_name }}</div>
+            <x-report-header :business="$business" title="Party Ledger Report">
+                        @if($selectedParty)
+                            <div><strong>Party Name:</strong> {{ $selectedParty->name }}</div>
                         @endif
-                        <div><strong>Duration:</strong> 
-                            @php
-                                // Use dates from controller, fallback to request, then defaults
-                                $displayFromDate = $fromDate ?? request('from_date');
-                                $displayToDate = $toDate ?? request('to_date');
-                                
-                                if (!$displayFromDate) {
-                                    $displayFromDate = now()->startOfMonth()->format('Y-m-d');
-                                }
-                                if (!$displayToDate) {
-                                    $displayToDate = now()->format('Y-m-d');
-                                }
-                                
-                                // Format dates directly without timezone conversion for date-only values
-                                // Parse as date-only to avoid timezone shifting
-                                try {
-                                    $fromDateObj = \Carbon\Carbon::createFromFormat('Y-m-d', $displayFromDate);
-                                    $toDateObj = \Carbon\Carbon::createFromFormat('Y-m-d', $displayToDate);
-                                    
-                                    // Get business date format
-                                    $businessDateFormat = getBusinessDateFormat();
-                                    
-                                    // Format without timezone conversion (date-only)
-                                    $formattedFromDate = $fromDateObj->format($businessDateFormat);
-                                    $formattedToDate = $toDateObj->format($businessDateFormat);
-                                } catch (\Exception $e) {
-                                    // Fallback to businessDate helper
-                                    $formattedFromDate = formatBusinessDate($displayFromDate);
-                                    $formattedToDate = formatBusinessDate($displayToDate);
-                                }
-                            @endphp
-                            {{ $formattedFromDate }} to {{ $formattedToDate }}
-                        </div>
+                        <div><strong>Duration:</strong> @businessDate(request('from_date', now()->startOfMonth())) to @businessDate(request('to_date', now()))</div>
             </x-report-header>
 
-            @if($selectedBank)
+            @if($selectedParty)
                 <div class="summary-grid">
                     <div class="summary-card">
-                        <h4>Total Deposits</h4>
-                        <div class="summary-value">{{ number_format($totals['deposits'], 2) }}</div>
+                        <h4>Total Debit</h4>
+                        <div class="summary-value">{{ number_format($totals['debit'], 2) }}</div>
                     </div>
                     <div class="summary-card">
-                        <h4>Total Withdrawals</h4>
-                        <div class="summary-value">{{ number_format($totals['withdrawals'], 2) }}</div>
+                        <h4>Total Credit</h4>
+                        <div class="summary-value">{{ number_format($totals['credit'], 2) }}</div>
                     </div>
                     <div class="summary-card">
                         <h4>Balance</h4>
@@ -346,14 +376,14 @@
             @endif
 
             <div class="filters">
-                <form action="{{ route('banks.ledger-report') }}" method="GET" class="filter-form">
+                <form action="{{ route('parties.ledger-report') }}" method="GET" class="filter-form">
                     <div class="form-group">
-                        <label for="bank_id">Select Account</label>
-                        <select name="bank_id" id="bank_id" required>
-                            <option value="">Select an account</option>
-                            @foreach($banks as $bank)
-                                <option value="{{ $bank->id }}" {{ request('bank_id') == $bank->id ? 'selected' : '' }}>
-                                    {{ $bank->chartOfAccount->name ?? $bank->account_name }}
+                        <label for="party_id">Select Party</label>
+                        <select name="party_id" id="party_id" required class="chosen-select">
+                            <option value="">Select a party</option>
+                            @foreach($parties as $party)
+                                <option value="{{ $party->id }}" {{ request('party_id') == $party->id ? 'selected' : '' }}>
+                                    {{ $party->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -372,16 +402,16 @@
                     </div>
 
                     <button type="submit">Apply</button>
-                    @if($selectedBank)
+                    @if($selectedParty)
                         <button type="button" onclick="window.print()">Print</button>
                     @endif
-                    <a href="{{ route('bank-management') }}" class="back-btn">
+                    <a href="{{ route('party-management.dashboard') }}" class="back-btn">
                         <button type="button" style="background-color: #6c757d;">Back</button>
                     </a>
                 </form>
             </div>
 
-            @if($selectedBank)
+            @if($selectedParty)
                 <!-- Total Records Info -->
                 <div style="margin: 15px 0 10px 0; text-align: right; font-size: 13px; color: #444; font-weight: 600; padding: 8px 12px; background-color: #f8f9fa; border-radius: 4px; display: inline-block; float: right;">
                     Total Records: <strong>{{ $ledgerEntries->count() }}</strong>
@@ -392,18 +422,36 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Voucher</th>
-                                <th>Description</th>
-                                <th>Deposit</th>
-                                <th>Withdrawal</th>
-                                <th>Balance</th>
+                                <th>
+                                    Date
+                                    <span class="urdu">(تاریخ)</span>
+                                </th>
+                                <th>
+                                    Voucher
+                                    <span class="urdu">(واؤچر)</span>
+                                </th>
+                                <th>
+                                    Description
+                                    <span class="urdu">(تفصیلات)</span>
+                                </th>
+                                <th>
+                                    Credit
+                                    <span class="urdu">(جمع)</span>
+                                </th>
+                                <th>
+                                    Debit
+                                    <span class="urdu">(نام)</span>
+                                </th>
+                                <th>
+                                    Balance
+                                    <span class="urdu">(بقایا)</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- Opening Balance Row -->
                             <tr class="opening-balance-row">
-                                <td>@businessDate(request('from_date', $selectedBank->created_at))</td>
+                                <td>@businessDate(request('from_date', $selectedParty->created_at))</td>
                                 <td>-</td>
                                 <td><strong>*** Opening Balance ***</strong></td>
                                 <td class="amount">-</td>
@@ -413,19 +461,35 @@
 
                             @foreach($ledgerEntries as $entry)
                                 <tr>
-                                    <td>@businessDate($entry->date)</td>
+                                    <td>@businessDate($entry->date_added)</td>
                                     <td>{{ $entry->voucher_type }} #{{ $entry->voucher_id }}</td>
-                                    <td>{{ $entry->details ?? $entry->voucher_type }}</td>
+                                    <td>
+                                        @if($entry->voucher_type == 'Party Transfer' && $entry->partyTransfer)
+                                            @if($entry->debit_amount > 0)
+                                                Debit Party: {{ $entry->partyTransfer->creditParty->name }}
+                                                @if($entry->partyTransfer->details)
+                                                    , {{ $entry->partyTransfer->details }}
+                                                @endif
+                                            @else
+                                                Credit Party: {{ $entry->partyTransfer->debitParty->name }}
+                                                @if($entry->partyTransfer->details)
+                                                    , {{ $entry->partyTransfer->details }}
+                                                @endif
+                                            @endif
+                                        @else
+                                            {{ $entry->voucher_type }}
+                                        @endif
+                                    </td>
                                     <td class="amount">
-                                        @if($entry->deposit_amount > 0)
-                                            <span class="deposit-amount">{{ number_format($entry->deposit_amount, 2) }}</span>
+                                        @if($entry->credit_amount > 0)
+                                            <span class="credit-amount">{{ number_format($entry->credit_amount, 2) }}</span>
                                         @else
                                             -
                                         @endif
                                     </td>
                                     <td class="amount">
-                                        @if($entry->withdrawal_amount > 0)
-                                            <span class="withdrawal-amount">{{ number_format($entry->withdrawal_amount, 2) }}</span>
+                                        @if($entry->debit_amount > 0)
+                                            <span class="debit-amount">{{ number_format($entry->debit_amount, 2) }}</span>
                                         @else
                                             -
                                         @endif
@@ -437,8 +501,8 @@
                             <!-- Total Row -->
                             <tr class="total-row">
                                 <td colspan="3" style="text-align: center"><strong>Total</strong></td>
-                                <td class="amount deposit-amount">{{ number_format($totals['deposits'], 2) }}</td>
-                                <td class="amount withdrawal-amount">{{ number_format($totals['withdrawals'], 2) }}</td>
+                                <td class="amount credit-amount">{{ number_format($totals['credit'], 2) }}</td>
+                                <td class="amount debit-amount">{{ number_format($totals['debit'], 2) }}</td>
                                 <td class="amount">{{ number_format($totals['balance'], 2) }}</td>
                             </tr>
                         </tbody>
@@ -452,10 +516,27 @@
                 </div>
             @else
                 <div style="text-align: center; padding: 30px; color: #666;">
-                    <p>Please select an account to view its ledger report.</p>
+                    <p>Please select a party to view their ledger report.</p>
                 </div>
             @endif
         </div>
     </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Chosen JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize Chosen select
+            $('.chosen-select').chosen({
+                width: '100%',
+                search_contains: true,
+                allow_single_deselect: true,
+                placeholder_text_single: 'Select a party'
+            });
+        });
+    </script>
 </body>
-</html>
+</html> 

@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Edit Party - Party Management - Arms Portal')
+    @section('title', 'Edit Party - Party Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => '/party-management', 'label' => 'Party Management'],['url' => '/parties', 'label' => 'Parties'], ['url' => '#', 'label' => 'Edit Party']]" />
 
     <x-dynamic-heading title="Edit Party" />
@@ -73,8 +73,8 @@
                 <!-- Opening Balance -->
                 <div>
                     <x-input-label for="opening_balance">Opening Balance</x-input-label>
-                    <input type="number" id="opening_balance" name="opening_balance" step="0.01" value="{{ old('opening_balance', $party->opening_balance) }}"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="0.00" />
+                    <input type="number" id="opening_balance" name="opening_balance" step="1" value="{{ old('opening_balance', round($party->opening_balance)) }}"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="0" />
                 </div>
 
                 <!-- Opening Type -->
