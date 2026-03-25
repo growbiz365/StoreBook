@@ -350,47 +350,7 @@
             </a>
             @endcan
 
-            @can('create sales')
-            <a href="{{ route('approvals.create') }}"
-                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-teal-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-teal-500/0 to-cyan-500/0 group-hover:from-teal-500/10 group-hover:to-cyan-500/5 transition-all duration-300 rounded-xl"></div>
-                <div class="absolute -top-6 -right-6 w-16 h-16 bg-teal-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative flex flex-col items-center text-center space-y-2">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-                        <div class="relative w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
-                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="text-xs font-bold text-gray-900 group-hover:text-teal-700 transition-colors duration-200 block">New Approval</span>
-                        <span class="text-xs text-gray-500 mt-0 block">Give on approval</span>
-                    </div>
-                </div>
-            </a>
-            @endcan
             
-            <a href="{{ route('approvals.index') }}"
-                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:to-indigo-500/5 transition-all duration-300 rounded-xl"></div>
-                <div class="absolute -top-6 -right-6 w-16 h-16 bg-blue-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative flex flex-col items-center text-center space-y-2">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-                        <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
-                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="text-xs font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-200 block">Approvals</span>
-                        <span class="text-xs text-gray-500 mt-0 block">View pending</span>
-                    </div>
-                </div>
-            </a>
 
             @can('create purchases')
             <a href="{{ route('purchases.create') }}"
@@ -431,6 +391,50 @@
                     <div>
                         <span class="text-xs font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-200 block">Parties</span>
                         <span class="text-xs text-gray-500 mt-0 block">All contacts</span>
+                    </div>
+                </div>
+            </a>
+            @endcan
+
+            @can('view quotations')
+            <a href="{{ route('quotations.index') }}"
+                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-amber-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/5 transition-all duration-300 rounded-xl"></div>
+                <div class="absolute -top-6 -right-6 w-16 h-16 bg-amber-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+                <div class="relative flex flex-col items-center text-center space-y-2">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-gray-900 group-hover:text-amber-700 transition-colors duration-200 block">Quotations</span>
+                        <span class="text-xs text-gray-500 mt-0 block">View & manage</span>
+                    </div>
+                </div>
+            </a>
+            @endcan
+
+            @can('view banks')
+            <a href="{{ route('bank-management') }}"
+                class="group relative backdrop-blur-lg bg-white/90 rounded-xl border border-white/60 p-3 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:to-indigo-500/5 transition-all duration-300 rounded-xl"></div>
+                <div class="absolute -top-6 -right-6 w-16 h-16 bg-blue-400/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+                <div class="relative flex flex-col items-center text-center space-y-2">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+                        <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-300">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M5 10v10m14-10v10M12 2L2 7h20L12 2zm0 0v6" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-200 block">Banks</span>
+                        <span class="text-xs text-gray-500 mt-0 block">Accounts</span>
                     </div>
                 </div>
             </a>
