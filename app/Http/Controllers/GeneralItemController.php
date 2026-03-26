@@ -24,13 +24,26 @@ class GeneralItemController extends Controller
         $businessId = session('active_business');
         $query = GeneralItem::with('itemType')->where('business_id', $businessId);
 
-        // Apply search filter if provided
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('item_name', 'like', '%' . $search . '%')
-                  ->orWhere('item_code', 'like', '%' . $search . '%');
-            });
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
+        // Apply item name filter if provided
+        if ($request->filled('item_name')) {
+            $itemName = trim((string) $request->item_name);
+            $query->where('item_name', 'like', '%' . $itemName . '%');
+        }
+
+        // Apply item type filter if provided
+        if ($request->filled('item_type_id')) {
+            $query->where('item_type_id', $request->item_type_id);
+        }
+
+        // Apply item code filter if provided
+        if ($request->filled('item_code')) {
+            $itemCode = trim((string) $request->item_code);
+            $query->where('item_code', 'like', '%' . $itemCode . '%');
         }
 
         // Apply sorting
@@ -44,7 +57,7 @@ class GeneralItemController extends Controller
         }
 
         $generalItems = $query->paginate(15)->withQueryString();
-        return view('general_items.index', compact('generalItems'));
+        return view('general_items.index', compact('generalItems', 'itemTypes'));
     }
 
     /**
