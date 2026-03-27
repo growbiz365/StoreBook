@@ -49,7 +49,21 @@ class GeneralItemController extends Controller
                 }
             }
 
-            $query->orderBy('item_name');
+            // Order by relevance: exact code match → code starts-with → item name starts-with → rest
+            $query->orderByRaw("
+                CASE
+                    WHEN item_code = ? THEN 1
+                    WHEN item_code LIKE ? THEN 2
+                    WHEN item_name = ? THEN 3
+                    WHEN item_name LIKE ? THEN 4
+                    ELSE 5
+                END, item_name
+            ", [
+                $searchTerm,
+                $searchTerm . '%',
+                $searchTerm,
+                $searchTerm . '%',
+            ]);
 
             $items = $query->with(['batches' => function($q) {
                 $q->where('status', 'active');

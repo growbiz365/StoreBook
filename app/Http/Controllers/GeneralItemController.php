@@ -47,13 +47,13 @@ class GeneralItemController extends Controller
         }
 
         // Apply sorting
-        $sortBy = $request->get('sort_by', 'item_name');
+        $sortBy = $request->get('sort_by', 'item_code');
         $sortOrder = $request->get('sort_order', 'asc');
         
         if (in_array($sortBy, ['item_name', 'item_code', 'cost_price', 'sale_price'])) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
-            $query->orderBy('item_name', 'asc');
+            $query->orderBy('item_code', 'asc');
         }
 
         $generalItems = $query->paginate(15)->withQueryString();

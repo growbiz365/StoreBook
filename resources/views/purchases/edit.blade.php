@@ -1762,10 +1762,12 @@
                 
                 resultItem.dataset.costPrice = costPrice;
                 resultItem.dataset.salePrice = salePrice;
+                resultItem.dataset.itemCode = item.item_code || '';
                 
-                                    resultItem.innerHTML = `
-                        <div class="font-medium text-gray-900">${item.item_name}</div>
-                    `;
+                resultItem.innerHTML = `
+                    <div class="font-medium text-gray-900">${item.item_name}</div>
+                    ${item.item_code ? `<div class="text-xs text-gray-400">${item.item_code}</div>` : ''}
+                `;
                 
                 resultItem.addEventListener('click', () => {
                     this.selectItem(item);

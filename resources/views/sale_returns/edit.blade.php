@@ -2330,9 +2330,11 @@ class GeneralItemSearchableDropdown {
             resultItem.dataset.itemId = item.id;
             resultItem.dataset.itemName = item.item_name;
             resultItem.dataset.salePrice = this.safeNumber(item.sale_price);
-            
+            resultItem.dataset.itemCode = item.item_code || '';
+
             resultItem.innerHTML = `
                 <div class="font-medium text-gray-900">${item.item_name}</div>
+                ${item.item_code ? `<div class="text-xs text-gray-400">${item.item_code}</div>` : ''}
             `;
             
             resultItem.addEventListener('click', () => {
