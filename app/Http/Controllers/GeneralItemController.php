@@ -59,7 +59,7 @@ class GeneralItemController extends Controller
             $query->orderByRaw('LENGTH(item_code) ASC, item_code ASC');
         }
 
-        $generalItems = $query->paginate(15)->withQueryString();
+        $generalItems = $query->paginate(50)->withQueryString();
         return view('general_items.index', compact('generalItems', 'itemTypes'));
     }
 
