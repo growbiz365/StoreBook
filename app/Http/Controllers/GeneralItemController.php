@@ -50,10 +50,13 @@ class GeneralItemController extends Controller
         $sortBy = $request->get('sort_by', 'item_code');
         $sortOrder = $request->get('sort_order', 'asc');
         
-        if (in_array($sortBy, ['item_name', 'item_code', 'cost_price', 'sale_price'])) {
+        if ($sortBy === 'item_code') {
+            // Natural numeric sort: 1, 2, 9, 10, 11, 100 instead of 1, 10, 100, 11, 2, 9
+            $query->orderByRaw("LENGTH(item_code) $sortOrder, item_code $sortOrder");
+        } elseif (in_array($sortBy, ['item_name', 'cost_price', 'sale_price'])) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
-            $query->orderBy('item_code', 'asc');
+            $query->orderByRaw('LENGTH(item_code) ASC, item_code ASC');
         }
 
         $generalItems = $query->paginate(15)->withQueryString();
