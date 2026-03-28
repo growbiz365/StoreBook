@@ -5,6 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Valuation Summary - {{ $business->name ?? 'Business' }} - General Items Management - StoreBook</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
+    <style>
+        /* Chosen Select Overrides */
+        .chosen-container {
+            width: 100% !important;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .chosen-container .chosen-single {
+            height: 42px;
+            line-height: 42px;
+            padding: 0 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            color: #1f2937;
+        }
+
+        .chosen-container-active .chosen-single,
+        .chosen-container-active .chosen-choices {
+            border-color: #0d6efd !important;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .chosen-container .chosen-drop {
+            border: 1px solid #d1d5db;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .chosen-container .chosen-search input {
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .chosen-container .chosen-results li.highlighted {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .chosen-container .chosen-results li.result-selected {
+            color: #6b7280;
+            background: #f9fafb;
+        }
+
+        .chosen-container-single .chosen-single div b {
+            background-position: 0 6px;
+        }
+
+        .chosen-container-active.chosen-with-drop .chosen-single div b {
+            background-position: -18px 6px;
+        }
+    </style>
     <style>
         @page {
             size: A4;
@@ -257,8 +315,8 @@
             z-index: 10;
         }
 
-        thead th:nth-child(1) { width: 8%; }  /* No column */
-        thead th:nth-child(2) { width: 45%; } /* Item Name column */
+        thead th:nth-child(1) { width: 12%; } /* Item Code column */
+        thead th:nth-child(2) { width: 41%; } /* Item Name column */
         thead th:nth-child(3) { width: 22%; } /* Stock On Hand column */
         thead th:nth-child(4) { width: 25%; } /* Inventory Asset Value column */
 
@@ -282,8 +340,8 @@
             overflow-wrap: break-word;
         }
 
-        td:nth-child(1) { width: 8%; text-align: center; }  /* No column */
-        td:nth-child(2) { width: 45%; } /* Item Name column */
+        td:nth-child(1) { width: 12%; text-align: left; } /* Item Code column */
+        td:nth-child(2) { width: 41%; } /* Item Name column */
         td:nth-child(3) { width: 22%; text-align: right; } /* Stock On Hand column */
         td:nth-child(4) { width: 25%; text-align: right; } /* Inventory Asset Value column */
 
@@ -622,7 +680,7 @@
                 <form action="{{ route('general-items.inventory-valuation-summary') }}" method="GET" class="filter-form">
                     <div class="form-group">
                         <label for="item_id">All Items</label>
-                        <select name="item_id" id="item_id" aria-label="Select item">
+                        <select name="item_id" id="item_id" class="chosen-select" data-placeholder="All Items" aria-label="Select item">
                             <option value="">All Items</option>
                             @foreach($generalItems as $item)
                                 <option value="{{ $item->id }}" {{ $itemId == $item->id ? 'selected' : '' }}>
@@ -634,7 +692,7 @@
 
                     <div class="form-group">
                         <label for="item_type_id">All Item Types</label>
-                        <select name="item_type_id" id="item_type_id" aria-label="Select item type">
+                        <select name="item_type_id" id="item_type_id" class="chosen-select" data-placeholder="All Item Types" aria-label="Select item type">
                             <option value="">All Item Types</option>
                             @foreach($itemTypes as $itemType)
                                 <option value="{{ $itemType->id }}" {{ $itemTypeId == $itemType->id ? 'selected' : '' }}>
@@ -672,23 +730,20 @@
                         <table role="table" aria-label="Inventory valuation summary">
                             <thead>
                                 <tr>
-                                    <th scope="col">No</th>
+                                    <th scope="col">Item Code</th>
                                     <th scope="col">Item Name</th>
                                     <th scope="col">Stock On Hand</th>
                                     <th scope="col">Inventory Asset Value</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
-                                    $rowNumber = 1;
-                                @endphp
                                 @foreach($groupedItems as $itemType => $items)
                                     <tr class="category-header">
                                         <td colspan="4" scope="colgroup"><strong>{{ strtoupper($itemType) }}</strong></td>
                                     </tr>
-                                    @foreach($items as $item)
+                                    @foreach($items->sortBy('item_code') as $item)
                                         <tr>
-                                            <td>{{ $rowNumber++ }}</td>
+                                            <td><strong>{{ $item['item_code'] }}</strong></td>
                                             <td>{{ $item['item_name'] }}</td>
                                             <td class="amount {{ $item['current_stock'] > 0 ? 'stock-positive' : ($item['current_stock'] == 0 ? 'stock-zero' : 'stock-negative') }}">
                                                 {{ number_format(round($item['current_stock']), 0) }}
@@ -716,16 +771,13 @@
 
                 <!-- Mobile Cards Layout -->
                 <div class="mobile-cards" aria-label="Inventory items">
-                    @php
-                        $mobileRowNumber = 1;
-                    @endphp
                     @foreach($groupedItems as $itemType => $items)
                         <div class="mobile-card category-card">
                             <div class="mobile-card-header">{{ strtoupper($itemType) }}</div>
                         </div>
-                        @foreach($items as $item)
+                        @foreach($items->sortBy('item_code') as $item)
                             <div class="mobile-card">
-                                <div class="mobile-card-header">{{ $mobileRowNumber++ }}. {{ $item['item_name'] }}</div>
+                                <div class="mobile-card-header">{{ $item['item_code'] }} &mdash; {{ $item['item_name'] }}</div>
                                 <div class="mobile-card-row">
                                     <span class="mobile-card-label">Stock On Hand:</span>
                                     <span class="mobile-card-value amount {{ $item['current_stock'] > 0 ? 'stock-positive' : ($item['current_stock'] == 0 ? 'stock-zero' : 'stock-negative') }}">
@@ -773,17 +825,26 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
     <script>
-        // Auto-submit form when filters change
-        document.addEventListener('DOMContentLoaded', function() {
-            const filters = ['item_id', 'item_type_id', 'stock_filter'];
-            filters.forEach(filterId => {
-                const element = document.getElementById(filterId);
-                if (element) {
-                    element.addEventListener('change', function() {
-                        document.querySelector('form').submit();
-                    });
-                }
+        $(document).ready(function () {
+            // Initialize Chosen on item and item type dropdowns
+            $('.chosen-select').chosen({
+                width: '100%',
+                no_results_text: 'No results found for',
+                search_contains: true,
+                allow_single_deselect: true,
+            });
+
+            // Auto-submit on Chosen change (item_id, item_type_id)
+            $('#item_id, #item_type_id').on('change', function () {
+                $('form').submit();
+            });
+
+            // Auto-submit for plain selects
+            $('#stock_filter').on('change', function () {
+                $('form').submit();
             });
         });
     </script>
