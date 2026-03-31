@@ -84,11 +84,11 @@
         <x-error-alert message="{{ $errors->first('delete_error') }}" />
     @endif
 
-            <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <div class="overflow-hidden">
+            <table class="w-full table-fixed divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">
                             <a href="{{ route('general-items.index', array_merge(request()->query(), ['sort_by' => 'item_code', 'sort_order' => request('sort_by') == 'item_code' && request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" 
                                class="flex items-center space-x-1 hover:text-gray-700">
                                 <span>Item Code</span>
@@ -103,7 +103,7 @@
                                 @endif
                             </a>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('general-items.index', array_merge(request()->query(), ['sort_by' => 'item_name', 'sort_order' => request('sort_by') == 'item_name' && request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" 
                                class="flex items-center space-x-1 hover:text-gray-700">
                                 <span>Item Name</span>
@@ -118,9 +118,9 @@
                                 @endif
                             </a>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Type</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Available stock</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-40">Item Type</th>
+                        <th class="px-3 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Available stock</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">
                             <a href="{{ route('general-items.index', array_merge(request()->query(), ['sort_by' => 'cost_price', 'sort_order' => request('sort_by') == 'cost_price' && request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" 
                                class="flex items-center space-x-1 hover:text-gray-700">
                                 <span>Cost Price</span>
@@ -135,7 +135,7 @@
                                 @endif
                             </a>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">
                             <a href="{{ route('general-items.index', array_merge(request()->query(), ['sort_by' => 'sale_price', 'sort_order' => request('sort_by') == 'sale_price' && request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" 
                                class="flex items-center space-x-1 hover:text-gray-700">
                                 <span>Sale Price</span>
@@ -150,37 +150,37 @@
                                 @endif
                             </a>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($generalItems as $item)
                         <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location.href='{{ route('general-items.show', $item->id) }}'">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $item->item_code }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ $item->item_name }}</div>
+                            <td class="px-3 py-3">
+                                <div class="text-sm font-medium text-gray-900 break-words">{{ $item->item_name }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $item->itemType->item_type }}</div>
+                            <td class="px-3 py-3">
+                                <div class="text-sm text-gray-900 break-words">{{ $item->itemType->item_type }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <td class="px-3 py-3 whitespace-nowrap text-right">
                                 @php
                                     $availableStock = round($item->batches->sum('qty_remaining'));
                                 @endphp
                                 <div class="text-sm text-gray-900">{{ number_format($availableStock, 0) }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">PKR {{ number_format($item->cost_price, 2) }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">PKR {{ number_format($item->sale_price, 2) }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <td class="px-3 py-3 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-3" onclick="event.stopPropagation()">
                                     @can('edit items')
-                                    <a href="{{ route('general-items.edit', $item->id) }}" 
+                                    <a href="{{ route('general-items.edit-opening-stock', $item->id) }}" 
                                        class="text-indigo-600 hover:text-indigo-900">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
