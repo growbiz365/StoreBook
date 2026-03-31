@@ -39,7 +39,7 @@
                 <h3 class="text-lg font-bold text-gray-900 mb-3 border-b border-gray-200 pb-1">Opening Stock Information</h3>
                 
                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <x-input-label for="opening_stock">Opening Stock <span class="text-red-500">*</span></x-input-label>
                         <input type="number" name="opening_stock" id="opening_stock" value="{{ old('opening_stock', $generalItem->opening_stock) }}" 
@@ -64,6 +64,20 @@
                     </div>
 
                     <div>
+                        <x-input-label for="sale_price">Sale Price <span class="text-red-500">*</span></x-input-label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 text-sm">PKR</span>
+                            </div>
+                            <input type="number" name="sale_price" id="sale_price" step="1" min="0" value="{{ old('sale_price', $generalItem->sale_price) }}" 
+                                   class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12" required />
+                        </div>
+                        @error('sale_price')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
                         <x-input-label for="opening_total">Opening Total</x-input-label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,7 +95,6 @@
             <input type="hidden" name="item_name" value="{{ $generalItem->item_name }}">
             <input type="hidden" name="item_type_id" value="{{ $generalItem->item_type_id }}">
             <input type="hidden" name="item_code" value="{{ $generalItem->item_code }}">
-            <input type="hidden" name="sale_price" value="{{ $generalItem->sale_price }}">
             <input type="hidden" name="min_stock_limit" value="{{ $generalItem->min_stock_limit }}">
             <input type="hidden" name="carton_or_pack_size" value="{{ $generalItem->carton_or_pack_size }}">
 

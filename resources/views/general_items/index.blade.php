@@ -119,8 +119,7 @@
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Type</th>
-                        
-                    
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Available stock</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('general-items.index', array_merge(request()->query(), ['sort_by' => 'cost_price', 'sort_order' => request('sort_by') == 'cost_price' && request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" 
                                class="flex items-center space-x-1 hover:text-gray-700">
@@ -166,8 +165,12 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ $item->itemType->item_type }}</div>
                             </td>
-                            
-                            
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                @php
+                                    $availableStock = round($item->batches->sum('qty_remaining'));
+                                @endphp
+                                <div class="text-sm text-gray-900">{{ number_format($availableStock, 0) }}</div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">PKR {{ number_format($item->cost_price, 2) }}</div>
                             </td>

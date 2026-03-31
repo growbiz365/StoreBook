@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\GeneralItem;
 use App\Models\ItemType;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +23,11 @@ class GeneralItemController extends Controller
     public function index(Request $request)
     {
         $businessId = session('active_business');
-        $query = GeneralItem::with('itemType')->where('business_id', $businessId);
+        $asOnDate = Carbon::now()->format('Y-m-d');
+        $query = GeneralItem::with(['itemType', 'batches' => function ($q) use ($asOnDate) {
+            $q->where('status', 'active')
+                ->where('received_date', '<=', $asOnDate);
+        }])->where('business_id', $businessId);
 
         $itemTypes = ItemType::where('business_id', $businessId)
             ->where('status', true)
@@ -960,6 +965,7 @@ class GeneralItemController extends Controller
         $validator = Validator::make($request->all(), [
             'opening_stock' => 'required|integer|min:0',
             'cost_price' => 'required|numeric|min:0',
+            'sale_price' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -971,20 +977,25 @@ class GeneralItemController extends Controller
         $newOpeningStock = $request->opening_stock;
         $currentCostPrice = $generalItem->cost_price;
         $newCostPrice = $request->cost_price;
+        $currentSalePrice = (string) $generalItem->sale_price;
+        $newSalePrice = $request->sale_price;
         $newOpeningTotal = $newOpeningStock * $newCostPrice;
         
         // Check if values have changed
-        $hasChanged = ($currentOpeningStock != $newOpeningStock) || ($currentCostPrice != $newCostPrice);
+        $hasChanged = ($currentOpeningStock != $newOpeningStock)
+            || ((string) $currentCostPrice !== (string) $newCostPrice)
+            || ($currentSalePrice !== (string) $newSalePrice);
         
         if (!$hasChanged) {
             return redirect()->route('general-items.show', $id)->with('info', 'No changes were made to opening stock.');
         }
 
-        DB::transaction(function () use ($generalItem, $businessId, $newOpeningStock, $newCostPrice, $newOpeningTotal, $currentOpeningStock, $currentCostPrice) {
+        DB::transaction(function () use ($generalItem, $businessId, $newOpeningStock, $newCostPrice, $newSalePrice, $newOpeningTotal, $currentOpeningStock, $currentCostPrice) {
             // Update the general item
             $generalItem->update([
                 'opening_stock' => $newOpeningStock,
                 'cost_price' => $newCostPrice,
+                'sale_price' => $newSalePrice,
                 'opening_total' => $newOpeningTotal,
             ]);
 
