@@ -16,6 +16,7 @@ use App\Models\ArmHistory;
 use App\Models\SaleInvoiceAuditLog;
 use App\Models\PartyLedger;
 use App\Models\BankLedger;
+use App\Models\ItemType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -162,7 +163,12 @@ class SaleInvoiceController extends Controller
             ->orderBy('serial_no')
             ->get();
 
-        return view('sale_invoices.create', compact('customers', 'banks', 'generalItems', 'arms'));
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
+        return view('sale_invoices.create', compact('customers', 'banks', 'generalItems', 'arms', 'itemTypes'));
     }
 
     /**
@@ -349,7 +355,12 @@ class SaleInvoiceController extends Controller
             $line->generalItem->available_stock = $currentStock + $previouslySoldQty;
         }
 
-        return view('sale_invoices.edit', compact('saleInvoice', 'customers', 'banks'));
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
+        return view('sale_invoices.edit', compact('saleInvoice', 'customers', 'banks', 'itemTypes'));
     }
 
     /**

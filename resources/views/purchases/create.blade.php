@@ -7,6 +7,7 @@
     <title>New Purchase - Purchases Management - StoreBook</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
     <script>
         // TEMP DEBUG: minimal logger that bypasses silencing
         function dbg(tag, payload) {
@@ -927,12 +928,23 @@
                         <h2 class="text-base sm:text-lg font-semibold text-gray-900">General Items (FIFO batches)</h2>
                         <span id="general_items_counter" class="inline-flex items-center justify-center px-2.5 py-1 text-xs font-semibold text-white bg-purple-600 rounded-full min-w-[24px] h-6">0</span>
                     </div>
-                    <button type="button" id="add_general_item" class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        <span>Add Line</span>
-                    </button>
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                        <div class="flex items-center gap-2">
+                            <label for="item_type_filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Type:</label>
+                            <select id="item_type_filter" class="chosen-select px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 bg-white min-w-[200px]">
+                                <option value="">All Item Types</option>
+                                @foreach($itemTypes as $itemType)
+                                    <option value="{{ $itemType->id }}">{{ $itemType->item_type }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="button" id="add_general_item" class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span>Add Line</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="overflow-x-auto relative">
@@ -1240,6 +1252,20 @@
         });
         let generalItemIndex = 0;
         let armIndex = 0;
+
+        // Refresh open general-item dropdowns when item type filter changes
+        const itemTypeFilter = document.getElementById('item_type_filter');
+        if (itemTypeFilter) {
+            itemTypeFilter.addEventListener('change', function () {
+                document.querySelectorAll('.general-item-row').forEach(row => {
+                    const input = row.querySelector('.searchable-input');
+                    const dropdown = row.querySelector('.searchable-dropdown');
+                    if (input && dropdown && !dropdown.classList.contains('hidden')) {
+                        input.dispatchEvent(new Event('focus'));
+                    }
+                });
+            });
+        }
 
         // Load saved data from localStorage on page load - moved to end of initialization
 
@@ -1966,6 +1992,11 @@
                     this.performSearch();
                 }, this.debounceDelay);
             }
+
+            getSelectedItemTypeId() {
+                const filter = document.getElementById('item_type_filter');
+                return filter ? (filter.value || '') : '';
+            }
             
             async performSearch() {
                 if (this.searchTerm.length < this.minSearchLength) {
@@ -1976,7 +2007,17 @@
                 this.showLoading();
                 
                 try {
-                    const response = await fetch(`/api/general-items/search?q=${encodeURIComponent(this.searchTerm)}&page=${this.currentPage}&limit=${this.itemsPerPage}`, {
+                    const url = new URL('/api/general-items/search', window.location.origin);
+                    url.searchParams.set('q', this.searchTerm);
+                    url.searchParams.set('page', String(this.currentPage));
+                    url.searchParams.set('limit', String(this.itemsPerPage));
+
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
+
+                    const response = await fetch(url.toString(), {
                         method: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -2013,7 +2054,16 @@
                 this.showLoading();
                 
                 try {
-                    const response = await fetch(`/api/general-items?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
+                    const url = new URL('/api/general-items', window.location.origin);
+                    url.searchParams.set('page', String(this.currentPage));
+                    url.searchParams.set('limit', String(this.itemsPerPage));
+
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
+
+                    const response = await fetch(url.toString(), {
                         method: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -4488,5 +4538,43 @@
             displayValidationErrors();
         }, 3000);
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.jQuery && jQuery().chosen) {
+                $('.chosen-select').chosen({
+                    width: '200px',
+                    allow_single_deselect: true,
+                    search_contains: true,
+                });
+            }
+        });
+    </script>
+    <style>
+        /* Tailwind-ish styling for Chosen */
+        .chosen-container .chosen-single {
+            height: 40px;
+            line-height: 38px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            box-shadow: none;
+        }
+        .chosen-container-active .chosen-single {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15);
+        }
+        .chosen-container .chosen-drop {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+        }
+        .chosen-container .chosen-results li.highlighted {
+            background: #f3e8ff;
+            color: #111827;
+        }
+    </style>
 </body>
 </html>

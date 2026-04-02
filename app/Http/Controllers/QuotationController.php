@@ -17,6 +17,7 @@ use App\Models\ArmHistory;
 use App\Models\SaleInvoiceAuditLog;
 use App\Models\PartyLedger;
 use App\Models\BankLedger;
+use App\Models\ItemType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -100,6 +101,11 @@ class QuotationController extends Controller
             ->orderBy('item_name')
             ->get();
 
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
         // Add available stock to each general item
         foreach ($generalItems as $item) {
             $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
@@ -114,7 +120,7 @@ class QuotationController extends Controller
         // Empty collection for arms data to prevent errors in views
         $arms = collect();
 
-        return view('quotations.create', compact('customers', 'banks', 'generalItems', 'arms'));
+        return view('quotations.create', compact('customers', 'banks', 'generalItems', 'arms', 'itemTypes'));
     }
 
     /**
@@ -263,6 +269,11 @@ class QuotationController extends Controller
             ->orderBy('item_name')
             ->get();
 
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
         // Add available stock to each general item
         foreach ($generalItems as $item) {
             $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
@@ -279,7 +290,7 @@ class QuotationController extends Controller
 
         $quotation->load(['generalLines.generalItem', 'armLines.arm']);
 
-        return view('quotations.edit', compact('quotation', 'customers', 'banks', 'generalItems', 'arms'));
+        return view('quotations.edit', compact('quotation', 'customers', 'banks', 'generalItems', 'arms', 'itemTypes'));
     }
 
     /**

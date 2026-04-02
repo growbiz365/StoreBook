@@ -40,6 +40,11 @@ class GeneralItemController extends Controller
                       ->orWhere('item_code', 'like', "%{$searchTerm}%");
                 });
 
+            // Filter by item type if provided
+            if ($request->filled('item_type_id')) {
+                $query->where('item_type_id', $request->item_type_id);
+            }
+
             // Exclude already selected general items if provided
             if ($request->filled('exclude_ids')) {
                 $excludeIds = is_array($request->exclude_ids) ? $request->exclude_ids : explode(',', $request->exclude_ids);
@@ -125,6 +130,11 @@ class GeneralItemController extends Controller
             $limit = $request->get('limit', 20);
 
             $query = GeneralItem::where('business_id', $businessId);
+
+            // Filter by item type if provided
+            if ($request->filled('item_type_id')) {
+                $query->where('item_type_id', $request->item_type_id);
+            }
 
             // Exclude already selected general items if provided
             if ($request->filled('exclude_ids')) {

@@ -17,6 +17,7 @@ use App\Models\GeneralItemStockLedger;
 use App\Models\ArmsStockLedger;
 use App\Models\ArmHistory;
 use App\Models\BankLedger;
+use App\Models\ItemType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -42,6 +43,11 @@ class PurchaseController extends Controller
             ->orderBy('account_name')
             ->get();
         $generalItems = GeneralItem::where('business_id', $businessId)->orderBy('item_name')->get();
+
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
         
         // Arms data loading disabled - StoreBook is items-only
         // $armsMakes = ArmsMake::where('business_id', $businessId)->where('status', 1)->orderBy('arm_make')->get();
@@ -63,7 +69,7 @@ class PurchaseController extends Controller
         // Return view with a validator-like error bag
         $messageBag = new \Illuminate\Support\MessageBag($errors);
         return view('purchases.create', compact(
-            'vendors','banks','generalItems','armsMakes','armsCalibers','armsCategories','armsTypes','armsConditions'
+            'vendors','banks','generalItems','itemTypes','armsMakes','armsCalibers','armsCategories','armsTypes','armsConditions'
         ))->withErrors($messageBag);
     }
 
@@ -85,6 +91,11 @@ class PurchaseController extends Controller
             ->orderBy('account_name')
             ->get();
         $generalItems = GeneralItem::where('business_id', $businessId)->orderBy('item_name')->get();
+
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
         $armsMakes = ArmsMake::where('business_id', $businessId)->where('status', 1)->orderBy('arm_make')->get();
         $armsCalibers = ArmsCaliber::where('business_id', $businessId)->where('status', 1)->orderBy('arm_caliber')->get();
         $armsCategories = ArmsCategory::where('business_id', $businessId)->where('status', 1)->orderBy('arm_category')->get();
@@ -102,7 +113,7 @@ class PurchaseController extends Controller
 
         $messageBag = new \Illuminate\Support\MessageBag($errors);
         return view('purchases.edit', compact(
-            'purchase','vendors','banks','generalItems','armsMakes','armsCalibers','armsCategories','armsTypes','armsConditions'
+            'purchase','vendors','banks','generalItems','itemTypes','armsMakes','armsCalibers','armsCategories','armsTypes','armsConditions'
         ))->withErrors($messageBag);
     }
     /**
@@ -180,6 +191,11 @@ class PurchaseController extends Controller
             ->orderBy('item_name')
             ->get();
 
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
         // Arms data loading disabled - StoreBook is items-only
         // $armsMakes = ArmsMake::where('business_id', $businessId)->where('status', 1)->orderBy('arm_make')->get();
         // $armsCalibers = ArmsCaliber::where('business_id', $businessId)->where('status', 1)->orderBy('arm_caliber')->get();
@@ -198,6 +214,7 @@ class PurchaseController extends Controller
             'vendors', 
             'banks', 
             'generalItems', 
+            'itemTypes',
             'armsMakes', 
             'armsCalibers', 
             'armsCategories', 
@@ -630,6 +647,11 @@ class PurchaseController extends Controller
             ->orderBy('item_name')
             ->get();
 
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
         // Arms data loading disabled - StoreBook is items-only
         // $armsMakes = ArmsMake::where('business_id', $businessId)->where('status', 1)->orderBy('arm_make')->get();
         // $armsCalibers = ArmsCaliber::where('business_id', $businessId)->where('status', 1)->orderBy('arm_caliber')->get();
@@ -656,6 +678,7 @@ class PurchaseController extends Controller
             'vendors', 
             'banks', 
             'generalItems', 
+            'itemTypes',
             'armsMakes', 
             'armsCalibers', 
             'armsCategories', 

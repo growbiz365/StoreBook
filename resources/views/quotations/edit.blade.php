@@ -750,14 +750,25 @@
 
                     <!-- General Items Section -->
                     <div class="mb-6">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-4">
                             <h2 class="text-lg font-semibold text-gray-900">General Items (FIFO batches)</h2>
-                            <button type="button" id="add_general_item" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Add Line
-                            </button>
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                                <div class="flex items-center gap-2">
+                                    <label for="item_type_filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Type:</label>
+                                    <select id="item_type_filter" class="chosen-select w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 bg-white min-w-[200px]">
+                                        <option value="">All Item Types</option>
+                                        @foreach($itemTypes as $itemType)
+                                            <option value="{{ $itemType->id }}">{{ $itemType->item_type }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button type="button" id="add_general_item" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    Add Line
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="overflow-x-auto">
@@ -1098,6 +1109,20 @@
         
         let generalItemIndex = {{ $quotation->generalLines->count() }};
         let armIndex = {{ $quotation->armLines->count() }};
+
+        // Refresh open general-item dropdowns when item type filter changes
+        const itemTypeFilter = document.getElementById('item_type_filter');
+        if (itemTypeFilter) {
+            itemTypeFilter.addEventListener('change', function () {
+                document.querySelectorAll('.general-item-row').forEach(row => {
+                    const input = row.querySelector('.searchable-input');
+                    const dropdown = row.querySelector('.searchable-dropdown');
+                    if (input && dropdown && !dropdown.classList.contains('hidden')) {
+                        input.dispatchEvent(new Event('focus'));
+                    }
+                });
+            });
+        }
 
         // Sale type change handler
         document.getElementById('payment_type').addEventListener('change', function() {
@@ -1796,6 +1821,11 @@
                     this.performSearch();
                 }, this.debounceDelay);
             }
+
+            getSelectedItemTypeId() {
+                const filter = document.getElementById('item_type_filter');
+                return filter ? (filter.value || '') : '';
+            }
             
             async performSearch() {
                 if (this.searchTerm.length < this.minSearchLength) {
@@ -1810,6 +1840,11 @@
                     url.searchParams.set('q', this.searchTerm);
                     url.searchParams.set('page', this.currentPage);
                     url.searchParams.set('limit', this.itemsPerPage);
+
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
                     
                     // Add excluded general item IDs if any
                     if (window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds) && window.selectedGeneralItemIds.length > 0) {
@@ -1856,6 +1891,11 @@
                     const url = new URL('/api/general-items', window.location.origin);
                     url.searchParams.set('page', this.currentPage);
                     url.searchParams.set('limit', this.itemsPerPage);
+
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
                     
                     // Add excluded general item IDs if any
                     if (window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds) && window.selectedGeneralItemIds.length > 0) {
@@ -3099,4 +3139,42 @@
             displayValidationErrors();
         }, 2000);
     </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.jQuery && jQuery().chosen) {
+                $('.chosen-select').chosen({
+                    width: '200px',
+                    allow_single_deselect: true,
+                    search_contains: true,
+                });
+            }
+        });
+    </script>
+    <style>
+        .chosen-container .chosen-single {
+            height: 40px;
+            line-height: 38px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            box-shadow: none;
+        }
+        .chosen-container-active .chosen-single {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15);
+        }
+        .chosen-container .chosen-drop {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+        }
+        .chosen-container .chosen-results li.highlighted {
+            background: #f3e8ff;
+            color: #111827;
+        }
+    </style>
 </x-app-layout>

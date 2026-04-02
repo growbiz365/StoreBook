@@ -746,14 +746,25 @@
 
                     <!-- General Items Section -->
                     <div class="mb-6">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                             <h2 class="text-lg font-semibold text-gray-900">General Items (FIFO batches)</h2>
-                            <button type="button" id="add_general_item" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Add Line
-                            </button>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <div class="flex items-center gap-2">
+                                    <label for="item_type_filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Type:</label>
+                                    <select id="item_type_filter" class="chosen-select px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 bg-white min-w-[160px]">
+                                        <option value="">All Item Types</option>
+                                        @foreach($itemTypes as $itemType)
+                                            <option value="{{ $itemType->id }}">{{ $itemType->item_type }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button type="button" id="add_general_item" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    Add Line
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="overflow-x-auto">
@@ -1415,6 +1426,17 @@
             generalItemIndex++;
         });
 
+        // Item type filter change - refresh all active general item dropdowns
+        document.getElementById('item_type_filter').addEventListener('change', function() {
+            document.querySelectorAll('.general-item-row').forEach(row => {
+                const input = row.querySelector('.searchable-input');
+                const dropdown = row.querySelector('.searchable-dropdown');
+                if (input && dropdown && !dropdown.classList.contains('hidden')) {
+                    input.dispatchEvent(new Event('focus'));
+                }
+            });
+        });
+
         // Add arm
         document.getElementById('add_arm').addEventListener('click', function() {
             const container = document.getElementById('arms_container');
@@ -1656,6 +1678,11 @@
                 
                 this.init();
             }
+
+            getSelectedItemTypeId() {
+                const filter = document.getElementById('item_type_filter');
+                return filter ? filter.value : '';
+            }
             
             init() {
                 this.bindEvents();
@@ -1725,6 +1752,10 @@
                     url.searchParams.set('q', this.searchTerm);
                     url.searchParams.set('page', this.currentPage);
                     url.searchParams.set('limit', this.itemsPerPage);
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
                     
                     const response = await fetch(url.toString(), {
                         method: 'GET',
@@ -1766,6 +1797,10 @@
                     const url = new URL('/api/general-items', window.location.origin);
                     url.searchParams.set('page', this.currentPage);
                     url.searchParams.set('limit', this.itemsPerPage);
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
                     
                     const response = await fetch(url.toString(), {
                         method: 'GET',
@@ -3426,6 +3461,52 @@
         },
         triggerDropdown: triggerSearchableDropdownUpdate
     };
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    <style>
+        /* Make Chosen match Tailwind input styles used in filters */
+        .chosen-container { width: 100% !important; }
+        .chosen-container-single .chosen-single {
+            height: 40px;
+            line-height: 38px;
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0 2.25rem 0 0.75rem;
+            background: #fff;
+            font-size: 0.875rem; /* text-sm */
+            color: #111827; /* text-gray-900 */
+            box-shadow: none;
+        }
+        .chosen-container-single .chosen-single div { right: 0.5rem; }
+        .chosen-container-active .chosen-single {
+            border-color: #a855f7; /* purple-500 */
+            box-shadow: 0 0 0 1px rgba(168,85,247,0.2);
+        }
+        .chosen-container .chosen-drop {
+            border-color: #e5e7eb; /* gray-200 */
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .chosen-container .chosen-search input {
+            height: 38px;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0 0.75rem;
+            box-shadow: none;
+        }
+    </style>
+    <script>
+        $(function () {
+            $('.chosen-select').chosen({
+                width: '100%',
+                search_contains: true,
+                allow_single_deselect: true,
+                placeholder_text_single: 'All Item Types'
+            });
+        });
     </script>
 
     <script>
