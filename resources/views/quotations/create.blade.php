@@ -1311,101 +1311,6 @@
         });
         }
 
-        // Validate stock before form submission
-        function validateStock() {
-            const generalItemRows = document.querySelectorAll('.general-item-row');
-            let hasInsufficientStock = false;
-            let stockErrors = [];
-            
-            generalItemRows.forEach((row, index) => {
-                const itemInput = row.querySelector('.searchable-input');
-                const selectedItemId = row.querySelector('.selected-item-id').value;
-                const quantityInput = row.querySelector('input[name*="[qty]"]');
-                const quantity = parseFloat(quantityInput?.value || 0);
-                
-                if (selectedItemId && itemInput && quantity > 0) {
-                    // Get available stock from the item data
-                    const stockInfo = row.querySelector('.item-info');
-                    if (stockInfo) {
-                        const stockText = stockInfo.textContent;
-                        const stockMatch = stockText.match(/Stock:\s*(\d+(?:\.\d+)?)/);
-                        if (stockMatch) {
-                            const availableStock = parseFloat(stockMatch[1]);
-                            if (quantity > availableStock) {
-                                hasInsufficientStock = true;
-                                const itemName = itemInput.value;
-                                stockErrors.push(`Line ${index + 1}: Insufficient stock for '${itemName}'. Available: ${availableStock}, Required: ${quantity}`);
-                                
-                                // Highlight the quantity field
-                                quantityInput.style.borderColor = '#ef4444';
-                                quantityInput.style.backgroundColor = '#fef2f2';
-                            } else {
-                                // Reset styling if stock is sufficient
-                                quantityInput.style.borderColor = '';
-                                quantityInput.style.backgroundColor = '';
-                            }
-                        }
-                    }
-                }
-            });
-            
-            if (hasInsufficientStock) {
-                alert('⚠️ Stock Validation Error:\n\n' + stockErrors.join('\n') + '\n\nPlease adjust quantities or remove items with insufficient stock.');
-                return false;
-            }
-            
-            return true;
-        }
-
-        // Validate quantity for a specific row
-        function validateQuantityForRow(quantityInput) {
-            const row = quantityInput.closest('.general-item-row');
-            const itemInput = row.querySelector('.searchable-input');
-            const selectedItemId = row.querySelector('.selected-item-id').value;
-            const quantity = parseFloat(quantityInput.value || 0);
-            
-            if (selectedItemId && itemInput && quantity > 0) {
-                const stockInfo = row.querySelector('.item-info');
-                if (stockInfo) {
-                    const stockText = stockInfo.textContent;
-                    const stockMatch = stockText.match(/Stock:\s*(\d+(?:\.\d+)?)/);
-                    if (stockMatch) {
-                        const availableStock = parseFloat(stockMatch[1]);
-                        if (quantity > availableStock) {
-                            // Show error styling
-                            quantityInput.style.borderColor = '#ef4444';
-                            quantityInput.style.backgroundColor = '#fef2f2';
-                            
-                            // Show error message
-                            let errorDiv = row.querySelector('.quantity-error');
-                            if (!errorDiv) {
-                                errorDiv = document.createElement('div');
-                                errorDiv.className = 'quantity-error text-xs text-red-600 mt-1';
-                                quantityInput.parentNode.appendChild(errorDiv);
-                            }
-                            errorDiv.textContent = `Insufficient stock. Available: ${availableStock}`;
-                        } else {
-                            // Reset styling and remove error message
-                            quantityInput.style.borderColor = '';
-                            quantityInput.style.backgroundColor = '';
-                            const errorDiv = row.querySelector('.quantity-error');
-                            if (errorDiv) {
-                                errorDiv.remove();
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Reset styling if no item selected or quantity is 0
-                quantityInput.style.borderColor = '';
-                quantityInput.style.backgroundColor = '';
-                const errorDiv = row.querySelector('.quantity-error');
-                if (errorDiv) {
-                    errorDiv.remove();
-                }
-            }
-        }
-
         // Add general item
         document.getElementById('add_general_item').addEventListener('click', function() {
             const container = document.getElementById('general_items_container');
@@ -1442,13 +1347,6 @@
                     calculateTotals();
                 });
             });
-            
-            // Add quantity validation for stock checking
-            if (qtyInput) {
-                qtyInput.addEventListener('input', function() {
-                    validateQuantityForRow(this);
-                });
-            }
             
             generalItemIndex++;
         });
@@ -1547,11 +1445,6 @@
                 // Scroll to the error
                 partyField.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
-                return false;
-            }
-            
-            if (!validateStock()) {
-                e.preventDefault();
                 return false;
             }
             
@@ -1948,42 +1841,8 @@
                     window.selectedGeneralItemIds.push(item.id);
                 }
                 
-                // Show available stock and stock warning if needed
-                const availableStock = item.available_stock || 0;
                 const row = this.container.closest('.general-item-row');
-                
-                // Remove any existing stock warning and info
-                const existingWarning = row.querySelector('.stock-warning');
-                const existingInfo = row.querySelector('.item-info');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-                if (existingInfo) {
-                    existingInfo.remove();
-                }
-                
-                // Add item info (available stock) - positioned absolutely to not affect layout
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'item-info absolute text-xs text-gray-500 top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                infoDiv.innerHTML = `
-                    <span>Stock: <span class="font-medium">${availableStock}</span></span>
-                `;
-                this.container.style.position = 'relative';
-                this.container.appendChild(infoDiv);
-                
-                // Add stock warning if stock is low or zero - positioned absolutely
-                if (availableStock <= 0) {
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'stock-warning absolute text-red-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                    warningDiv.textContent = '⚠️ No stock!';
-                    this.container.appendChild(warningDiv);
-                } else if (availableStock <= 5) {
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'stock-warning absolute text-orange-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                    warningDiv.textContent = `⚠️ Low: ${availableStock}`;
-                    this.container.appendChild(warningDiv);
-                }
-                
+
                 // Populate sale price
                 const salePriceInput = row.querySelector('.general-sale-price');
                 
@@ -2106,16 +1965,6 @@
                 }
                 if (qtyInput) {
                     qtyInput.value = '1';
-                }
-                
-                // Remove any stock warnings and item info
-                const existingWarning = row.querySelector('.stock-warning');
-                const existingInfo = row.querySelector('.item-info');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-                if (existingInfo) {
-                    existingInfo.remove();
                 }
                 
                 // Trigger calculation

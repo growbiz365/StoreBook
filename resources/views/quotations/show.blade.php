@@ -12,6 +12,41 @@
         :icon="'fas fa-file-invoice-dollar'"
     />
 
+    {{-- Stock shortage details from a failed Convert to Sale attempt --}}
+    @if(session('stock_shortages'))
+    <div class="mb-4 bg-red-50 border border-red-300 rounded-lg p-4">
+        <div class="flex items-center mb-2">
+            <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <span class="text-red-700 font-semibold text-sm">Cannot Convert — Insufficient Stock</span>
+        </div>
+        <p class="text-red-600 text-xs mb-3">The following items do not have enough stock to complete this conversion. Please create a purchase entry or adjust stock, then try again.</p>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs border border-red-200 rounded">
+                <thead>
+                    <tr class="bg-red-100">
+                        <th class="px-3 py-2 text-left font-semibold text-red-700">Item</th>
+                        <th class="px-3 py-2 text-right font-semibold text-red-700">Required Qty</th>
+                        <th class="px-3 py-2 text-right font-semibold text-red-700">Available Qty</th>
+                        <th class="px-3 py-2 text-right font-semibold text-red-700">Shortage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(session('stock_shortages') as $shortage)
+                    <tr class="border-t border-red-200">
+                        <td class="px-3 py-2 text-red-900 font-medium">{{ $shortage['item_name'] }}</td>
+                        <td class="px-3 py-2 text-right text-red-800">{{ number_format($shortage['required'], 0) }}</td>
+                        <td class="px-3 py-2 text-right text-red-800">{{ number_format($shortage['available'], 0) }}</td>
+                        <td class="px-3 py-2 text-right font-bold text-red-600">{{ number_format($shortage['short'], 0) }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
     <!-- Status Badges -->
     <div class="mb-4 flex flex-wrap justify-start gap-2">
         @if($quotation->status == 'sent')

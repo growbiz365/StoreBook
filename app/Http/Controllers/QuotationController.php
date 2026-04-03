@@ -106,18 +106,7 @@ class QuotationController extends Controller
             ->orderBy('item_type')
             ->get();
 
-        // Add available stock to each general item
-        foreach ($generalItems as $item) {
-            $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
-        }
-
         // Arms data loading disabled - StoreBook is items-only
-        // $arms = Arm::where('business_id', $businessId)
-        //     ->where('status', 'available')
-        //     ->orderBy('serial_no')
-        //     ->get();
-
-        // Empty collection for arms data to prevent errors in views
         $arms = collect();
 
         return view('quotations.create', compact('customers', 'banks', 'generalItems', 'arms', 'itemTypes'));
@@ -133,6 +122,11 @@ class QuotationController extends Controller
 
         try {
             DB::beginTransaction();
+
+            Log::info('Quotation create: request received', [
+                'business_id' => $businessId,
+                'user_id' => $userId,
+            ]);
 
             // Validate main quotation data
             $validator = Validator::make($request->all(), [
@@ -157,12 +151,21 @@ class QuotationController extends Controller
             ]);
 
             if ($validator->fails()) {
+                Log::warning('Quotation create: validation failed', [
+                    'business_id' => $businessId,
+                    'errors' => $validator->errors()->toArray(),
+                ]);
                 return back()->withErrors($validator)->withInput();
             }
 
             // Validate at least one line item
             if ((!$request->has('general_lines') || empty($request->general_lines)) && 
                 (!$request->has('arm_lines') || empty($request->arm_lines))) {
+                Log::warning('Quotation create: no line items provided', [
+                    'business_id' => $businessId,
+                    'has_general_lines' => $request->has('general_lines'),
+                    'has_arm_lines' => $request->has('arm_lines'),
+                ]);
                 return back()->withErrors(['lines' => 'Please add at least one item or arm to the quotation.'])->withInput();
             }
 
@@ -207,12 +210,21 @@ class QuotationController extends Controller
 
             DB::commit();
 
+            Log::info('Quotation create: success', [
+                'quotation_id' => $quotation->id,
+                'user_id' => $userId,
+            ]);
+
             return redirect()->route('quotations.show', $quotation)
                 ->with('success', 'Quotation created successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error creating quotation: ' . $e->getMessage());
+            Log::error('Error creating quotation: ' . $e->getMessage(), [
+                'business_id' => $businessId,
+                'user_id' => $userId,
+                'trace' => $e->getTraceAsString(),
+            ]);
             return back()->withErrors(['error' => 'Failed to create quotation: ' . $e->getMessage()])->withInput();
         }
     }
@@ -274,18 +286,7 @@ class QuotationController extends Controller
             ->orderBy('item_type')
             ->get();
 
-        // Add available stock to each general item
-        foreach ($generalItems as $item) {
-            $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
-        }
-
         // Arms data loading disabled - StoreBook is items-only
-        // $arms = Arm::where('business_id', $businessId)
-        //     ->where('status', 'available')
-        //     ->orderBy('serial_no')
-        //     ->get();
-
-        // Empty collection for arms data to prevent errors in views
         $arms = collect();
 
         $quotation->load(['generalLines.generalItem', 'armLines.arm']);
@@ -315,6 +316,13 @@ class QuotationController extends Controller
         try {
             DB::beginTransaction();
 
+            Log::info('Quotation update: request received', [
+                'quotation_id' => $quotation->id,
+                'user_id' => auth()->id(),
+                'general_line_count' => is_array($request->input('general_lines')) ? count($request->input('general_lines')) : 0,
+                'arm_line_count' => is_array($request->input('arm_lines')) ? count($request->input('arm_lines')) : 0,
+            ]);
+
             // Validate main quotation data
             $validator = Validator::make($request->all(), [
                 'party_id' => 'nullable|required_if:payment_type,credit|exists:parties,id',
@@ -338,12 +346,21 @@ class QuotationController extends Controller
             ]);
 
             if ($validator->fails()) {
+                Log::warning('Quotation update: validation failed', [
+                    'quotation_id' => $quotation->id,
+                    'errors' => $validator->errors()->toArray(),
+                ]);
                 return back()->withErrors($validator)->withInput();
             }
 
             // Validate at least one line item
             if ((!$request->has('general_lines') || empty($request->general_lines)) && 
                 (!$request->has('arm_lines') || empty($request->arm_lines))) {
+                Log::warning('Quotation update: no line items provided', [
+                    'quotation_id' => $quotation->id,
+                    'has_general_lines' => $request->has('general_lines'),
+                    'has_arm_lines' => $request->has('arm_lines'),
+                ]);
                 return back()->withErrors(['lines' => 'Please add at least one item or arm to the quotation.'])->withInput();
             }
 
@@ -389,12 +406,21 @@ class QuotationController extends Controller
 
             DB::commit();
 
+            Log::info('Quotation update: success', [
+                'quotation_id' => $quotation->id,
+                'user_id' => auth()->id(),
+            ]);
+
             return redirect()->route('quotations.show', $quotation)
                 ->with('success', 'Quotation updated successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error updating quotation: ' . $e->getMessage());
+            Log::error('Error updating quotation: ' . $e->getMessage(), [
+                'quotation_id' => $quotation->id,
+                'user_id' => auth()->id(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return back()->withErrors(['error' => 'Failed to update quotation: ' . $e->getMessage()])->withInput();
         }
     }
@@ -467,6 +493,30 @@ class QuotationController extends Controller
 
             // Load quotation lines
             $quotation->load(['generalLines.generalItem', 'armLines.arm', 'party', 'bank']);
+
+            // Validate stock availability for every general line before creating anything
+            $stockShortages = [];
+            foreach ($quotation->generalLines as $line) {
+                $available = GeneralBatch::where('item_id', $line->general_item_id)
+                    ->where('qty_remaining', '>', 0)
+                    ->sum('qty_remaining');
+
+                if ($available < $line->quantity) {
+                    $stockShortages[] = [
+                        'item_name' => $line->generalItem->item_name ?? 'Item #' . $line->general_item_id,
+                        'required'  => $line->quantity,
+                        'available' => $available,
+                        'short'     => $line->quantity - $available,
+                    ];
+                }
+            }
+
+            if (!empty($stockShortages)) {
+                DB::rollBack();
+                return back()
+                    ->with('stock_shortages', $stockShortages)
+                    ->with('error', 'Cannot convert quotation: insufficient stock for one or more items.');
+            }
 
             // Create sale invoice with status 'posted'
             $saleInvoice = SaleInvoice::create([
@@ -605,19 +655,28 @@ class QuotationController extends Controller
 
             // Create stock ledger entries for general items
             foreach ($saleInvoice->generalLines as $line) {
-                // Get available batches for FIFO consumption
+                // Get available batches for FIFO consumption (locked to prevent concurrent overselling)
                 $batches = GeneralBatch::where('item_id', $line->general_item_id)
                     ->where('qty_remaining', '>', 0)
                     ->orderBy('created_at')
+                    ->lockForUpdate()
                     ->get();
 
                 if ($batches->isEmpty()) {
-                    Log::warning('No available batches for general item in sale invoice', [
-                        'sale_invoice_id' => $saleInvoice->id,
-                        'general_item_id' => $line->general_item_id,
-                        'quantity' => $line->quantity
-                    ]);
-                    continue;
+                    throw new \Exception(
+                        'Insufficient stock for item "' .
+                        ($line->generalItem->item_name ?? 'Item #' . $line->general_item_id) .
+                        '": no stock batches available.'
+                    );
+                }
+
+                $totalAvailable = $batches->sum('qty_remaining');
+                if ($totalAvailable < $line->quantity) {
+                    throw new \Exception(
+                        'Insufficient stock for item "' .
+                        ($line->generalItem->item_name ?? 'Item #' . $line->general_item_id) .
+                        '": required ' . $line->quantity . ', available ' . $totalAvailable . '.'
+                    );
                 }
 
                 $remainingQty = $line->quantity;
