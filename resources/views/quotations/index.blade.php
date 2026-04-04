@@ -197,8 +197,8 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $quotation->party->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $quotation->party->cnic ?? 'N/A' }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $quotation->party->name ?? 'Cash Sale' }}</div>
+                                    <div class="text-sm text-gray-500">{{ optional($quotation->party)->cnic ?? 'N/A' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-500">
