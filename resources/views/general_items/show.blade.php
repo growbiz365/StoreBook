@@ -60,15 +60,23 @@
                     <div class="flex items-center space-x-2">
                         <span class="text-sm font-medium text-gray-700">Status:</span>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
-                            {{ $generalItem->stock_status === 'low' ? 'bg-red-100 text-red-800' : 
-                               ($generalItem->stock_status === 'normal' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800') }}">
-                            {{ ucfirst($generalItem->stock_status) }}
+                            @switch($generalItem->stock_status)
+                                @case('low') bg-red-100 text-red-800 @break
+                                @case('warning') bg-yellow-100 text-yellow-800 @break
+                                @case('good') bg-green-100 text-green-800 @break
+                                @default bg-gray-100 text-gray-800
+                            @endswitch">
+                            @if($generalItem->stock_status === 'neutral')
+                                No minimum set
+                            @else
+                                {{ ucfirst($generalItem->stock_status) }}
+                            @endif
                         </span>
                     </div>
                     
                     <div class="flex items-center space-x-2">
-                        <span class="text-sm font-medium text-gray-700">Stock Level:</span>
-                        <span class="text-lg font-bold text-gray-900">{{ $generalItem->opening_stock }}</span>
+                        <span class="text-sm font-medium text-gray-700">Available Stock:</span>
+                        <span class="text-lg font-bold text-gray-900">{{ number_format($availableStock, 0) }}</span>
                         @if($generalItem->min_stock_limit)
                             <span class="text-sm text-gray-500">/ {{ $generalItem->min_stock_limit }} min</span>
                         @endif
@@ -284,7 +292,7 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-gray-900 mb-2">{{ $generalItem->opening_stock }}</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-2">{{ number_format($availableStock, 0) }}</div>
                             <div class="text-sm text-gray-600">Current Stock</div>
                         </div>
                         
@@ -292,9 +300,17 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Stock Status</span>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                    {{ $generalItem->stock_status === 'low' ? 'bg-red-100 text-red-800' : 
-                                       ($generalItem->stock_status === 'normal' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800') }}">
-                                    {{ ucfirst($generalItem->stock_status) }}
+                                    @switch($generalItem->stock_status)
+                                        @case('low') bg-red-100 text-red-800 @break
+                                        @case('warning') bg-yellow-100 text-yellow-800 @break
+                                        @case('good') bg-green-100 text-green-800 @break
+                                        @default bg-gray-100 text-gray-800
+                                    @endswitch">
+                                    @if($generalItem->stock_status === 'neutral')
+                                        No minimum set
+                                    @else
+                                        {{ ucfirst($generalItem->stock_status) }}
+                                    @endif
                                 </span>
                             </div>
                             

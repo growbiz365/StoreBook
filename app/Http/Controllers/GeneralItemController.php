@@ -227,8 +227,18 @@ class GeneralItemController extends Controller
     public function show($id)
     {
         $businessId = session('active_business');
-        $generalItem = GeneralItem::with('itemType')->where('business_id', $businessId)->findOrFail($id);
-        return view('general_items.show', compact('generalItem'));
+        $asOnDate = Carbon::now()->format('Y-m-d');
+        $generalItem = GeneralItem::with([
+            'itemType',
+            'batches' => function ($q) use ($asOnDate) {
+                $q->where('status', 'active')
+                    ->where('received_date', '<=', $asOnDate);
+            },
+        ])->where('business_id', $businessId)->findOrFail($id);
+
+        $availableStock = $generalItem->getAvailableStockQuantity();
+
+        return view('general_items.show', compact('generalItem', 'availableStock'));
     }
 
     /**

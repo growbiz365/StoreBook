@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GeneralItem extends Model
 {
+    /** @var float|null Memoized result for {@see getAvailableStockQuantity()} */
+    private ?float $availableStockQuantityResolved = null;
+
     protected $fillable = [
         'item_name',
         'item_type_id',
@@ -48,19 +51,60 @@ class GeneralItem extends Model
         return $this->hasMany(GeneralItemStockLedger::class, 'general_item_id');
     }
 
+    /**
+     * Available quantity: sum of qty_remaining on active batches received on or before today.
+     * Matches general items index listing and FIFO consumption rules.
+     */
+    public function getAvailableStockQuantity(): float
+    {
+        if ($this->availableStockQuantityResolved !== null) {
+            return $this->availableStockQuantityResolved;
+        }
+
+        $asOnDate = now()->format('Y-m-d');
+
+        if ($this->relationLoaded('batches')) {
+            $this->availableStockQuantityResolved = round((float) $this->batches
+                ->filter(function ($batch) use ($asOnDate) {
+                    if (($batch->status ?? '') !== 'active') {
+                        return false;
+                    }
+                    if (! $batch->received_date) {
+                        return false;
+                    }
+
+                    return $batch->received_date->format('Y-m-d') <= $asOnDate;
+                })
+                ->sum('qty_remaining'));
+
+            return $this->availableStockQuantityResolved;
+        }
+
+        $this->availableStockQuantityResolved = round((float) GeneralBatch::query()
+            ->where('item_id', $this->id)
+            ->where('status', 'active')
+            ->where('received_date', '<=', $asOnDate)
+            ->sum('qty_remaining'));
+
+        return $this->availableStockQuantityResolved;
+    }
+
     public function getStockStatusAttribute()
     {
         if ($this->min_stock_limit === null) {
             return 'neutral';
         }
 
-        if ($this->opening_stock < $this->min_stock_limit) {
+        $available = $this->getAvailableStockQuantity();
+
+        if ($available < $this->min_stock_limit) {
             return 'low';
-        } elseif ($this->opening_stock == $this->min_stock_limit) {
-            return 'warning';
-        } else {
-            return 'good';
         }
+        if ($available == $this->min_stock_limit) {
+            return 'warning';
+        }
+
+        return 'good';
     }
 
     public function getStockStatusColorAttribute()
