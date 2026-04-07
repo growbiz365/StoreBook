@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StockAdjustment;
 use App\Models\GeneralItem;
+use App\Models\ItemType;
 use App\Models\GeneralItemStockLedger;
 use App\Models\GeneralBatch;
 use App\Models\Arm;
@@ -43,7 +44,7 @@ class StockAdjustmentController extends Controller
     {
         $businessId = session('active_business');
 
-        $parents = StockAdjustment::with(['itemLines.item', 'armLines.arm'])
+        $parents = StockAdjustment::with(['itemLines.item'])
             ->where('business_id', $businessId);
 
         if ($request->filled('adjustment_type') && $request->adjustment_type !== 'all') {
@@ -54,29 +55,23 @@ class StockAdjustmentController extends Controller
         }
         if ($request->filled('search')) {
             $search = $request->search;
-            $parents->where(function($q) use ($search) {
-                $q->whereHas('itemLines.item', function($iq) use ($search) {
-                    $iq->where('item_name', 'like', "%$search%")
-                       ->orWhere('item_code', 'like', "%$search%");
-                })->orWhereHas('armLines.arm', function($aq) use ($search) {
-                    $aq->where('arm_title', 'like', "%$search%")
-                       ->orWhere('serial_no', 'like', "%$search%");
-                });
+            $parents->whereHas('itemLines.item', function ($iq) use ($search) {
+                $iq->where('item_name', 'like', "%$search%")
+                    ->orWhere('item_code', 'like', "%$search%");
             });
         }
 
         $parents->orderBy('adjustment_date', 'desc')->orderBy('created_at', 'desc');
 
-        $paginated = $parents->paginate(20)->through(function($parent) {
+        $paginated = $parents->paginate(20)->through(function ($parent) {
             $itemsTotal = $parent->itemLines->sum('total_amount');
-            $armsTotal = $parent->armLines->sum('price');
+
             return [
                 'id' => $parent->id,
                 'date' => $parent->adjustment_date,
                 'type' => $parent->adjustment_type,
                 'items_count' => $parent->itemLines->count(),
-                'arms_count' => $parent->armLines->count(),
-                'amount' => ($itemsTotal + $armsTotal),
+                'amount' => $itemsTotal,
             ];
         });
 
@@ -91,8 +86,10 @@ class StockAdjustmentController extends Controller
     public function create()
     {
         $businessId = session('active_business');
-        $generalItems = GeneralItem::where('business_id', $businessId)
-            ->orderBy('item_name')
+
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
             ->get();
 
         // Arms data loading disabled - StoreBook is items-only
@@ -104,7 +101,7 @@ class StockAdjustmentController extends Controller
         // Empty collection for arms data to prevent errors in views
         $arms = collect();
 
-        return view('stock-adjustments.create', compact('generalItems', 'arms'));
+        return view('stock-adjustments.create', compact('itemTypes', 'arms'));
     }
 
     /**
@@ -284,20 +281,21 @@ class StockAdjustmentController extends Controller
     public function edit(StockAdjustment $stockAdjustment)
     {
         $businessId = session('active_business');
-        $generalItems = GeneralItem::where('business_id', $businessId)
-            ->orderBy('item_name')
+        $stockAdjustment->load(['itemLines.item']);
+
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
             ->get();
         
-        // Arms data loading disabled - StoreBook is items-only
         // $arms = Arm::forBusiness($businessId)
         //     ->available()
         //     ->orderBy('arm_title')
         //     ->get();
 
-        // Empty collection for arms data to prevent errors in views
         $arms = collect();
 
-        return view('stock-adjustments.edit', compact('stockAdjustment', 'generalItems', 'arms'));
+        return view('stock-adjustments.edit', compact('stockAdjustment', 'itemTypes', 'arms'));
     }
 
     /**

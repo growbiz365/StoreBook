@@ -75,15 +75,27 @@
 
             <!-- Items Section -->
             <div class="mb-4">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-gray-900 border-b border-gray-200 pb-1">Items to Adjust</h3>
-                    <button type="button" id="addItemBtn" 
-                            class="inline-flex items-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Add Item
-                    </button>
+                <div class="flex flex-wrap justify-between items-end gap-3 mb-3">
+                    <h3 class="text-sm font-bold text-gray-900 border-b border-gray-200 pb-1 flex-1 min-w-[200px]">Items to Adjust</h3>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <label for="item_type_filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Type:</label>
+                            <select id="item_type_filter"
+                                    class="block w-full md:w-56 rounded-md text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 adjustment-item-type-chosen">
+                                <option value="">All Item Types</option>
+                                @foreach($itemTypes as $itemType)
+                                    <option value="{{ $itemType->id }}">{{ $itemType->item_type }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="button" id="addItemBtn"
+                                class="inline-flex items-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Item
+                        </button>
+                    </div>
                 </div>
 
                 <div id="itemsContainer">
@@ -173,24 +185,339 @@
     .chosen-error-container {
         margin-top: 0;
     }
+    /* Item search dropdown (API) */
+    .stock-adjustment-item-row { position: relative; overflow: visible; }
+    .searchable-dropdown { max-height: 15rem; }
+    .searchable-input.border-red-500 { border-color: #ef4444 !important; }
     </style>
     <script>
+        class StockAdjustmentItemSearchableDropdown {
+            constructor(container, options = {}) {
+                this.container = container;
+                this.input = container.querySelector('.searchable-input');
+                this.hiddenInput = container.querySelector('.selected-item-id');
+                this.dropdown = container.querySelector('.searchable-dropdown');
+                this.resultsContainer = container.querySelector('.search-results-container');
+                this.paginationContainer = container.querySelector('.pagination-container');
+                this.loadingIndicator = container.querySelector('.loading-indicator');
+                this.searchTimeout = null;
+                this.currentPage = 1;
+                this.searchTerm = '';
+                this.selectedItem = null;
+                this.itemsPerPage = options.itemsPerPage || 10;
+                this.debounceDelay = options.debounceDelay || 300;
+                this.minSearchLength = options.minSearchLength || 2;
+                this.init();
+            }
+            closestItemRow() {
+                return this.container.closest('.stock-adjustment-item-row, .existing-item-row');
+            }
+            getSelectedItemTypeId() {
+                const filter = document.getElementById('item_type_filter');
+                return filter ? (filter.value || '') : '';
+            }
+            getExcludeIds(exceptHidden) {
+                const ids = [];
+                document.querySelectorAll('.stock-adjustment-item-row .selected-item-id, .existing-item-row .selected-item-id').forEach((h) => {
+                    if (h === exceptHidden || !h.value) return;
+                    const row = h.closest('.stock-adjustment-item-row, .existing-item-row');
+                    if (row && row.style.display === 'none') return;
+                    ids.push(String(h.value));
+                });
+                return ids;
+            }
+            init() {
+                this.bindEvents();
+                this.setupGlobalClickHandler();
+            }
+            bindEvents() {
+                this.input.addEventListener('focus', () => {
+                    this.showDropdown();
+                    this.performSearch();
+                });
+                this.input.addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value;
+                    this.currentPage = 1;
+                    this.showDropdown();
+                    if (!this.searchTerm.trim() && this.selectedItem) {
+                        this.clearSelection();
+                    }
+                    this.debounceSearch();
+                });
+                this.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.selectHighlightedResult();
+                    } else if (e.key === 'Escape') {
+                        this.hideDropdown();
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.navigateResults('down');
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.navigateResults('up');
+                    }
+                });
+            }
+            setupGlobalClickHandler() {
+                document.addEventListener('click', (e) => {
+                    if (!this.container.contains(e.target)) {
+                        this.hideDropdown();
+                    }
+                });
+            }
+            debounceSearch() {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => this.performSearch(), this.debounceDelay);
+            }
+            async performSearch() {
+                if (this.searchTerm.length < this.minSearchLength) {
+                    this.showInitialResults();
+                    return;
+                }
+                this.showLoading();
+                try {
+                    const url = new URL('/api/general-items/search', window.location.origin);
+                    url.searchParams.set('q', this.searchTerm);
+                    url.searchParams.set('page', this.currentPage);
+                    url.searchParams.set('limit', this.itemsPerPage);
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) url.searchParams.set('item_type_id', itemTypeId);
+                    const exclude = this.getExcludeIds(this.hiddenInput);
+                    if (exclude.length) url.searchParams.set('exclude_ids', exclude.join(','));
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    });
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.message || data.error);
+                    if (!Array.isArray(data.data)) throw new Error('Invalid search response');
+                    this.displayResults(data.data || [], data.meta || {});
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.showError('Search failed: ' + error.message);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+            async showInitialResults() {
+                this.showLoading();
+                try {
+                    const url = new URL('/api/general-items', window.location.origin);
+                    url.searchParams.set('page', this.currentPage);
+                    url.searchParams.set('limit', this.itemsPerPage);
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) url.searchParams.set('item_type_id', itemTypeId);
+                    const exclude = this.getExcludeIds(this.hiddenInput);
+                    if (exclude.length) url.searchParams.set('exclude_ids', exclude.join(','));
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    });
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.message || data.error);
+                    if (!Array.isArray(data.data)) throw new Error('Invalid API response');
+                    this.displayResults(data.data || [], data.meta || {});
+                } catch (error) {
+                    console.error('Initial load error:', error);
+                    this.showError('Failed to load items: ' + error.message);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+            displayResults(items, meta) {
+                this.resultsContainer.innerHTML = '';
+                if (!items || !Array.isArray(items) || items.length === 0) {
+                    this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">' +
+                        (this.searchTerm ? 'No items found matching your search.' : 'No items available.') + '</div>';
+                    this.paginationContainer.classList.add('hidden');
+                    return;
+                }
+                items.forEach((item) => {
+                    if (!item || !item.id || !item.item_name) return;
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
+                    resultItem.dataset.itemId = item.id;
+                    resultItem.dataset.itemName = item.item_name;
+                    resultItem.dataset.costPrice = this.safeNumber(item.cost_price);
+                    resultItem.dataset.availableStock = this.safeNumber(item.available_stock);
+                    resultItem.dataset.itemCode = item.item_code || '';
+                    resultItem.innerHTML = '<div class="font-medium text-gray-900">' + item.item_name + '</div>' +
+                        (item.item_code ? '<div class="text-xs text-gray-400">' + item.item_code + '</div>' : '');
+                    resultItem.addEventListener('click', () => this.selectItem(item));
+                    this.resultsContainer.appendChild(resultItem);
+                });
+                if (meta && meta.last_page > 1) {
+                    this.showPagination(meta);
+                } else {
+                    this.paginationContainer.classList.add('hidden');
+                }
+            }
+            showPagination(meta) {
+                this.paginationContainer.classList.remove('hidden');
+                const pageInfo = this.paginationContainer.querySelector('.page-info');
+                const prevBtn = this.paginationContainer.querySelector('.prev-page');
+                const nextBtn = this.paginationContainer.querySelector('.next-page');
+                pageInfo.textContent = 'Page ' + meta.current_page + ' of ' + meta.last_page;
+                prevBtn.disabled = meta.current_page <= 1;
+                nextBtn.disabled = meta.current_page >= meta.last_page;
+                prevBtn.onclick = () => {
+                    if (meta.current_page > 1) {
+                        this.currentPage = meta.current_page - 1;
+                        this.performSearch();
+                    }
+                };
+                nextBtn.onclick = () => {
+                    if (meta.current_page < meta.last_page) {
+                        this.currentPage = meta.current_page + 1;
+                        this.performSearch();
+                    }
+                };
+            }
+            recalcRowTotals(row) {
+                if (!row) return;
+                const quantityInput = row.querySelector('input.existing-qty, input[name*="[quantity]"]');
+                const unitCostInput = row.querySelector('input.existing-unit-cost, input[name*="[unit_cost]"]');
+                const totalAmountInput = row.querySelector('input.existing-total, input.adjustment-line-total');
+                if (!quantityInput || !unitCostInput || !totalAmountInput) return;
+                const q = parseFloat(quantityInput.value) || 0;
+                const u = parseFloat(unitCostInput.value) || 0;
+                totalAmountInput.value = Math.round(q * u);
+            }
+            selectItem(item) {
+                this.selectedItem = item;
+                this.input.value = item.item_code ? (item.item_name + ' (' + item.item_code + ')') : item.item_name;
+                this.hiddenInput.value = item.id;
+                this.input.classList.remove('border-red-500');
+                const errEl = this.container.querySelector('.item-search-error-container');
+                if (errEl) errEl.innerHTML = '';
+                const row = this.closestItemRow();
+                const availableStock = item.available_stock || 0;
+                this.container.querySelectorAll('.stock-adj-item-info').forEach((el) => el.remove());
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'stock-adj-item-info mt-1 text-xs text-gray-500';
+                infoDiv.innerHTML = 'Available stock: <span class="font-medium">' + availableStock + '</span>';
+                this.container.appendChild(infoDiv);
+                const unitCostInput = row ? row.querySelector('input.existing-unit-cost, input[name*="[unit_cost]"]') : null;
+                if (unitCostInput) {
+                    const cp = item.cost_price != null ? parseFloat(item.cost_price) : NaN;
+                    unitCostInput.value = !isNaN(cp) ? Math.round(cp) : '';
+                    this.recalcRowTotals(row);
+                }
+                this.hideDropdown();
+            }
+            selectFirstResult() {
+                const firstResult = this.resultsContainer.querySelector('.result-item');
+                if (firstResult) {
+                    this.selectItem({
+                        id: firstResult.dataset.itemId,
+                        item_name: firstResult.dataset.itemName,
+                        item_code: firstResult.dataset.itemCode || '',
+                        cost_price: this.safeNumber(firstResult.dataset.costPrice),
+                        available_stock: this.safeNumber(firstResult.dataset.availableStock)
+                    });
+                }
+            }
+            selectHighlightedResult() {
+                const highlightedResult = this.resultsContainer.querySelector('.result-item.selected');
+                if (highlightedResult) {
+                    this.selectItem({
+                        id: highlightedResult.dataset.itemId,
+                        item_name: highlightedResult.dataset.itemName,
+                        item_code: highlightedResult.dataset.itemCode || '',
+                        cost_price: this.safeNumber(highlightedResult.dataset.costPrice),
+                        available_stock: this.safeNumber(highlightedResult.dataset.availableStock)
+                    });
+                } else {
+                    this.selectFirstResult();
+                }
+            }
+            navigateResults(direction) {
+                const results = this.resultsContainer.querySelectorAll('.result-item');
+                const currentIndex = Array.from(results).findIndex((r) => r.classList.contains('selected'));
+                let newIndex;
+                if (direction === 'down') {
+                    newIndex = currentIndex < results.length - 1 ? currentIndex + 1 : 0;
+                } else {
+                    newIndex = currentIndex > 0 ? currentIndex - 1 : results.length - 1;
+                }
+                results.forEach((r) => r.classList.remove('selected', 'bg-indigo-50'));
+                if (results[newIndex]) {
+                    results[newIndex].classList.add('selected', 'bg-indigo-50');
+                    results[newIndex].scrollIntoView({ block: 'nearest' });
+                }
+            }
+            showDropdown() { this.dropdown.classList.remove('hidden'); }
+            hideDropdown() { this.dropdown.classList.add('hidden'); }
+            showLoading() { this.loadingIndicator.classList.remove('hidden'); }
+            hideLoading() { this.loadingIndicator.classList.add('hidden'); }
+            safeNumber(value) {
+                if (value === null || value === undefined || value === '') return 0;
+                const num = parseFloat(value);
+                return isNaN(num) ? 0 : num;
+            }
+            showError(message) {
+                this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-red-500 text-center">' + message + '</div>';
+            }
+            clearSelection() {
+                this.selectedItem = null;
+                this.input.value = '';
+                this.hiddenInput.value = '';
+                const row = this.closestItemRow();
+                const unitCostInput = row ? row.querySelector('input.existing-unit-cost, input[name*="[unit_cost]"]') : null;
+                const totalAmountInput = row ? row.querySelector('input.existing-total, input.adjustment-line-total') : null;
+                if (unitCostInput) unitCostInput.value = '';
+                if (totalAmountInput) totalAmountInput.value = '0';
+                this.container.querySelectorAll('.stock-adj-item-info').forEach((el) => el.remove());
+            }
+        }
+
+        function hydrateAdjustmentItemLabel(hiddenInput, textInput) {
+            const id = hiddenInput && hiddenInput.value;
+            if (!id) return;
+            fetch('/api/general-items/' + id, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+                .then((r) => r.json())
+                .then((data) => {
+                    if (data.item_name) {
+                        textInput.value = data.item_code ? (data.item_name + ' (' + data.item_code + ')') : data.item_name;
+                    }
+                })
+                .catch(function() {});
+        }
+
         let itemCount = 0;
         let armCount = 0;
 
-        // Add item row
         document.getElementById('addItemBtn').addEventListener('click', function() {
             addItemRow();
         });
 
-        function addItemRow() {
-            itemCount++;
+        function addItemRow(forcedIndex) {
+            let idx;
+            if (forcedIndex != null && forcedIndex !== '') {
+                idx = parseInt(forcedIndex, 10);
+                itemCount = Math.max(itemCount, idx);
+            } else {
+                idx = ++itemCount;
+            }
             const container = document.getElementById('itemsContainer');
             const itemRow = document.createElement('div');
-            itemRow.className = 'item-row border border-gray-200 rounded-lg p-4 mb-3';
+            itemRow.className = 'stock-adjustment-item-row border border-gray-200 rounded-lg p-4 mb-3';
             itemRow.innerHTML = `
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-medium text-gray-900">Item ${itemCount}</h4>
+                    <h4 class="text-sm font-medium text-gray-900">Item ${idx}</h4>
                     <button type="button" class="remove-item inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200">
                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -201,19 +528,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Item <span class="text-red-500">*</span></label>
-                        <select name="items[${itemCount}][general_item_id]" required
-                                class="mt-1 block w-full rounded-md text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 item-select chosen-select">
-                            <option value="">Select Item</option>
-                            @foreach($generalItems as $item)
-                                <option value="{{ $item->id }}" data-cost-price="{{ $item->cost_price }}">{{ $item->item_name }} ({{ $item->item_code }})</option>
-                            @endforeach
-                        </select>
-                        <div class="chosen-error-container"></div>
+                        <div class="searchable-select-container relative z-20">
+                            <input type="text" class="searchable-input mt-1 block w-full rounded-md text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Search by name or code…" autocomplete="off">
+                            <input type="hidden" name="items[${idx}][general_item_id]" class="selected-item-id" value="">
+                            <div class="item-search-error-container chosen-error-container"></div>
+                            <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                <div class="search-results-container"></div>
+                                <div class="pagination-container hidden border-t border-gray-100 px-3 py-2 flex items-center justify-between text-xs bg-gray-50">
+                                    <button type="button" class="prev-page px-2 py-1 rounded bg-white border border-gray-200">Prev</button>
+                                    <span class="page-info text-gray-600"></span>
+                                    <button type="button" class="next-page px-2 py-1 rounded bg-white border border-gray-200">Next</button>
+                                </div>
+                            </div>
+                            <div class="loading-indicator hidden absolute right-2 top-8 text-xs text-gray-500">Loading…</div>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Quantity <span class="text-red-500">*</span></label>
-                        <input type="number" name="items[${itemCount}][quantity]" step="1" min="1" required
-                               value="1" placeholder="1.00"
+                        <input type="number" name="items[${idx}][quantity]" step="1" min="1" required
+                               value="1" placeholder="1"
                                class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
                         <div class="error-container"></div>
                     </div>
@@ -223,9 +556,9 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-gray-500 text-sm">PKR</span>
                             </div>
-                            <input type="number" name="items[${itemCount}][unit_cost]" step="1" min="0" required
+                            <input type="number" name="items[${idx}][unit_cost]" step="1" min="0" required
                                    placeholder="0"
-                                   class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12">
+                                   class="adjustment-unit-cost mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12">
                         </div>
                         <div class="error-container"></div>
                     </div>
@@ -236,94 +569,52 @@
                                 <span class="text-gray-500 text-sm">PKR</span>
                             </div>
                             <input type="text" readonly
-                                   class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12 bg-gray-50 text-gray-600">
+                                   class="adjustment-line-total mt-1 text-sm border-gray-300 rounded-md shadow-sm w-full pl-12 bg-gray-50 text-gray-600">
                         </div>
                         <p class="mt-1 text-xs text-gray-500">Auto-calculated</p>
                     </div>
                 </div>
             `;
-            
+
             container.appendChild(itemRow);
-            
-            // Initialize chosen for the new select
-            $(itemRow).find('.chosen-select').chosen({
-                width: '100%',
-                search_contains: true,
-                allow_single_deselect: true,
-                placeholder_text_single: 'Select an option'
-            });
-            
-            // Add validation styling handler
-            const itemSelectEl = itemRow.querySelector('.item-select');
-            $(itemSelectEl).on('change', function() {
-                // Remove error styling when user selects an option
-                const chosenContainer = $(this).next('.chosen-container');
-                chosenContainer.find('.chosen-single').removeClass('border-red-500');
-            });
-            
-            // apply duplicate prevention immediately
-            refreshItemOptions();
-            
-            // Add event listeners for the new row
-            const itemSelect = itemRow.querySelector('.item-select');
+
+            const searchWrap = itemRow.querySelector('.searchable-select-container');
+            new StockAdjustmentItemSearchableDropdown(searchWrap);
+
             const quantityInput = itemRow.querySelector('input[name*="[quantity]"]');
             const unitCostInput = itemRow.querySelector('input[name*="[unit_cost]"]');
-            const totalAmountInput = itemRow.querySelector('input[readonly]');
+            const totalAmountInput = itemRow.querySelector('input.adjustment-line-total');
             const removeBtn = itemRow.querySelector('.remove-item');
-            
-            // Calculate total amount
+
             function calculateTotal() {
                 const quantity = parseFloat(quantityInput.value) || 1;
                 const unitCost = parseFloat(unitCostInput.value) || 0;
-                const total = quantity * unitCost;
-                totalAmountInput.value = Math.round(total);
+                totalAmountInput.value = Math.round(quantity * unitCost);
             }
-            
-            // Populate cost price when item is selected
-            $(itemSelect).on('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                const costPrice = selectedOption.getAttribute('data-cost-price');
-                if (costPrice) {
-                    unitCostInput.value = Math.round(parseFloat(costPrice));
-                    calculateTotal();
-                } else {
-                    unitCostInput.value = '';
-                    totalAmountInput.value = '0';
-                }
-                // refresh duplicates after selection
-                refreshItemOptions();
-            });
-            
-            // Calculate initial total with default quantity
+
             calculateTotal();
-            
+
             quantityInput.addEventListener('input', function() {
                 calculateTotal();
-                // Remove error styling
                 this.classList.remove('border-red-500');
                 const errorContainer = this.nextElementSibling;
                 if (errorContainer && errorContainer.classList.contains('error-container')) {
                     errorContainer.innerHTML = '';
                 }
             });
-            
+
             unitCostInput.addEventListener('input', function() {
                 calculateTotal();
-                // Remove error styling
                 this.classList.remove('border-red-500');
                 const errorContainer = this.parentElement.nextElementSibling;
                 if (errorContainer && errorContainer.classList.contains('error-container')) {
                     errorContainer.innerHTML = '';
                 }
             });
-            
-            // Remove item
+
             removeBtn.addEventListener('click', function() {
                 if (confirm('Are you sure you want to remove this item?')) {
-                    $(itemRow).find('.chosen-select').chosen('destroy');
                     itemRow.remove();
-                    // refresh duplicates after removal
-                    refreshItemOptions();
                 }
             });
         }
@@ -458,63 +749,64 @@
 
         // Add first item row on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if we have old input (validation errors occurred)
+            if (window.jQuery && jQuery.fn.chosen) {
+                jQuery('#item_type_filter').chosen({
+                    width: '100%',
+                    search_contains: true,
+                    allow_single_deselect: true,
+                    placeholder_text_single: 'All types'
+                });
+            }
+
             const hasOldItems = @json(old('items', []));
             const hasOldArmItems = @json(old('arm_items', []));
-            
+
             if (hasOldItems && Object.keys(hasOldItems).length > 0) {
-                // Restore item rows from old input
-                Object.keys(hasOldItems).forEach(function(key) {
-                    addItemRow();
-                    const lastRow = document.querySelector('.item-row:last-child');
-                    const item = hasOldItems[key];
-                    
-                    // Set values
-                    const select = lastRow.querySelector('.item-select');
-                    const qty = lastRow.querySelector('input[name*="[quantity]"]');
-                    const cost = lastRow.querySelector('input[name*="[unit_cost]"]');
-                    
-                    if (select && item.general_item_id) {
-                        select.value = item.general_item_id;
-                        $(select).trigger('chosen:updated');
-                        $(select).trigger('change');
-                    }
-                    if (qty && item.quantity) qty.value = item.quantity;
-                    if (cost && item.unit_cost) cost.value = item.unit_cost;
-                });
+                Object.keys(hasOldItems)
+                    .sort(function(a, b) { return parseInt(a, 10) - parseInt(b, 10); })
+                    .forEach(function(key) {
+                        addItemRow(key);
+                        const lastRow = document.querySelector('.stock-adjustment-item-row:last-child');
+                        const item = hasOldItems[key];
+                        const hidden = lastRow.querySelector('.selected-item-id');
+                        const textInput = lastRow.querySelector('.searchable-input');
+                        const qty = lastRow.querySelector('input[name*="[quantity]"]');
+                        const cost = lastRow.querySelector('input[name*="[unit_cost]"]');
+                        const totalEl = lastRow.querySelector('input.adjustment-line-total');
+                        if (hidden && item.general_item_id) {
+                            hidden.value = item.general_item_id;
+                            hydrateAdjustmentItemLabel(hidden, textInput);
+                        }
+                        if (qty && item.quantity != null) qty.value = item.quantity;
+                        if (cost && item.unit_cost != null) cost.value = item.unit_cost;
+                        if (totalEl && qty && cost) {
+                            totalEl.value = Math.round((parseFloat(qty.value) || 0) * (parseFloat(cost.value) || 0));
+                        }
+                    });
             } else {
-                // Add default empty row
                 addItemRow();
             }
-            
+
             if (hasOldArmItems && Object.keys(hasOldArmItems).length > 0) {
-                // Restore arm rows from old input
                 Object.keys(hasOldArmItems).forEach(function(key) {
                     addArmRow();
                     const lastRow = document.querySelector('.arm-row:last-child');
                     const arm = hasOldArmItems[key];
-                    
-                    // Set values
                     const armSelect = lastRow.querySelector('.arm-select');
                     const reasonSelect = lastRow.querySelector('select[name*="[reason]"]');
                     const priceInput = lastRow.querySelector('input[name*="[price]"]');
-                    
                     if (armSelect && arm.arm_id) {
                         armSelect.value = arm.arm_id;
-                        $(armSelect).trigger('chosen:updated');
-                        $(armSelect).trigger('change');
+                        jQuery(armSelect).trigger('chosen:updated');
+                        jQuery(armSelect).trigger('change');
                     }
                     if (reasonSelect && arm.reason) reasonSelect.value = arm.reason;
                     if (priceInput && arm.price) priceInput.value = arm.price;
                 });
             }
-            
+
             toggleArmSection();
-            // initialize option constraints
-            refreshItemOptions();
             refreshArmOptions();
-            
-            // Display server-side validation errors
             displayServerErrors();
         });
         
@@ -529,17 +821,24 @@
                 // Check if it's an item field error
                 const itemMatch = fieldName.match(/items\.(\d+)\.(general_item_id|quantity|unit_cost)/);
                 if (itemMatch) {
-                    const index = parseInt(itemMatch[1]) + 1; // +1 because itemCount starts at 1
+                    const errKey = parseInt(itemMatch[1], 10);
                     const field = itemMatch[2];
-                    const row = Array.from(document.querySelectorAll('.item-row'))[itemMatch[1]];
-                    
+                    let row = null;
+                    document.querySelectorAll('.stock-adjustment-item-row').forEach(function(r) {
+                        const hid = r.querySelector('.selected-item-id');
+                        if (hid && hid.name) {
+                            const m = hid.name.match(/items\[(\d+)\]/);
+                            if (m && parseInt(m[1], 10) === errKey) {
+                                row = r;
+                            }
+                        }
+                    });
                     if (row) {
                         if (field === 'general_item_id') {
-                            const select = row.querySelector('.item-select');
-                            const chosenContainer = $(select).next('.chosen-container');
-                            chosenContainer.find('.chosen-single').addClass('border-red-500');
-                            const errorContainer = select.nextElementSibling;
-                            if (errorContainer && errorContainer.classList.contains('chosen-error-container')) {
+                            const inp = row.querySelector('.searchable-input');
+                            const errorContainer = row.querySelector('.item-search-error-container');
+                            if (inp) inp.classList.add('border-red-500');
+                            if (errorContainer) {
                                 errorContainer.innerHTML = '<p class="mt-1 text-xs text-red-600">' + messages[0] + '</p>';
                             }
                         } else if (field === 'quantity') {
@@ -591,7 +890,7 @@
 
         // Form validation
         document.getElementById('adjustmentForm').addEventListener('submit', function(e) {
-            const itemRows = document.querySelectorAll('.item-row');
+            const itemRows = document.querySelectorAll('.stock-adjustment-item-row');
             const armRows = document.querySelectorAll('.arm-row');
             if (itemRows.length === 0 && armRows.length === 0) {
                 e.preventDefault();
@@ -602,22 +901,23 @@
             // Validate all item rows
             let hasErrors = false;
             itemRows.forEach(function(row) {
-                const select = row.querySelector('.item-select');
+                const hiddenItem = row.querySelector('.selected-item-id');
+                const searchInput = row.querySelector('.searchable-input');
                 const qty = row.querySelector('input[name*="[quantity]"]');
                 const cost = row.querySelector('input[name*="[unit_cost]"]');
                 
                 // Clear previous errors
-                row.querySelectorAll('.error-container, .chosen-error-container').forEach(container => {
+                row.querySelectorAll('.error-container, .chosen-error-container, .item-search-error-container').forEach(container => {
                     container.innerHTML = '';
                 });
+                if (searchInput) searchInput.classList.remove('border-red-500');
                 
-                // Validate item select
-                if (!select.value) {
+                // Validate item
+                if (!hiddenItem || !hiddenItem.value) {
                     hasErrors = true;
-                    const chosenContainer = $(select).next('.chosen-container');
-                    chosenContainer.find('.chosen-single').addClass('border-red-500');
-                    const errorContainer = select.nextElementSibling;
-                    if (errorContainer && errorContainer.classList.contains('chosen-error-container')) {
+                    if (searchInput) searchInput.classList.add('border-red-500');
+                    const errorContainer = row.querySelector('.item-search-error-container');
+                    if (errorContainer) {
                         errorContainer.innerHTML = '<p class="mt-1 text-xs text-red-600">Please select an item.</p>';
                     }
                 }
@@ -681,26 +981,6 @@
                 return;
             }
         });
-
-        // Prevent duplicate selections across item selects
-        function refreshItemOptions() {
-            const selects = Array.from(document.querySelectorAll('select.item-select, #general_item_id.item-select'));
-            const selectedValues = new Set(selects.map(s => s.value).filter(v => v));
-            selects.forEach(select => {
-                Array.from(select.options).forEach(opt => {
-                    if (!opt.value) return; // skip placeholder
-                    const shouldDisable = selectedValues.has(opt.value) && opt.value !== select.value;
-                    opt.disabled = shouldDisable;
-                    if (shouldDisable) {
-                        opt.classList.add('hidden');
-                    } else {
-                        opt.classList.remove('hidden');
-                    }
-                });
-                // Update chosen dropdown
-                $(select).trigger('chosen:updated');
-            });
-        }
 
         // Prevent duplicate selections across arm selects
         function refreshArmOptions() {

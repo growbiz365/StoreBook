@@ -70,7 +70,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Lines</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Items</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
@@ -83,12 +83,12 @@
                                     <div class="text-sm font-medium text-gray-900">@businessDate($row['date'])</div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900">Items: {{ $row['items_count'] }} | Arms: {{ $row['arms_count'] }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $row['items_count'] }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php $t=$row['type']; @endphp
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                        {{ in_array($t, ['addition']) ? 'bg-green-100 text-green-800' : (in_array($t, ['subtraction','damage','theft']) ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800') }}">
+                                        {{ in_array($t, ['addition']) ? 'bg-green-100 text-green-800' : (in_array($t, ['subtraction']) ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800') }}">
                                         {{ ucfirst($t) }}
                                     </span>
                                 </td>
