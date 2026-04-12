@@ -228,7 +228,7 @@
                         <div class="text-gray-600">Issue Date: @businessDate($saleInvoice->party_license_issue_date)</div>
                     @endif
                     @if($saleInvoice->party_license_valid_upto)
-                        <div class="text-gray-600">Valid Until: {{ $saleInvoice->party_license_valid_upto->format('M d, Y') }}</div>
+                        <div class="text-gray-600">Valid Until: @businessDate($saleInvoice->party_license_valid_upto)</div>
                     @endif
                     @if($saleInvoice->party_license_issued_by)
                         <div class="text-gray-600">Issued By: {{ $saleInvoice->party_license_issued_by }}</div>
@@ -240,7 +240,7 @@
                         <div class="text-gray-600">DC: {{ $saleInvoice->party_dc }}</div>
                     @endif
                     @if($saleInvoice->party_dc_date)
-                        <div class="text-gray-600">DC Date: {{ $saleInvoice->party_dc_date->format('M d, Y') }}</div>
+                        <div class="text-gray-600">DC Date: @businessDate($saleInvoice->party_dc_date)</div>
                     @endif
                 </div>
             </div>
@@ -271,8 +271,9 @@
                     <thead>
                         <tr class="bg-gray-100">
                             <th class="px-3 py-2 text-left font-semibold text-gray-600">Item</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Type</th>
                             <th class="px-3 py-2 text-right font-semibold text-gray-600">Qty</th>
-                            <th class="px-3 py-2 text-right font-semibold text-gray-600">Sale Price</th>
+                            <th class="px-3 py-2 text-right font-semibold text-gray-600">Unit Price</th>
                             <th class="px-3 py-2 text-right font-semibold text-gray-600">Total</th>
                         </tr>
                     </thead>
@@ -280,9 +281,10 @@
                         @foreach($saleInvoice->generalLines as $line)
                         <tr class="hover:bg-green-50">
                             <td class="px-3 py-2 text-gray-900">{{ $line->generalItem->item_name }}</td>
-                            <td class="px-3 py-2 text-gray-900 text-right">{{ number_format(round($line->quantity), 0) }}</td>
-                            <td class="px-3 py-2 text-gray-900 text-right">{{ number_format(round($line->sale_price), 0) }}</td>
-                            <td class="px-3 py-2 text-gray-900 text-right font-semibold">{{ number_format(round($line->quantity * $line->sale_price), 0) }}</td>
+                            <td class="px-3 py-2 text-gray-600">{{ $line->generalItem->itemType->item_type ?? '—' }}</td>
+                            <td class="px-3 py-2 text-gray-900 text-right">{{ number_format($line->quantity, 2) }}</td>
+                            <td class="px-3 py-2 text-gray-900 text-right">{{ number_format($line->sale_price, 2) }}</td>
+                            <td class="px-3 py-2 text-gray-900 text-right font-semibold">{{ number_format($line->line_total, 2) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -298,21 +300,26 @@
                 <table class="w-full text-xs border border-gray-200 rounded shadow-sm">
                     <thead>
                         <tr class="bg-gray-100">
-                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Arm</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Serial</th>
-                            <th class="px-3 py-2 text-right font-semibold text-gray-600">Sale Price</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Type</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Make</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Title / Serial</th>
+                            <th class="px-3 py-2 text-right font-semibold text-gray-600">Unit Price</th>
+                            <th class="px-3 py-2 text-right font-semibold text-gray-600">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($saleInvoice->armLines as $line)
                         <tr class="hover:bg-red-50">
-                            <td class="px-3 py-2 text-gray-900">{{ $line->arm->arm_title }}</td>
+                            <td class="px-3 py-2 text-gray-900">{{ $line->arm->armType->arm_type ?? '—' }}</td>
+                            <td class="px-3 py-2 text-gray-900">{{ $line->arm->armMake->arm_make ?? '—' }}</td>
                             <td class="px-3 py-2 text-gray-600">
-                                <span class="inline-block bg-blue-100 text-blue-800 text-xxs px-1 py-0.5 rounded font-mono tracking-wider">
+                                <div class="text-gray-900">{{ $line->arm->arm_title }}</div>
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xxs px-1 py-0.5 rounded font-mono tracking-wider mt-0.5">
                                     {{ $line->arm->serial_no }}
                                 </span>
                             </td>
-                            <td class="px-3 py-2 text-gray-900 text-right font-semibold">{{ number_format(round($line->sale_price), 0) }}</td>
+                            <td class="px-3 py-2 text-gray-900 text-right">{{ number_format($line->sale_price, 2) }}</td>
+                            <td class="px-3 py-2 text-gray-900 text-right font-semibold">{{ number_format($line->line_total ?? $line->sale_price, 2) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -321,28 +328,27 @@
             </div>
             @endif
         </div>
-                                    
-        </div>
-                                    
+
         <div class="p-6 border-t border-gray-200 bg-gray-50">
             <div class="flex flex-col items-end">
                 <div class="w-full max-w-xs">
                     <div class="flex justify-between text-xs mb-1">
                         <span class="text-gray-600">Subtotal</span>
-                        <span class="font-medium text-gray-900">{{ number_format(round($saleInvoice->subtotal), 0) }}</span>
+                        <span class="font-medium text-gray-900">{{ number_format($saleInvoice->subtotal, 2) }}</span>
                     </div>
                     @if($saleInvoice->shipping_charges > 0)
                     <div class="flex justify-between text-xs mb-1">
                         <span class="text-gray-600">Shipping</span>
-                        <span class="font-medium text-gray-900">{{ number_format(round($saleInvoice->shipping_charges), 0) }}</span>
+                        <span class="font-medium text-gray-900">{{ number_format($saleInvoice->shipping_charges, 2) }}</span>
                     </div>
                     @endif
                     <div class="flex justify-between text-base font-bold border-t border-gray-200 pt-2 mt-2">
                         <span>Total</span>
-                        <span>@currency($saleInvoice->total_amount)</span>
+                        <span>PKR {{ number_format($saleInvoice->total_amount, 2) }}</span>
                     </div>
                 </div>
             </div>
+        </div>
 
         <div class="p-6 border-t border-gray-200 text-xs text-gray-600 flex flex-col md:flex-row justify-between gap-4 bg-white">
             <div>
@@ -353,9 +359,9 @@
             </div>
             <div class="text-right">
                 <div>By: <span class="font-medium text-gray-800">{{ $saleInvoice->createdBy->name ?? 'System' }}</span></div>
-                <div>Created: {{ $saleInvoice->created_at->format('M d, Y H:i') }}</div>
+                <div>Created: @businessDateTime($saleInvoice->created_at)</div>
                 @if($saleInvoice->updated_at->diffInSeconds($saleInvoice->created_at) > 0)
-                    <div>Updated: {{ $saleInvoice->updated_at->format('M d, Y H:i') }}</div>
+                    <div>Updated: @businessDateTime($saleInvoice->updated_at)</div>
                 @endif
             </div>
         </div>

@@ -319,7 +319,15 @@ class SaleInvoiceController extends Controller
      */
     public function show(SaleInvoice $saleInvoice)
     {
-        $saleInvoice->load(['party', 'bank', 'createdBy', 'generalLines.generalItem', 'armLines.arm', 'quotation']);
+        $saleInvoice->load([
+            'party',
+            'bank',
+            'createdBy',
+            'generalLines.generalItem.itemType',
+            'armLines.arm.armType',
+            'armLines.arm.armMake',
+            'quotation',
+        ]);
 
         return view('sale_invoices.show', compact('saleInvoice'));
     }
