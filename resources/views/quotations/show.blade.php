@@ -381,6 +381,16 @@
                 </div>
             </div>
 
+        {{-- Minimal authorized signature --}}
+        <div class="invoice-authorized-signature px-6 pb-6 pt-2 bg-white border-t border-gray-200">
+            <div class="flex justify-end">
+                <div class="signature-block w-full max-w-[13rem] text-center">
+                    <div class="signature-pad min-h-[3.25rem] border-b-2 border-gray-900"></div>
+                    <p class="text-[11px] text-gray-600 mt-1.5 tracking-wide uppercase">Authorized signature</p>
+                </div>
+            </div>
+        </div>
+
         <div class="p-6 border-t border-gray-200 text-xs text-gray-600 flex flex-col md:flex-row justify-between gap-4 bg-white footer-section">
             <div>
                 <div class="mb-1">
@@ -530,6 +540,24 @@
             }
             #printable-invoice .totals-section .max-w-xs {
                 width: 300px !important;
+            }
+            #printable-invoice .invoice-authorized-signature {
+                padding: 8px 15px 18px !important;
+                border-top: 1px solid #dee2e6 !important;
+                background: white !important;
+            }
+            #printable-invoice .invoice-authorized-signature .signature-pad {
+                min-height: 16mm !important;
+                border-bottom: 1.25pt solid #000 !important;
+            }
+            #printable-invoice .invoice-authorized-signature p {
+                font-size: 7.5pt !important;
+                color: #495057 !important;
+                letter-spacing: 0.04em !important;
+                margin-top: 4px !important;
+            }
+            #printable-invoice .invoice-authorized-signature .signature-block {
+                max-width: 52mm !important;
             }
             
             /* Footer section */

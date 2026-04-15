@@ -254,7 +254,6 @@
                     </svg>
                         Payment Details
                 </div>
-                <div class="text-gray-900">Type: <span class="font-medium">{{ ucfirst($saleInvoice->sale_type) }}</span></div>
                 @if($saleInvoice->bank)
                     <div class="text-gray-600">Bank: {{ $saleInvoice->bank->chartOfAccount->name ?? $saleInvoice->bank->account_name }}</div>
                 @endif
@@ -271,7 +270,6 @@
                     <thead>
                         <tr class="bg-gray-100">
                             <th class="px-3 py-2 text-left font-semibold text-gray-600">Item</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Type</th>
                             <th class="px-3 py-2 text-right font-semibold text-gray-600">Qty</th>
                             <th class="px-3 py-2 text-right font-semibold text-gray-600">Unit Price</th>
                             <th class="px-3 py-2 text-right font-semibold text-gray-600">Total</th>
@@ -281,7 +279,6 @@
                         @foreach($saleInvoice->generalLines as $line)
                         <tr class="hover:bg-green-50">
                             <td class="px-3 py-2 text-gray-900">{{ $line->generalItem->item_name }}</td>
-                            <td class="px-3 py-2 text-gray-600">{{ $line->generalItem->itemType->item_type ?? '—' }}</td>
                             <td class="px-3 py-2 text-gray-900 text-right">{{ number_format($line->quantity, 2) }}</td>
                             <td class="px-3 py-2 text-gray-900 text-right">{{ number_format($line->sale_price, 2) }}</td>
                             <td class="px-3 py-2 text-gray-900 text-right font-semibold">{{ number_format($line->line_total, 2) }}</td>
@@ -300,7 +297,6 @@
                 <table class="w-full text-xs border border-gray-200 rounded shadow-sm">
                     <thead>
                         <tr class="bg-gray-100">
-                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Type</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-600">Make</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-600">Title / Serial</th>
                             <th class="px-3 py-2 text-right font-semibold text-gray-600">Unit Price</th>
@@ -310,7 +306,6 @@
                     <tbody>
                         @foreach($saleInvoice->armLines as $line)
                         <tr class="hover:bg-red-50">
-                            <td class="px-3 py-2 text-gray-900">{{ $line->arm->armType->arm_type ?? '—' }}</td>
                             <td class="px-3 py-2 text-gray-900">{{ $line->arm->armMake->arm_make ?? '—' }}</td>
                             <td class="px-3 py-2 text-gray-600">
                                 <div class="text-gray-900">{{ $line->arm->arm_title }}</div>
@@ -346,6 +341,16 @@
                         <span>Total</span>
                         <span>PKR {{ number_format($saleInvoice->total_amount, 2) }}</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Minimal print-friendly authorized signature (seller) --}}
+        <div class="invoice-authorized-signature px-6 pb-6 pt-2 bg-white border-t border-gray-200">
+            <div class="flex justify-end">
+                <div class="signature-block w-full max-w-[13rem] text-center">
+                    <div class="signature-pad min-h-[3.25rem] border-b-2 border-gray-900"></div>
+                    <p class="text-[11px] text-gray-600 mt-1.5 tracking-wide uppercase">Authorized signature</p>
                 </div>
             </div>
         </div>
@@ -484,6 +489,24 @@
             #printable-invoice .header .justify-between { justify-content: space-between !important; }
             #printable-invoice .items-end { text-align: right !important; }
             #printable-invoice .max-w-xs { max-width: none !important; width: 100% !important; }
+            #printable-invoice .invoice-authorized-signature {
+                padding: 8px 15px 18px !important;
+                border-top: 1px solid #dee2e6 !important;
+                background: white !important;
+            }
+            #printable-invoice .invoice-authorized-signature .signature-pad {
+                min-height: 16mm !important;
+                border-bottom: 1.25pt solid #000 !important;
+            }
+            #printable-invoice .invoice-authorized-signature p {
+                font-size: 7.5pt !important;
+                color: #495057 !important;
+                letter-spacing: 0.04em !important;
+                margin-top: 4px !important;
+            }
+            #printable-invoice .invoice-authorized-signature .signature-block {
+                max-width: 52mm !important;
+            }
         }
         body.printing { background: white !important; }
     </style>
