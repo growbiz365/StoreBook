@@ -16,6 +16,7 @@ use App\Models\ChartOfAccount;
 use App\Models\ArmHistory;
 use App\Models\SaleReturnAuditLog;
 use App\Models\PartyLedger;
+use App\Models\ItemType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -117,7 +118,12 @@ class SaleReturnController extends Controller
             ->limit(50)
             ->get();
 
-        return view('sale_returns.create', compact('customers', 'banks', 'generalItems', 'arms', 'saleInvoices'));
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
+        return view('sale_returns.create', compact('customers', 'banks', 'generalItems', 'arms', 'saleInvoices', 'itemTypes'));
     }
 
     /**
@@ -416,7 +422,12 @@ class SaleReturnController extends Controller
             ];
         });
 
-        return view('sale_returns.edit', compact('saleReturn', 'customers', 'banks', 'armLinesData'));
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
+        return view('sale_returns.edit', compact('saleReturn', 'customers', 'banks', 'armLinesData', 'itemTypes'));
     }
 
     /**
