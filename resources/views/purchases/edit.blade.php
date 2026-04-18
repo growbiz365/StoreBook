@@ -1097,7 +1097,7 @@
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto relative">
                     <table class="min-w-full divide-y divide-gray-200" id="general_items_table">
                         <thead class="bg-gray-50">
                             <tr>
@@ -1123,26 +1123,24 @@
                                     <div class="relative">
                                         <div class="searchable-select-container relative">
                                             <input type="text" 
-                                                   class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
+                                                   class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-green-400 focus:ring-1 focus:ring-green-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
                                                    placeholder="Search items..."
                                                    autocomplete="off"
                                                    data-index="{{ $index }}"
                                                    value="{{ $line->generalItem ? $line->generalItem->item_name : '' }}">
                                             <input type="hidden" name="general_lines[{{ $index }}][general_item_id]" class="selected-item-id" value="{{ $line->general_item_id }}">
                                             
-                                            <!-- Error display for general item selection -->
                                             <div class="general-item-error mt-1 text-xs text-red-600 hidden"></div>
                                             
-                                            <!-- Dropdown -->
                                             <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
                                                 <div class="search-results-container max-h-40 overflow-y-auto">
                                                     <!-- Results will be populated here -->
                                                 </div>
                                                 <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
                                                     <div class="flex justify-between items-center text-xs">
-                                                        <button type="button" class="prev-page text-blue-500 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-blue-50 transition-colors">Previous</button>
+                                                        <button type="button" class="prev-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Previous</button>
                                                         <span class="page-info text-gray-500 text-xs"></span>
-                                                        <button type="button" class="next-page text-blue-500 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-blue-50 transition-colors">Next</button>
+                                                        <button type="button" class="next-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Next</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1448,25 +1446,23 @@
                 <div class="relative">
                                             <div class="searchable-select-container relative">
                             <input type="text" 
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
+                                   class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-green-400 focus:ring-1 focus:ring-green-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
                                    placeholder="Search items..."
                                    autocomplete="off"
                                    data-index="INDEX">
                             <input type="hidden" name="general_lines[INDEX][general_item_id]" class="selected-item-id">
                             
-                            <!-- Error display for general item selection -->
                             <div class="general-item-error mt-1 text-xs text-red-600 hidden"></div>
                             
-                            <!-- Dropdown -->
                             <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
                                 <div class="search-results-container max-h-40 overflow-y-auto">
                                     <!-- Results will be populated here -->
                                 </div>
                                 <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
                                     <div class="flex justify-between items-center text-xs">
-                                        <button type="button" class="prev-page text-blue-500 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-blue-50 transition-colors">Previous</button>
+                                        <button type="button" class="prev-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Previous</button>
                                         <span class="page-info text-gray-500 text-xs"></span>
-                                        <button type="button" class="next-page text-blue-500 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-blue-50 transition-colors">Next</button>
+                                        <button type="button" class="next-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Next</button>
                                     </div>
                                 </div>
                             </div>
@@ -1580,419 +1576,19 @@
     </template>
 
     <script>
-    // Searchable dropdown functionality
-    class SearchableDropdown {
-        constructor(container, options = {}) {
-            this.container = container;
-            this.input = container.querySelector('.searchable-input');
-            this.hiddenInput = container.querySelector('.selected-item-id');
-            this.dropdown = container.querySelector('.searchable-dropdown');
-            this.resultsContainer = container.querySelector('.search-results-container');
-            this.paginationContainer = container.querySelector('.pagination-container');
-            this.loadingIndicator = container.querySelector('.loading-indicator');
-            
-            this.searchTimeout = null;
-            this.currentPage = 1;
-            this.searchTerm = '';
-            this.selectedItem = null;
-            
-            // Configurable options
-            this.itemsPerPage = options.itemsPerPage || 10; // Default to 10 items
-            this.debounceDelay = options.debounceDelay || 300; // Default to 300ms
-            this.minSearchLength = options.minSearchLength || 2; // Default to 2 characters
-            
-            this.init();
-        }
-        
-        init() {
-            this.bindEvents();
-            this.setupGlobalClickHandler();
-        }
-        
-        bindEvents() {
-            // Input focus
-            this.input.addEventListener('focus', () => {
-                this.showDropdown();
-                this.performSearch();
-            });
-            
-            // Input input
-            this.input.addEventListener('input', (e) => {
-                this.searchTerm = e.target.value;
-                this.currentPage = 1;
-                this.showDropdown(); // Ensure dropdown is visible when typing
-                
-                // Clear selection if input becomes empty
-                if (!this.searchTerm.trim() && this.selectedItem) {
-                    this.clearSelection();
-                }
-                
-                this.debounceSearch();
-            });
-            
-            // Input keydown
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.selectHighlightedResult();
-            } else if (e.key === 'Escape') {
-                this.hideDropdown();
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                this.navigateResults('down');
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                this.navigateResults('up');
-            }
-        });
-        }
-        
-        setupGlobalClickHandler() {
-            document.addEventListener('click', (e) => {
-                if (!this.container.contains(e.target)) {
-                    this.hideDropdown();
-                }
-            });
-        }
-        
-        debounceSearch() {
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                this.performSearch();
-            }, this.debounceDelay);
-        }
-
-        getSelectedItemTypeId() {
-            const filter = document.getElementById('item_type_filter');
-            return filter ? (filter.value || '') : '';
-        }
-        
-        async performSearch() {
-            if (this.searchTerm.length < this.minSearchLength) {
-                this.showInitialResults();
-                return;
-            }
-            
-            this.showLoading();
-            
-            try {
-                const url = new URL('/api/general-items/search', window.location.origin);
-                url.searchParams.set('q', this.searchTerm);
-                url.searchParams.set('page', String(this.currentPage));
-                url.searchParams.set('limit', String(this.itemsPerPage));
-
-                const itemTypeId = this.getSelectedItemTypeId();
-                if (itemTypeId) {
-                    url.searchParams.set('item_type_id', itemTypeId);
-                }
-
-                const response = await fetch(url.toString(), {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'same-origin'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.message || data.error);
-                }
-                
-                // Validate the data structure
-                if (!Array.isArray(data.data)) {
-                    throw new Error('Invalid data format received from search API');
-                }
-                
-                this.displayResults(data.data || [], data.meta || {});
-            } catch (error) {
-                
-                this.showError(`Search failed: ${error.message}`);
-            } finally {
-                this.hideLoading();
-            }
-        }
-        
-        async showInitialResults() {
-            this.showLoading();
-            
-            try {
-                const url = new URL('/api/general-items', window.location.origin);
-                url.searchParams.set('page', String(this.currentPage));
-                url.searchParams.set('limit', String(this.itemsPerPage));
-
-                const itemTypeId = this.getSelectedItemTypeId();
-                if (itemTypeId) {
-                    url.searchParams.set('item_type_id', itemTypeId);
-                }
-
-                const response = await fetch(url.toString(), {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'same-origin'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.message || data.error);
-                }
-                
-                // Validate the data structure
-                if (!Array.isArray(data.data)) {
-                    throw new Error('Invalid data format received from API');
-                }
-                
-                this.displayResults(data.data || [], data.meta || {});
-            } catch (error) {
-                
-                this.showError(`Failed to load items: ${error.message}`);
-            } finally {
-                this.hideLoading();
-            }
-        }
-        
-        displayResults(items, meta) {
-            this.resultsContainer.innerHTML = '';
-            
-            if (!items || !Array.isArray(items) || items.length === 0) {
-                this.resultsContainer.innerHTML = `
-                    <div class="px-4 py-3 text-sm text-gray-500 text-center">
-                        ${this.searchTerm ? 'No items found matching your search.' : 'No items available.'}
-                    </div>
-                `;
-                this.paginationContainer.classList.add('hidden');
-                return;
-            }
-            
-            // Create result items
-            items.forEach((item, index) => {
-                // Validate item data
-                if (!item || !item.id || !item.item_name) {
-                    return; // Skip invalid items
-                }
-                
-                const resultItem = document.createElement('div');
-                resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
-                resultItem.dataset.itemId = item.id;
-                resultItem.dataset.itemName = item.item_name;
-                
-                                    // Safely handle numeric values
-                    const costPrice = this.safeNumber(item.cost_price);
-                    const salePrice = this.safeNumber(item.sale_price);
-                
-                resultItem.dataset.costPrice = costPrice;
-                resultItem.dataset.salePrice = salePrice;
-                resultItem.dataset.itemCode = item.item_code || '';
-                
-                resultItem.innerHTML = `
-                    <div class="font-medium text-gray-900">${item.item_name}</div>
-                    ${item.item_code ? `<div class="text-xs text-gray-400">${item.item_code}</div>` : ''}
-                `;
-                
-                resultItem.addEventListener('click', () => {
-                    this.selectItem(item);
-                });
-                
-                this.resultsContainer.appendChild(resultItem);
-            });
-            
-            // Show pagination if needed
-            if (meta && meta.last_page > 1) {
-                this.showPagination(meta);
-            } else {
-                this.paginationContainer.classList.add('hidden');
-            }
-        }
-        
-        showPagination(meta) {
-            this.paginationContainer.classList.remove('hidden');
-            
-            const pageInfo = this.paginationContainer.querySelector('.page-info');
-            const prevBtn = this.paginationContainer.querySelector('.prev-page');
-            const nextBtn = this.paginationContainer.querySelector('.next-page');
-            
-            pageInfo.textContent = `Page ${meta.current_page} of ${meta.last_page}`;
-            
-            prevBtn.disabled = meta.current_page <= 1;
-            nextBtn.disabled = meta.current_page >= meta.last_page;
-            
-            prevBtn.onclick = () => {
-                if (meta.current_page > 1) {
-                    this.currentPage = meta.current_page - 1;
-                    this.performSearch();
-                }
-            };
-            
-            nextBtn.onclick = () => {
-                if (meta.current_page < meta.last_page) {
-                    this.currentPage = meta.current_page + 1;
-                    this.performSearch();
-                }
-            };
-        }
-        
-        selectItem(item) {
-            this.selectedItem = item;
-            this.input.value = item.item_name;
-            this.hiddenInput.value = item.id;
-            
-            // Populate prices
-            const row = this.container.closest('.general-item-row');
-            const unitPriceInput = row.querySelector('.general-price');
-            const salePriceInput = row.querySelector('.general-sale-price');
-            
-            if (unitPriceInput) {
-                unitPriceInput.value = item.cost_price ? item.cost_price : '';
-            }
-                            if (salePriceInput) {
-                    salePriceInput.value = item.sale_price ? item.sale_price : '';
-                }
-            
-            // Trigger calculation
-            if (unitPriceInput) {
-                // Use setTimeout to ensure the values are set before calculation
-                setTimeout(() => {
-                calculateLineTotal(unitPriceInput);
-                calculateTotals();
-                }, 50);
-            }
-            
-            this.hideDropdown();
-        }
-        
-        selectFirstResult() {
-            const firstResult = this.resultsContainer.querySelector('.result-item');
-            if (firstResult) {
-                                    const item = {
-                        id: firstResult.dataset.itemId,
-                        item_name: firstResult.dataset.itemName,
-                        cost_price: this.safeNumber(firstResult.dataset.costPrice),
-                        sale_price: this.safeNumber(firstResult.dataset.salePrice)
-                    };
-                this.selectItem(item);
-            }
-        }
-        
-        selectHighlightedResult() {
-            const highlightedResult = this.resultsContainer.querySelector('.result-item.selected');
-            if (highlightedResult) {
-                const item = {
-                    id: highlightedResult.dataset.itemId,
-                    item_name: highlightedResult.dataset.itemName,
-                    cost_price: this.safeNumber(highlightedResult.dataset.costPrice),
-                    sale_price: this.safeNumber(highlightedResult.dataset.salePrice)
-                };
-                this.selectItem(item);
-            } else {
-                // Fallback to first result if no item is highlighted
-                this.selectFirstResult();
-            }
-        }
-        
-        clearSelection() {
-            // Clear the current selection
-            this.selectedItem = null;
-            this.input.value = '';
-            this.hiddenInput.value = '';
-            
-            // Clear prices
-            const row = this.container.closest('.general-item-row');
-            const unitPriceInput = row.querySelector('.general-price');
-            const salePriceInput = row.querySelector('.general-sale-price');
-            
-            if (unitPriceInput) {
-                unitPriceInput.value = '';
-            }
-            if (salePriceInput) {
-                salePriceInput.value = '';
-            }
-            
-            // Trigger calculation
-            if (unitPriceInput) {
-                calculateLineTotal(unitPriceInput);
-                calculateTotals();
-            }
-        }
-        
-        navigateResults(direction) {
-            const results = this.resultsContainer.querySelectorAll('.result-item');
-            const currentIndex = Array.from(results).findIndex(item => item.classList.contains('selected'));
-            
-            let newIndex;
-            if (direction === 'down') {
-                newIndex = currentIndex < results.length - 1 ? currentIndex + 1 : 0;
-            } else {
-                newIndex = currentIndex > 0 ? currentIndex - 1 : results.length - 1;
-            }
-            
-            // Remove previous selection
-            results.forEach(item => item.classList.remove('selected', 'bg-blue-100'));
-            
-            // Add new selection
-            if (results[newIndex]) {
-                results[newIndex].classList.add('selected', 'bg-blue-100');
-                results[newIndex].scrollIntoView({ block: 'nearest' });
-            }
-        }
-        
-        showDropdown() {
-            this.dropdown.classList.remove('hidden');
-        }
-        
-        hideDropdown() {
-            this.dropdown.classList.add('hidden');
-        }
-        
-        showLoading() {
-            this.loadingIndicator.classList.remove('hidden');
-        }
-        
-        hideLoading() {
-            this.loadingIndicator.classList.add('hidden');
-        }
-        
-        safeNumber(value) {
-            // Convert value to a safe number, defaulting to 0 if invalid
-            if (value === null || value === undefined || value === '') {
-                return 0;
-            }
-            
-            const num = parseFloat(value);
-            return isNaN(num) ? 0 : num;
-        }
-        
-        showError(message) {
-            this.resultsContainer.innerHTML = `
-                <div class="px-4 py-3 text-sm text-red-500 text-center">
-                    <div class="font-medium">Error Loading Items</div>
-                    <div class="mt-1">${message}</div>
-                    <div class="mt-2 text-xs text-gray-500">
-                        Please check your browser console for more details.
-                    </div>
-                </div>
-            `;
-        }
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
         let generalItemIndex = {{ $purchase->generalLines->count() }};
         let armIndex = {{ $purchase->armLines->count() }};
+
+        window.selectedGeneralItemIds = window.selectedGeneralItemIds || [];
+        document.querySelectorAll('.general-item-row .selected-item-id').forEach(hidden => {
+            if (hidden.value) {
+                const v = String(hidden.value);
+                if (!window.selectedGeneralItemIds.includes(v)) {
+                    window.selectedGeneralItemIds.push(v);
+                }
+            }
+        });
 
         // Refresh open general-item dropdowns when item type filter changes
         const itemTypeFilter = document.getElementById('item_type_filter');
@@ -2070,6 +1666,12 @@
         confirmDeleteModal.addEventListener('click', function() {
             if (rowPendingDeletion) {
                 const row = rowPendingDeletion;
+                if (pendingDeletionType === 'general') {
+                    const selectedGeneralItemId = row.querySelector('.selected-item-id')?.value;
+                    if (selectedGeneralItemId && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds)) {
+                        window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(id => String(id) !== String(selectedGeneralItemId));
+                    }
+                }
                 row.remove();
                 calculateTotals();
                 updateAllocationPreview();
@@ -2145,10 +1747,10 @@
             // Initialize searchable dropdown for the new row
             const searchableContainer = container.lastElementChild.querySelector('.searchable-select-container');
             if (searchableContainer) {
-                new SearchableDropdown(searchableContainer, {
-                    itemsPerPage: 15,        // Show 15 items per page
-                    debounceDelay: 300,      // 300ms delay for search
-                    minSearchLength: 2       // Start searching after 2 characters
+                new GeneralItemSearchableDropdown(searchableContainer, {
+                    itemsPerPage: 15,
+                    debounceDelay: 300,
+                    minSearchLength: 2
                 });
                 searchableContainer.dataset.initialized = 'true';
             }
@@ -2469,14 +2071,464 @@
             });
         }
 
+        // General item search (behaviour and UI aligned with sale invoice forms)
+        class GeneralItemSearchableDropdown {
+            constructor(container, options = {}) {
+                this.container = container;
+                this.input = container.querySelector('.searchable-input');
+                this.hiddenInput = container.querySelector('.selected-item-id');
+                this.dropdown = container.querySelector('.searchable-dropdown');
+                this.resultsContainer = container.querySelector('.search-results-container');
+                this.paginationContainer = container.querySelector('.pagination-container');
+                this.loadingIndicator = container.querySelector('.loading-indicator');
+
+                this.searchTimeout = null;
+                this.currentPage = 1;
+                this.searchTerm = '';
+                this.selectedItem = null;
+
+                this.itemsPerPage = options.itemsPerPage || 10;
+                this.debounceDelay = options.debounceDelay || 300;
+                this.minSearchLength = options.minSearchLength || 2;
+
+                this.init();
+            }
+
+            getSelectedItemTypeId() {
+                const filter = document.getElementById('item_type_filter');
+                return filter ? filter.value : '';
+            }
+
+            init() {
+                this.bindEvents();
+                this.setupGlobalClickHandler();
+            }
+
+            bindEvents() {
+                this.input.addEventListener('focus', () => {
+                    this.showDropdown();
+                    this.performSearch();
+                });
+
+                this.input.addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value;
+                    this.currentPage = 1;
+                    this.showDropdown();
+
+                    if (!this.searchTerm.trim() && this.selectedItem) {
+                        this.clearSelection();
+                    }
+
+                    this.debounceSearch();
+                });
+
+                this.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.selectHighlightedResult();
+                    } else if (e.key === 'Escape') {
+                        this.hideDropdown();
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.navigateResults('down');
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.navigateResults('up');
+                    }
+                });
+            }
+
+            setupGlobalClickHandler() {
+                document.addEventListener('click', (e) => {
+                    if (!this.container.contains(e.target)) {
+                        this.hideDropdown();
+                    }
+                });
+            }
+
+            debounceSearch() {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.performSearch();
+                }, this.debounceDelay);
+            }
+
+            async performSearch() {
+                if (this.searchTerm.length < this.minSearchLength) {
+                    this.showInitialResults();
+                    return;
+                }
+
+                this.showLoading();
+
+                try {
+                    const url = new URL('/api/general-items/search', window.location.origin);
+                    url.searchParams.set('q', this.searchTerm);
+                    url.searchParams.set('page', this.currentPage);
+                    url.searchParams.set('limit', this.itemsPerPage);
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
+
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        throw new Error(data.message || data.error);
+                    }
+
+                    if (!Array.isArray(data.data)) {
+                        throw new Error('Invalid data format received from search API');
+                    }
+
+                    this.displayResults(data.data || [], data.meta || {});
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.showError(`Search failed: ${error.message}`);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async showInitialResults() {
+                this.showLoading();
+
+                try {
+                    const url = new URL('/api/general-items', window.location.origin);
+                    url.searchParams.set('page', this.currentPage);
+                    url.searchParams.set('limit', this.itemsPerPage);
+                    const itemTypeId = this.getSelectedItemTypeId();
+                    if (itemTypeId) {
+                        url.searchParams.set('item_type_id', itemTypeId);
+                    }
+
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        throw new Error(data.message || data.error);
+                    }
+
+                    if (!Array.isArray(data.data)) {
+                        throw new Error('Invalid data format received from API');
+                    }
+
+                    this.displayResults(data.data || [], data.meta || {});
+                } catch (error) {
+                    console.error('Initial load error:', error);
+                    this.showError(`Failed to load items: ${error.message}`);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            displayResults(items, meta) {
+                this.resultsContainer.innerHTML = '';
+
+                if (!items || !Array.isArray(items) || items.length === 0) {
+                    this.resultsContainer.innerHTML = `
+                        <div class="px-4 py-3 text-sm text-gray-500 text-center">
+                            ${this.searchTerm ? 'No items found matching your search.' : 'No items available.'}
+                        </div>
+                    `;
+                    this.paginationContainer.classList.add('hidden');
+                    return;
+                }
+
+                items.forEach((item) => {
+                    if (!item || !item.id || !item.item_name) {
+                        return;
+                    }
+
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
+                    resultItem.dataset.itemId = item.id;
+                    resultItem.dataset.itemName = item.item_name;
+                    resultItem.dataset.costPrice = this.safeNumber(item.cost_price);
+                    resultItem.dataset.salePrice = this.safeNumber(item.sale_price);
+                    resultItem.dataset.availableStock = this.safeNumber(item.available_stock);
+                    resultItem.dataset.itemCode = item.item_code || '';
+
+                    resultItem.innerHTML = `
+                        <div class="font-medium text-gray-900">${item.item_name}</div>
+                        ${item.item_code ? `<div class="text-xs text-gray-400">${item.item_code}</div>` : ''}
+                    `;
+
+                    resultItem.addEventListener('click', () => {
+                        this.selectItem(item);
+                    });
+
+                    this.resultsContainer.appendChild(resultItem);
+                });
+
+                if (meta && meta.last_page > 1) {
+                    this.showPagination(meta);
+                } else {
+                    this.paginationContainer.classList.add('hidden');
+                }
+            }
+
+            showPagination(meta) {
+                this.paginationContainer.classList.remove('hidden');
+
+                const pageInfo = this.paginationContainer.querySelector('.page-info');
+                const prevBtn = this.paginationContainer.querySelector('.prev-page');
+                const nextBtn = this.paginationContainer.querySelector('.next-page');
+
+                pageInfo.textContent = `Page ${meta.current_page} of ${meta.last_page}`;
+
+                prevBtn.disabled = meta.current_page <= 1;
+                nextBtn.disabled = meta.current_page >= meta.last_page;
+
+                prevBtn.onclick = () => {
+                    if (meta.current_page > 1) {
+                        this.currentPage = meta.current_page - 1;
+                        this.performSearch();
+                    }
+                };
+
+                nextBtn.onclick = () => {
+                    if (meta.current_page < meta.last_page) {
+                        this.currentPage = meta.current_page + 1;
+                        this.performSearch();
+                    }
+                };
+            }
+
+            selectItem(item) {
+                const prevId = this.hiddenInput.value;
+                if (prevId && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds)) {
+                    window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(id => String(id) !== String(prevId));
+                }
+
+                this.selectedItem = item;
+                this.input.value = item.item_name;
+                this.hiddenInput.value = item.id;
+
+                if (!window.selectedGeneralItemIds || !Array.isArray(window.selectedGeneralItemIds)) {
+                    window.selectedGeneralItemIds = [];
+                }
+                const idStr = String(item.id);
+                if (!window.selectedGeneralItemIds.includes(idStr)) {
+                    window.selectedGeneralItemIds.push(idStr);
+                }
+
+                const availableStock = item.available_stock != null && item.available_stock !== ''
+                    ? this.safeNumber(item.available_stock)
+                    : 0;
+                const row = this.container.closest('.general-item-row');
+
+                const existingWarning = row.querySelector('.stock-warning');
+                const existingInfo = row.querySelector('.item-info');
+                if (existingWarning) {
+                    existingWarning.remove();
+                }
+                if (existingInfo) {
+                    existingInfo.remove();
+                }
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'item-info absolute text-xs text-gray-500 top-full left-0 mt-1 z-10 bg-white px-1 rounded';
+                infoDiv.innerHTML = `
+                    <span>Stock: <span class="font-medium">${availableStock}</span></span>
+                `;
+                this.container.style.position = 'relative';
+                this.container.appendChild(infoDiv);
+
+                if (availableStock <= 0) {
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'stock-warning absolute text-red-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
+                    warningDiv.textContent = '\u26A0\uFE0F No stock!';
+                    this.container.appendChild(warningDiv);
+                } else if (availableStock <= 5) {
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'stock-warning absolute text-orange-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
+                    warningDiv.textContent = `\u26A0\uFE0F Low: ${availableStock}`;
+                    this.container.appendChild(warningDiv);
+                }
+
+                const unitPriceInput = row.querySelector('.general-price');
+                const salePriceInput = row.querySelector('.general-sale-price');
+
+                if (unitPriceInput) {
+                    unitPriceInput.value = item.cost_price ? item.cost_price : '';
+                }
+                if (salePriceInput) {
+                    salePriceInput.value = item.sale_price ? item.sale_price : '';
+                }
+
+                if (unitPriceInput) {
+                    calculateLineTotal(unitPriceInput);
+                    calculateTotals();
+                    updateAllocationPreview();
+                }
+
+                this.hideDropdown();
+            }
+
+            selectFirstResult() {
+                const firstResult = this.resultsContainer.querySelector('.result-item');
+                if (firstResult) {
+                    const item = {
+                        id: firstResult.dataset.itemId,
+                        item_name: firstResult.dataset.itemName,
+                        cost_price: this.safeNumber(firstResult.dataset.costPrice),
+                        sale_price: this.safeNumber(firstResult.dataset.salePrice),
+                        available_stock: this.safeNumber(firstResult.dataset.availableStock)
+                    };
+                    this.selectItem(item);
+                }
+            }
+
+            selectHighlightedResult() {
+                const highlightedResult = this.resultsContainer.querySelector('.result-item.selected');
+                if (highlightedResult) {
+                    const item = {
+                        id: highlightedResult.dataset.itemId,
+                        item_name: highlightedResult.dataset.itemName,
+                        cost_price: this.safeNumber(highlightedResult.dataset.costPrice),
+                        sale_price: this.safeNumber(highlightedResult.dataset.salePrice),
+                        available_stock: this.safeNumber(highlightedResult.dataset.availableStock)
+                    };
+                    this.selectItem(item);
+                } else {
+                    this.selectFirstResult();
+                }
+            }
+
+            navigateResults(direction) {
+                const results = this.resultsContainer.querySelectorAll('.result-item');
+                const currentIndex = Array.from(results).findIndex(el => el.classList.contains('selected'));
+
+                let newIndex;
+                if (direction === 'down') {
+                    newIndex = currentIndex < results.length - 1 ? currentIndex + 1 : 0;
+                } else {
+                    newIndex = currentIndex > 0 ? currentIndex - 1 : results.length - 1;
+                }
+
+                results.forEach(el => el.classList.remove('selected', 'bg-green-100'));
+
+                if (results[newIndex]) {
+                    results[newIndex].classList.add('selected', 'bg-green-100');
+                    results[newIndex].scrollIntoView({ block: 'nearest' });
+                }
+            }
+
+            showDropdown() {
+                this.dropdown.classList.remove('hidden');
+            }
+
+            hideDropdown() {
+                this.dropdown.classList.add('hidden');
+            }
+
+            showLoading() {
+                this.loadingIndicator.classList.remove('hidden');
+            }
+
+            hideLoading() {
+                this.loadingIndicator.classList.add('hidden');
+            }
+
+            safeNumber(value) {
+                if (value === null || value === undefined || value === '') {
+                    return 0;
+                }
+
+                const num = parseFloat(value);
+                return isNaN(num) ? 0 : num;
+            }
+
+            showError(message) {
+                this.resultsContainer.innerHTML = `
+                    <div class="px-4 py-3 text-sm text-red-500 text-center">
+                        <div class="font-medium">Error Loading Items</div>
+                        <div class="mt-1">${message}</div>
+                        <div class="mt-2 text-xs text-gray-500">
+                            Please check your browser console for more details.
+                        </div>
+                    </div>
+                `;
+            }
+
+            clearSelection() {
+                if (this.selectedItem && this.selectedItem.id && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds)) {
+                    const idStr = String(this.selectedItem.id);
+                    window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(id => String(id) !== idStr);
+                }
+
+                this.selectedItem = null;
+                this.input.value = '';
+                this.hiddenInput.value = '';
+
+                const row = this.container.closest('.general-item-row');
+                const unitPriceInput = row.querySelector('.general-price');
+                const salePriceInput = row.querySelector('.general-sale-price');
+                const qtyInput = row.querySelector('.general-qty');
+
+                if (unitPriceInput) {
+                    unitPriceInput.value = '';
+                }
+                if (salePriceInput) {
+                    salePriceInput.value = '';
+                }
+                if (qtyInput) {
+                    qtyInput.value = '1';
+                }
+
+                const existingWarning = row.querySelector('.stock-warning');
+                const existingInfo = row.querySelector('.item-info');
+                if (existingWarning) {
+                    existingWarning.remove();
+                }
+                if (existingInfo) {
+                    existingInfo.remove();
+                }
+
+                if (unitPriceInput) {
+                    calculateLineTotal(unitPriceInput);
+                    calculateTotals();
+                    updateAllocationPreview();
+                }
+            }
+        }
+
         // Initialize searchable dropdown for existing general item rows
         document.querySelectorAll('.general-item-row .searchable-select-container').forEach(container => {
             if (!container.dataset.initialized) {
-            new SearchableDropdown(container, {
-                itemsPerPage: 15,        // Show 15 items per page
-                debounceDelay: 300,      // 300ms delay for search
-                minSearchLength: 2       // Start searching after 2 characters
-            });
+                new GeneralItemSearchableDropdown(container, {
+                    itemsPerPage: 15,
+                    debounceDelay: 300,
+                    minSearchLength: 2
+                });
                 container.dataset.initialized = 'true';
             }
         });
@@ -3241,7 +3293,7 @@
                         minSearchLength: 2
                     });
                 } else {
-                    new SearchableDropdown(container, {
+                    new GeneralItemSearchableDropdown(container, {
                         itemsPerPage: 15,
                         debounceDelay: 300,
                         minSearchLength: 2
@@ -3647,10 +3699,9 @@
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
-        /* Searchable Dropdown Styles */
+        /* Searchable Dropdown Styles (aligned with sale invoice forms) */
         .searchable-select-container {
             position: relative;
-            z-index: 1000;
         }
         
         /* Party dropdown specific styling */
@@ -3678,19 +3729,25 @@
             box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
         }
         
+        .general-item-row .searchable-input:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.15);
+        }
+        
         .searchable-dropdown {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            position: absolute;
+            z-index: 50;
+            top: 100%;
+            left: 0;
+            right: 0;
+            width: 100%;
+            margin-top: 0.25rem;
+            background: white;
             border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
-            background: white;
-            z-index: 9999 !important;
-            position: absolute !important;
-            top: 100% !important;
-            left: 0 !important;
-            right: 0 !important;
-            min-width: 100% !important;
-            max-height: 200px !important;
-            overflow-y: auto !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-height: 12rem;
+            overflow: hidden;
         }
         
         @media (max-width: 640px) {
