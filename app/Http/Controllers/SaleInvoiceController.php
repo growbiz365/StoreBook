@@ -150,6 +150,8 @@ class SaleInvoiceController extends Controller
             ->get();
 
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->active()
+            ->with('itemType')
             ->orderBy('item_name')
             ->get();
 
@@ -187,17 +189,15 @@ class SaleInvoiceController extends Controller
                     return back()->withErrors(['stock' => $stockErrors])->withInput();
                 }
             }
-            
-            DB::beginTransaction();
 
-            // Validate main sale invoice data
+            // Validate main sale invoice data (before opening a DB transaction)
             $validator = Validator::make($request->all(), [
                 'party_id' => 'nullable|required_if:sale_type,credit|exists:parties,id',
                 'sale_type' => 'required|in:cash,credit',
                 'bank_id' => 'nullable|required_if:sale_type,cash|exists:banks,id',
                 'invoice_date' => 'required|date',
                 'shipping_charges' => 'nullable|numeric|min:0',
-                'action' => 'required|in:save,post',
+                'action' => 'required|in:save,post,post_print',
 
                 // Customer details validation (for cash sales)
                 'name_of_customer' => 'nullable|string|max:255',
@@ -225,9 +225,48 @@ class SaleInvoiceController extends Controller
                 'arm_lines.*.arm_id' => 'required_with:arm_lines|exists:arms,id',
             ]);
 
+            $validator->after(function ($validator) use ($request) {
+                $action = $request->input('action');
+                if (!in_array($action, ['post', 'post_print'], true)) {
+                    return;
+                }
+                $generalLines = $request->input('general_lines', []);
+                $armLines = $request->input('arm_lines', []);
+                $generalWithItem = 0;
+                if (is_array($generalLines)) {
+                    foreach ($generalLines as $line) {
+                        if (is_array($line) && !empty($line['general_item_id'])) {
+                            $generalWithItem++;
+                        }
+                    }
+                }
+                $armsWithId = 0;
+                if (is_array($armLines)) {
+                    foreach ($armLines as $line) {
+                        if (is_array($line) && !empty($line['arm_id'])) {
+                            $armsWithId++;
+                        }
+                    }
+                }
+                if ($generalWithItem === 0 && $armsWithId === 0) {
+                    $validator->errors()->add(
+                        'general_lines',
+                        'Item selection is required. Add at least one line using the barcode or item search before posting.'
+                    );
+                }
+            });
+
+            $validator->after(function ($validator) use ($request, $businessId) {
+                foreach (GeneralItem::validateGeneralLinesAreSaleable($businessId, $request->input('general_lines', [])) as $field => $message) {
+                    $validator->errors()->add($field, $message);
+                }
+            });
+
             if ($validator->fails()) {
                 return back()->withErrors($validator)->withInput();
             }
+
+            DB::beginTransaction();
 
             // Create sale invoice
             $saleInvoice = SaleInvoice::create([
@@ -294,8 +333,16 @@ class SaleInvoiceController extends Controller
                 'user_id' => $userId,
             ]);
 
-            // If action is post, post the sale invoice
-            if ($request->action === 'post') {
+            // If action is post or post_print, post the sale invoice
+            if ($request->action === 'post' || $request->action === 'post_print') {
+                $saleInvoice->load(['generalLines', 'armLines']);
+                if (!$saleInvoice->canBePosted()) {
+                    DB::rollBack();
+
+                    return back()->withErrors([
+                        'general_lines' => 'Item selection is required. Add at least one line using the barcode or item search before posting.',
+                    ])->withInput();
+                }
                 $this->postSaleInvoice($saleInvoice);
             }
 
@@ -304,8 +351,12 @@ class SaleInvoiceController extends Controller
             // Clear any old input data from session
             $request->session()->forget('_old_input');
 
-            return redirect()->route('sale-invoices.show', $saleInvoice)
-                ->with('success', 'Sale invoice created successfully.');
+            $flash = ['success' => 'Sale invoice created successfully.'];
+            if ($request->action === 'post_print') {
+                $flash['open_print_dialog'] = true;
+            }
+
+            return redirect()->route('sale-invoices.show', $saleInvoice)->with($flash);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -320,6 +371,7 @@ class SaleInvoiceController extends Controller
     public function show(SaleInvoice $saleInvoice)
     {
         $saleInvoice->load([
+            'business.currency',
             'party',
             'bank',
             'createdBy',
@@ -329,7 +381,110 @@ class SaleInvoiceController extends Controller
             'quotation',
         ]);
 
-        return view('sale_invoices.show', compact('saleInvoice'));
+        $currencyLabel = $saleInvoice->business?->currency?->symbol
+            ?? $saleInvoice->business?->currency?->currency_code
+            ?? 'PKR';
+
+        $balances = $this->partyLedgerBalancesForCreditInvoice($saleInvoice);
+        $partyPreviousBalance = $balances['previous'];
+        $partyTotalBalance = $balances['after'];
+
+        $invoiceSections = [];
+        $generalByType = [];
+        foreach ($saleInvoice->generalLines as $line) {
+            if (!$line->generalItem) {
+                continue;
+            }
+            $typeName = $line->generalItem->itemType?->item_type ?? 'Items';
+            if (!isset($generalByType[$typeName])) {
+                $generalByType[$typeName] = [];
+            }
+            $generalByType[$typeName][] = $line;
+        }
+        foreach ($generalByType as $title => $lines) {
+            $invoiceSections[] = ['title' => $title, 'kind' => 'general', 'lines' => $lines];
+        }
+        if ($saleInvoice->armLines->isNotEmpty()) {
+            $invoiceSections[] = [
+                'title' => 'Arms',
+                'kind' => 'arms',
+                'lines' => $saleInvoice->armLines->all(),
+            ];
+        }
+
+        return view('sale_invoices.show', compact(
+            'saleInvoice',
+            'currencyLabel',
+            'partyPreviousBalance',
+            'partyTotalBalance',
+            'invoiceSections'
+        ));
+    }
+
+    /**
+     * Compact 80mm-style thermal receipt using existing sale invoice data.
+     */
+    public function thermalPrint(SaleInvoice $saleInvoice)
+    {
+        if ((int) $saleInvoice->business_id !== (int) session('active_business')) {
+            abort(403);
+        }
+
+        $saleInvoice->load([
+            'business.currency',
+            'party',
+            'generalLines.generalItem.itemType',
+            'armLines.arm',
+        ]);
+
+        $currency = $saleInvoice->business?->currency?->symbol
+            ?: ($saleInvoice->business?->currency?->currency_code ?? 'PKR');
+
+        $grouped = [];
+        foreach ($saleInvoice->generalLines as $line) {
+            if (!$line->generalItem) {
+                continue;
+            }
+            $key = $line->generalItem->itemType?->item_type ?? 'Items';
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [];
+            }
+            $grouped[$key][] = [
+                'item_name' => $line->generalItem->item_name,
+                'quantity' => $line->quantity,
+                'price' => $line->sale_price,
+                'total' => $line->line_total,
+            ];
+        }
+        if ($saleInvoice->armLines->isNotEmpty()) {
+            $grouped['Arms'] = [];
+            foreach ($saleInvoice->armLines as $line) {
+                $title = $line->arm?->arm_title ?? 'Arm';
+                $grouped['Arms'][] = [
+                    'item_name' => $title,
+                    'quantity' => 1,
+                    'price' => $line->sale_price,
+                    'total' => $line->line_total,
+                ];
+            }
+        }
+
+        $bal = $this->partyLedgerBalancesForCreditInvoice($saleInvoice);
+        $oldBalance = $bal['previous'];
+        $totalBalance = $bal['after'];
+
+        $customerLabel = $saleInvoice->sale_type === 'credit'
+            ? ($saleInvoice->party?->name ?? 'Credit')
+            : ($saleInvoice->name_of_customer ?: 'Cash');
+
+        return response()->view('sale_invoices.thermal_print', [
+            'saleInvoice' => $saleInvoice,
+            'groupedLines' => $grouped,
+            'currency' => $currency,
+            'oldBalance' => $oldBalance,
+            'totalBalance' => $totalBalance,
+            'customerLabel' => $customerLabel,
+        ]);
     }
 
     /**
@@ -363,12 +518,28 @@ class SaleInvoiceController extends Controller
             $line->generalItem->available_stock = $currentStock + $previouslySoldQty;
         }
 
+        $lineItemIds = $saleInvoice->generalLines->pluck('general_item_id')->filter()->unique()->values()->all();
+        $generalItems = GeneralItem::where('business_id', $businessId)
+            ->where(function ($q) use ($lineItemIds) {
+                $q->where('is_active', true);
+                if ($lineItemIds !== []) {
+                    $q->orWhereIn('id', $lineItemIds);
+                }
+            })
+            ->with('itemType')
+            ->orderBy('item_name')
+            ->get();
+
+        foreach ($generalItems as $item) {
+            $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
+        }
+
         $itemTypes = ItemType::where('business_id', $businessId)
             ->where('status', true)
             ->orderBy('item_type')
             ->get();
 
-        return view('sale_invoices.edit', compact('saleInvoice', 'customers', 'banks', 'itemTypes'));
+        return view('sale_invoices.edit', compact('saleInvoice', 'customers', 'banks', 'generalItems', 'itemTypes'));
     }
 
     /**
@@ -431,7 +602,17 @@ class SaleInvoiceController extends Controller
                 'arm_lines' => 'nullable|array',
                 'arm_lines.*.sale_price' => 'required_with:arm_lines|numeric|min:0',
                 'arm_lines.*.arm_id' => 'required_with:arm_lines|exists:arms,id',
+
+                'print_after_update' => 'nullable|in:0,1',
             ]);
+
+            $saleInvoice->loadMissing('generalLines');
+            $previouslyUsedItemIds = $saleInvoice->generalLines->pluck('general_item_id')->unique()->map(fn ($id) => (int) $id)->values()->all();
+            $validator->after(function ($validator) use ($request, $businessId, $previouslyUsedItemIds) {
+                foreach (GeneralItem::validateGeneralLinesAreSaleable($businessId, $request->input('general_lines', []), $previouslyUsedItemIds) as $field => $message) {
+                    $validator->errors()->add($field, $message);
+                }
+            });
 
             if ($validator->fails()) {
                 return back()->withErrors($validator)->withInput();
@@ -498,8 +679,12 @@ class SaleInvoiceController extends Controller
                 ? 'Sale invoice updated successfully. Inventory has been adjusted and the invoice remains posted.'
                 : 'Sale invoice updated successfully.';
 
-            return redirect()->route('sale-invoices.show', $saleInvoice)
-                ->with('success', $message);
+            $flash = ['success' => $message];
+            if ($request->boolean('print_after_update')) {
+                $flash['open_print_dialog'] = true;
+            }
+
+            return redirect()->route('sale-invoices.show', $saleInvoice)->with($flash);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -2160,6 +2345,34 @@ class SaleInvoiceController extends Controller
             'fromDate',
             'toDate'
         ));
+    }
+
+    /**
+     * Previous / after party ledger balance for a credit sale invoice (credit − debit), aligned with PartyLedger.
+     * Uses invoice_date through end of that day; for posted invoices excludes this voucher's "Sale Invoice" row
+     * so the posting already in the ledger is not double-counted. After balance = previous − invoice total (sale debits the party).
+     *
+     * @return array{previous: float|null, after: float|null}
+     */
+    private function partyLedgerBalancesForCreditInvoice(SaleInvoice $saleInvoice): array
+    {
+        if ($saleInvoice->sale_type !== 'credit' || !$saleInvoice->party || !$saleInvoice->invoice_date) {
+            return ['previous' => null, 'after' => null];
+        }
+
+        $businessId = (int) $saleInvoice->business_id;
+        $excludePostedLine = $saleInvoice->status === 'posted';
+
+        $previous = $saleInvoice->party->ledgerBalanceAsOf(
+            $saleInvoice->invoice_date,
+            $businessId,
+            $excludePostedLine ? 'Sale Invoice' : null,
+            $excludePostedLine ? $saleInvoice->id : null
+        );
+
+        $after = $previous - (float) $saleInvoice->total_amount;
+
+        return ['previous' => $previous, 'after' => $after];
     }
 
 }

@@ -51,6 +51,12 @@ class GeneralItemController extends Controller
             $query->where('item_code', 'like', '%' . $itemCode . '%');
         }
 
+        if ($request->get('status') === 'active') {
+            $query->where('is_active', true);
+        } elseif ($request->get('status') === 'inactive') {
+            $query->where('is_active', false);
+        }
+
         // Apply sorting
         $sortBy = $request->get('sort_by', 'item_code');
         $sortOrder = $request->get('sort_order', 'asc');
@@ -123,6 +129,7 @@ class GeneralItemController extends Controller
                 'opening_total' => $openingTotal,
                 'sale_price' => $request->sale_price,
                 'business_id' => $businessId,
+                'is_active' => true,
             ]);
 
             // Create initial batch if opening stock provided
@@ -896,61 +903,44 @@ class GeneralItemController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * Items are never hard-deleted; this route deactivates the item for backwards compatibility.
      */
     public function destroy($id)
     {
+        if (! auth()->user()?->can('edit items')) {
+            abort(403);
+        }
+
         $businessId = session('active_business');
         $generalItem = GeneralItem::where('business_id', $businessId)->findOrFail($id);
-        
-        // Allow delete only if the item has no transactions beyond opening stock
-        $hasNonOpeningLedger = GeneralItemStockLedger::forBusiness($businessId)
-            ->forItem($generalItem->id)
-            ->where(function ($query) {
-                $query->whereNull('transaction_type')
-                      ->orWhere('transaction_type', '!=', 'opening');
-            })
-            ->exists();
+        $generalItem->update(['is_active' => false]);
 
-        $hasNonOpeningInventory = InventoryTransaction::where('business_id', $businessId)
-            ->where('item_id', $generalItem->id)
-            ->where(function ($query) {
-                $query->whereNull('tx_type')
-                      ->orWhere('tx_type', '!=', 'opening');
-            })
-            ->exists();
+        return redirect()->route('general-items.index')->with('success', 'Item deactivated.');
+    }
 
-        if ($hasNonOpeningLedger || $hasNonOpeningInventory) {
-            return redirect()->route('general-items.index')
-                ->withErrors(['delete_error' => 'This item cannot be deleted.']);
+    /**
+     * Activate or deactivate a general item.
+     */
+    public function updateStatus(Request $request, GeneralItem $generalItem)
+    {
+        if (! auth()->user()?->can('edit items')) {
+            abort(403);
         }
-        
-        DB::transaction(function () use ($generalItem, $businessId) {
-            // Delete stock ledger entries for this item
-            GeneralItemStockLedger::forBusiness($businessId)
-                ->forItem($generalItem->id)
-                ->delete();
 
-            // Delete related inventory transactions
-            InventoryTransaction::where('business_id', $businessId)
-                ->where('item_id', $generalItem->id)
-                ->delete();
+        $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
 
-            // Delete related batches
-            GeneralBatch::where('business_id', $businessId)
-                ->where('item_id', $generalItem->id)
-                ->delete();
+        $businessId = session('active_business');
+        if ((int) $generalItem->business_id !== (int) $businessId) {
+            abort(404);
+        }
 
-            // Delete related journal entries (opening and adjustment)
-            JournalEntry::where('business_id', $businessId)
-                ->where('voucher_id', $generalItem->id)
-                ->whereIn('voucher_type', ['General Item', 'General Item Adjustment'])
-                ->delete();
-            
-            // Delete the general item (this will cascade delete related records)
-            $generalItem->delete();
-        });
-        
-        return redirect()->route('general-items.index')->with('success', 'General Item deleted successfully.');
+        $generalItem->update(['is_active' => $request->boolean('is_active')]);
+
+        $message = $generalItem->is_active ? 'Item activated.' : 'Item deactivated.';
+
+        return back()->with('success', $message);
     }
 
     /**

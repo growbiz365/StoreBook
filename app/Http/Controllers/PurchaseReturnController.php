@@ -97,6 +97,7 @@ class PurchaseReturnController extends Controller
             ->get();
 
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->active()
             ->orderBy('item_name')
             ->get();
 

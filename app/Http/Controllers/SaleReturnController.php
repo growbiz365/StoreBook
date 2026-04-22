@@ -96,8 +96,8 @@ class SaleReturnController extends Controller
             ->orderBy('account_name')
             ->get();
 
-        // Show all general items for sale returns
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->activeOrHistoricallySold((int) $businessId)
             ->orderBy('item_name')
             ->get();
 

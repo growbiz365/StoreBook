@@ -7,6 +7,10 @@
         ['url' => '#', 'label' => $generalItem->item_name]
     ]" />
 
+    @if (session('success'))
+        <x-success-alert message="{{ session('success') }}" />
+    @endif
+
     <!-- Header Section -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 mt-5">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -42,6 +46,17 @@
                 </svg>
                         Edit Opening Stock
             </a>
+            @can('edit items')
+                    <form method="POST" action="{{ route('general-items.update-status', $generalItem) }}" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="is_active" value="{{ $generalItem->is_active ? '0' : '1' }}">
+                        <button type="submit"
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg font-medium text-sm text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $generalItem->is_active ? 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500' : 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500' }}">
+                            {{ $generalItem->is_active ? 'Deactivate item' : 'Activate item' }}
+                        </button>
+                    </form>
+                    @endcan
             <a href="{{ route('general-items.index') }}" 
                         class="inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,6 +86,13 @@
                             @else
                                 {{ ucfirst($generalItem->stock_status) }}
                             @endif
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">Catalog:</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $generalItem->is_active ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700' }}">
+                            {{ $generalItem->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
                     

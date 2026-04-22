@@ -90,6 +90,7 @@ class ApprovalController extends Controller
             ->get();
 
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->active()
             ->orderBy('item_name')
             ->get();
 
@@ -142,6 +143,12 @@ class ApprovalController extends Controller
             if (empty($request->general_lines) && empty($request->arm_lines)) {
                 $validator->errors()->add('lines', 'Please add at least one item or arm.');
             }
+
+            $validator->after(function ($validator) use ($request, $businessId) {
+                foreach (GeneralItem::validateGeneralLinesAreSaleable($businessId, $request->input('general_lines', [])) as $field => $message) {
+                    $validator->errors()->add($field, $message);
+                }
+            });
 
             if ($validator->fails()) {
                 return back()->withErrors($validator)->withInput();
@@ -267,7 +274,16 @@ class ApprovalController extends Controller
             ->orderBy('name')
             ->get();
 
+        $approval->load(['arms.arm', 'generalItems.generalItem']);
+
+        $lineItemIds = $approval->generalItems->pluck('general_item_id')->filter()->unique()->values()->all();
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->where(function ($q) use ($lineItemIds) {
+                $q->where('is_active', true);
+                if ($lineItemIds !== []) {
+                    $q->orWhereIn('id', $lineItemIds);
+                }
+            })
             ->orderBy('item_name')
             ->get();
 
@@ -280,8 +296,6 @@ class ApprovalController extends Controller
             ->whereIn('status', ['available', 'pending_approval'])
             ->orderBy('serial_no')
             ->get();
-
-        $approval->load(['arms.arm', 'generalItems.generalItem']);
 
         return view('approvals.edit', compact('approval', 'parties', 'generalItems', 'arms'));
     }
@@ -319,6 +333,14 @@ class ApprovalController extends Controller
             if (empty($request->general_lines) && empty($request->arm_lines)) {
                 $validator->errors()->add('lines', 'Please add at least one item or arm.');
             }
+
+            $approval->loadMissing('generalItems');
+            $previouslyUsedItemIds = $approval->generalItems->pluck('general_item_id')->unique()->map(fn ($id) => (int) $id)->values()->all();
+            $validator->after(function ($validator) use ($request, $businessId, $previouslyUsedItemIds) {
+                foreach (GeneralItem::validateGeneralLinesAreSaleable($businessId, $request->input('general_lines', []), $previouslyUsedItemIds) as $field => $message) {
+                    $validator->errors()->add($field, $message);
+                }
+            });
 
             if ($validator->fails()) {
                 return back()->withErrors($validator)->withInput();

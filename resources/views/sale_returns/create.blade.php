@@ -2146,6 +2146,7 @@ class GeneralItemSearchableDropdown {
         
         try {
             const url = new URL('/api/general-items/search', window.location.origin);
+            url.searchParams.set('for_sale_return', '1');
             url.searchParams.set('q', this.searchTerm);
             url.searchParams.set('page', this.currentPage);
             url.searchParams.set('limit', this.itemsPerPage);
@@ -2197,6 +2198,7 @@ class GeneralItemSearchableDropdown {
         
         try {
             const url = new URL('/api/general-items', window.location.origin);
+            url.searchParams.set('for_sale_return', '1');
             url.searchParams.set('page', this.currentPage);
             url.searchParams.set('limit', this.itemsPerPage);
             const itemTypeId = this.getSelectedItemTypeId();

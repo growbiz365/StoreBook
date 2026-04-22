@@ -1,17 +1,4 @@
-<x-app-layout>
-    @section('title', 'Create Sale Invoice - Sales Management - StoreBook')
-    <x-breadcrumb :breadcrumbs="[
-        ['url' => '/', 'label' => 'Home'],
-        ['url' => '/sales-dashboard', 'label' => 'Sales Dashboard'],
-        ['url' => '/sale-invoices', 'label' => 'Sale Invoices'],
-        ['url' => '#', 'label' => 'Create Sale Invoice']
-    ]" />
-
-    <x-dynamic-heading 
-        :title="'Create Sale Invoice'" 
-        :subtitle="'Add new sale invoice with general items and arms'"
-        :icon="'fas fa-file-invoice-dollar'"
-    />
+<x-invoice-fullscreen-layout :page-title="'Create Sale Invoice — ' . config('app.name', 'StoreBook')">
     <style>
         
         .w-full {
@@ -75,53 +62,6 @@
             padding: 0.75rem 1rem;
             border-bottom: 1px solid #f3f4f6;
             vertical-align: middle;
-        }
-        
-        #arms_table {
-            width: 100%;
-            min-width: 600px;
-            table-layout: fixed;
-        }
-        
-        #arms_table th,
-        #arms_table td {
-            padding: 1rem;
-            vertical-align: middle;
-            white-space: nowrap;
-        }
-        
-        #arms_table th:nth-child(1), #arms_table td:nth-child(1) { width: 50%; min-width: 300px; } /* Arm */
-        #arms_table th:nth-child(2), #arms_table td:nth-child(2) { width: 30%; min-width: 200px; } /* Sale Price */
-        #arms_table th:nth-child(3), #arms_table td:nth-child(3) { width: 20%; min-width: 100px; } /* Actions */
-        
-        #arms_table select,
-        #arms_table input {
-            width: 100%;
-            min-width: 0;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            box-sizing: border-box;
-        }
-        
-        #arms_table select:focus,
-        #arms_table input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        #arms_table .remove-arm {
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        
-        #arms_table .remove-arm:hover {
-            background-color: #fef2f2;
-            transform: scale(1.05);
         }
         
         /* General form inputs - but not header inputs */
@@ -234,17 +174,11 @@
             .grid-cols-5 {
                 grid-template-columns: repeat(3, 1fr);
             }
-            #arms_table {
-                min-width: 500px;
-            }
         }
         
         @media (max-width: 1024px) {
             .grid-cols-5 {
                 grid-template-columns: repeat(2, 1fr);
-            }
-            #arms_table {
-                min-width: 450px;
             }
         }
         
@@ -254,9 +188,6 @@
             }
             .w-full {
                 padding: 0 0.5rem;
-            }
-            #arms_table {
-                min-width: 400px;
             }
         }
         
@@ -383,6 +314,213 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
         }
+
+        /* Legacy CI add-update-invoices.php style (white box, 9+3 grid, bordered table) */
+        #invoice-fullscreen-root .invoice-fs-root {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .ci-invoice-page {
+            background: linear-gradient(165deg, #eef1f8 0%, #f7f8fc 45%, #eef2f7 100%);
+        }
+        .ci-white-box {
+            background: #fff;
+            border: 1px solid #e2e6ef;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+        .ci-hr {
+            border: 0;
+            border-top: 1px solid #dee2e6;
+            margin: 0.5rem 0;
+        }
+        .ci-form-control,
+        .ci-invoice-page .pos-quick-add input,
+        .ci-invoice-page .pos-quick-add select {
+            width: 100%;
+            min-height: 32px;
+            padding: 0.28rem 0.55rem;
+            font-size: 0.8125rem;
+            line-height: 1.45;
+            color: #495057;
+            background-color: #fff;
+            border: 1px solid #c5cad3;
+            border-radius: 0.25rem;
+            box-sizing: border-box;
+        }
+        .ci-invoice-page .pos-quick-add input:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.15);
+        }
+        .ci-sidebar {
+            border-left: 1px solid #dee2e6;
+            padding-left: 1rem;
+        }
+        @media (max-width: 1023px) {
+            .ci-sidebar {
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid #dee2e6;
+                padding-top: 1rem;
+                margin-top: 0.5rem;
+            }
+        }
+        .ci-sidebar .form-group {
+            margin-bottom: 0.5rem;
+        }
+        .ci-sidebar label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #333;
+            margin-bottom: 0.35rem;
+        }
+        .pos-sale-type-btn {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            padding: 0.35rem 0.4rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            transition: background 0.15s, border-color 0.15s;
+            background: #fff;
+            color: #495057;
+        }
+        .pos-sale-type-btn.is-active-cash {
+            border-color: #28a745;
+            background: #e8f5e9;
+            color: #155724;
+        }
+        .pos-sale-type-btn.is-active-credit {
+            border-color: #007bff;
+            background: #e7f1ff;
+            color: #004085;
+        }
+        .ci-item-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #dee2e6;
+        }
+        .ci-item-table thead tr {
+            background: #fafafa !important;
+        }
+        .ci-item-table th,
+        .ci-item-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.3rem 0.45rem;
+            vertical-align: middle;
+        }
+        .ci-item-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .ci-item-table th {
+            font-weight: 600;
+            font-size: 0.8125rem;
+            color: #333;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        #general_items_table .general-details-cell {
+            font-size: 0.8125rem;
+            color: #4b5563;
+            max-width: 14rem;
+            white-space: normal;
+        }
+        .ci-total-readonly {
+            border: 0 !important;
+            background: transparent !important;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #212529;
+            padding-left: 0 !important;
+        }
+        .ci-btn-primary {
+            background: #007bff;
+            border: 1px solid #007bff;
+            color: #fff;
+            padding: 0.45rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .ci-btn-primary:hover { background: #0069d9; border-color: #0062cc; color: #fff; }
+        .ci-btn-success {
+            background: #28a745;
+            border: 1px solid #28a745;
+            color: #fff;
+            padding: 0.45rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .ci-btn-success:hover { background: #218838; border-color: #1e7e34; color: #fff; }
+        .ci-btn-danger {
+            background: #dc3545;
+            border: 1px solid #dc3545;
+            color: #fff;
+            padding: 0.45rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .ci-btn-danger:hover { background: #c82333; border-color: #bd2130; color: #fff; }
+        .ci-btn-outline {
+            background: #fff;
+            border: 1px solid #ced4da;
+            color: #495057;
+            padding: 0.45rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .ci-btn-outline:hover { background: #f8f9fa; }
+        .ci-btn-print {
+            background: #5b21b6;
+            border: 1px solid #5b21b6;
+            color: #fff;
+            padding: 0.38rem 0.85rem;
+            border-radius: 0.25rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+        .ci-btn-print:hover { background: #4c1d95; border-color: #4c1d95; color: #fff; }
+        .ci-invoice-page button.ci-btn-primary,
+        .ci-invoice-page button.ci-btn-success,
+        .ci-invoice-page button.ci-btn-danger,
+        .ci-invoice-page button.ci-btn-print {
+            padding: 0.38rem 0.85rem;
+            border-radius: 0.25rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+        .ci-item-table input.ci-form-control,
+        .ci-item-table .ci-form-control {
+            min-height: 30px;
+            font-size: 0.8125rem;
+        }
+        #shortcut_keys {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #shortcut_keys th,
+        #shortcut_keys td {
+            text-align: center;
+            font-size: 0.6875rem;
+            padding: 0.28rem 0.25rem;
+            border: 1px solid #dee2e6;
+        }
+        #shortcut_keys .sk-f2 { background: #a3ff3f; }
+        #shortcut_keys .sk-f4 { background: #93b9ff; color: #1e3a5f; }
+        #shortcut_keys .sk-f8 { background: #00c92b; color: #fff; }
+        #shortcut_keys .sk-f9 { background: #ffe3a5; }
     </style>
 
     @if (Session::has('success'))
@@ -402,6 +540,29 @@
         </div>
     @endif
 
+    @php
+        $posCatalog = $generalItems->map(function ($i) {
+            return [
+                'id' => $i->id,
+                'item_name' => $i->item_name,
+                'item_code' => $i->item_code,
+                'sale_price' => (float) $i->sale_price,
+                'available_stock' => (float) ($i->available_stock ?? 0),
+                'item_type_id' => $i->item_type_id,
+                'item_type' => $i->itemType ? ['item_type' => $i->itemType->item_type] : null,
+            ];
+        })->values();
+    @endphp
+    <script>
+        window.__POS_ITEM_CATALOG = @json($posCatalog);
+        window.__POS_ITEM_BY_CODE = {};
+        (window.__POS_ITEM_CATALOG || []).forEach(function (it) {
+            if (it.item_code && String(it.item_code).trim() !== '') {
+                window.__POS_ITEM_BY_CODE[String(it.item_code).trim().toLowerCase()] = it;
+            }
+        });
+    </script>
+
     <form method="POST" action="{{ route('sale-invoices.store') }}" id="saleInvoiceForm">
         @csrf
 
@@ -412,86 +573,149 @@
             </div>
         @endif
         
-        <!-- Main Content -->
-        <div class="bg-white shadow-lg rounded-lg border border-gray-200 p-6">
-                                         <!-- Sale Invoice Header Information -->
-                     <div class="bg-gradient-to-r from-slate-50 to-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                         <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                             <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                             </svg>
-                             Sale Invoice Header Information
-                         </h2>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                            <div>
-                                <label for="party_search_input" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Party <span class="text-red-500">*</span>
-                                </label>
-                                <div class="searchable-select-container relative">
-                                    <input type="text" 
-                                           id="party_search_input" 
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 searchable-input bg-white @error('party_id') border-red-500 @enderror" 
-                                           placeholder="Search parties..."
-                                           autocomplete="off"
-                                           value="{{ old('party_search_input') }}">
-                                    <input type="hidden" name="party_id" id="party_id" class="selected-item-id" value="{{ old('party_id') }}">
-                                    
-                                    <!-- Dropdown -->
-                                    <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
-                                        <div class="search-results-container max-h-40 overflow-y-auto">
-                                            <!-- Results will be populated here -->
+        <!-- Main content: CI-style white box, title + entry row, 9 cols lines / 3 cols sidebar -->
+        <div class="invoice-fs-root min-h-full pos-sale-layout ci-invoice-page px-2 py-2 sm:px-3 sm:py-2">
+            <div class="ci-white-box max-w-[1600px] mx-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end mb-1">
+                        <div class="lg:col-span-3">
+                            <h1 class="text-base font-bold text-gray-900 mb-0.5 tracking-tight">Sale invoice</h1>
+                            <a href="{{ route('sale-invoices.index') }}" class="text-sm text-blue-600 hover:underline">← Back to list</a>
                                         </div>
-                                        <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
-                                            <div class="flex justify-between items-center text-xs">
-                                                <button type="button" class="prev-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Previous</button>
-                                                <span class="page-info text-gray-500 text-xs"></span>
-                                                <button type="button" class="next-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Next</button>
+                        <div class="lg:col-span-9 pos-quick-add">
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+                                <div class="sm:col-span-3">
+                                    <label for="pos_barcode" class="block text-sm font-semibold text-gray-800 mb-1">Barcode</label>
+                                    <input type="text" id="pos_barcode" autocomplete="off" placeholder="Barcode"
+                                        class="ci-form-control">
                                             </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Loading indicator -->
-                                    <div class="loading-indicator hidden absolute right-2 top-1/2 transform -translate-y-1/2">
-                                        <svg class="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    </div>
+                                <div class="sm:col-span-3">
+                                    <label for="pos_item_type_id" class="block text-sm font-semibold text-gray-800 mb-1">Item type</label>
+                                    <select id="pos_item_type_id" class="ci-form-control" autocomplete="off" title="Filter item search by type">
+                                        <option value="">All types</option>
+                                        @foreach($itemTypes as $type)
+                                            <option value="{{ $type->id }}">{{ $type->item_type }}</option>
+                                    @endforeach
+                                </select>
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500" id="party_help_text">Required for credit sales, optional for cash sales</p>
-                                <div id="party_balance" class="mt-1 text-sm hidden">
-                                    <span class="font-medium">Balance:</span>
-                                    <span id="party_balance_amount" class="ml-1"></span>
-                                </div>
-                                @error('party_id')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
+                                <div class="sm:col-span-6 relative" id="pos_item_search_wrap">
+                                    <label for="pos_item_search" class="block text-sm font-semibold text-gray-800 mb-1">Item</label>
+                                    <input type="text" id="pos_item_search" autocomplete="off" placeholder="Search by name or code (2+ chars), then Enter"
+                                        class="ci-form-control">
+                                    <div id="pos_item_search_dropdown" class="searchable-dropdown hidden absolute z-[60] left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg max-h-56 overflow-hidden">
+                                        <div id="pos_item_search_results" class="max-h-44 overflow-y-auto"></div>
+                                        <div id="pos_item_search_pager" class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-50">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <button type="button" id="pos_item_prev" class="text-blue-600 hover:text-blue-800 px-2 py-1">Previous</button>
+                                                <span id="pos_item_page_info" class="text-gray-500"></span>
+                                                <button type="button" id="pos_item_next" class="text-blue-600 hover:text-blue-800 px-2 py-1">Next</button>
                             </div>
+                            </div>
+                            </div>
+                                    <div id="pos_item_search_loading" class="hidden absolute right-3 top-9">
+                                        <svg class="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </div>
+                    </div>
+                                </div>
+                            @error('general_lines')
+                            <div id="sale_invoice_general_lines_error" class="mt-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+                                {{ $message }}
+                                </div>
+                                    @enderror
+                                </div>
+                                </div>
+                                
+                    <hr class="ci-hr">
 
-                            <div>
-                                <label for="sale_type" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Sale Type <span class="text-red-500">*</span>
-                                </label>
-                                                                 <select name="sale_type" id="sale_type" required 
-                                     class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('sale_type') border-red-500 @enderror">
-                                    <option value="credit" {{ old('sale_type') == 'credit' ? 'selected' : '' }}>Credit (Party)</option>
-                                    <option value="cash" {{ old('sale_type') == 'cash' ? 'selected' : '' }}>Cash</option>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
+                        <div class="lg:col-span-9 ci-main-col order-2 lg:order-1">
+                            <div class="overflow-x-auto">
+                                <table class="ci-item-table" id="general_items_table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:3%"><input type="checkbox" id="check_all_lines" class="rounded border-gray-400 align-middle" title="Select all"></th>
+                                            <th style="width:22%">Item</th>
+                                            <th style="width:20%">Details</th>
+                                            <th style="width:12%">Rate</th>
+                                            <th style="width:12%">Quantity</th>
+                                            <th style="width:15%">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="general_items_container"></tbody>
+                                </table>
+                                </div>
+                                
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 mt-3 items-center">
+                                <div class="sm:col-span-3">
+                                    <button type="button" id="delete_selected_lines" class="ci-btn-danger w-full sm:w-auto">− Delete</button>
+                                </div>
+                                </div>
+                                
+                            <div class="mt-2 space-y-2">
+                                <div class="grid grid-cols-12 gap-2 items-center">
+                                    <div class="col-span-12 sm:col-span-4 text-sm font-semibold text-gray-800">Sub total</div>
+                                    <div class="hidden sm:block sm:col-span-4"></div>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <span id="subtotal" class="ci-total-readonly">0.00</span>
+                                </div>
+                                </div>
+                                <div class="grid grid-cols-12 gap-2 items-end">
+                                    <div class="col-span-12 sm:col-span-6 md:col-span-4">
+                                        <label for="shipping_charges" class="block text-sm font-semibold text-gray-800 mb-1">Shipping charges</label>
+                                        <input type="number" name="shipping_charges" id="shipping_charges" value="{{ old('shipping_charges', 0) }}"
+                                            step="1" min="0"
+                                            class="ci-form-control @error('shipping_charges') border-red-500 @enderror">
+                                        @error('shipping_charges')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                </div>
+                                <div class="grid grid-cols-12 gap-2 items-center pt-1 border-t border-gray-200">
+                                    <div class="col-span-12 sm:col-span-4 text-sm font-bold text-gray-900">Total</div>
+                                    <div class="hidden sm:block sm:col-span-4"></div>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <span id="total_amount" class="ci-total-readonly text-lg">0.00</span>
+                                        <p class="text-xs text-gray-500 mt-0.5">Shipping: <span id="shipping_display" class="font-medium">+ 0</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                            <div class="mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-1.5">
+                                <button type="submit" name="action" value="save" id="btn_save_draft" class="ci-btn-primary">Save draft</button>
+                                <button type="submit" name="action" value="post" id="btn_post_invoice" class="ci-btn-success">Post invoice</button>
+                                <button type="submit" name="action" value="post_print" id="btn_post_print" class="ci-btn-print">Post &amp; print</button>
+                                <a href="{{ route('sale-invoices.index') }}" class="ci-btn-outline inline-block text-center no-underline leading-normal">Cancel</a>
+                                </div>
+                                </div>
+                                
+                        <aside class="lg:col-span-3 ci-sidebar order-1 lg:order-2">
+                            <div class="form-group">
+                                <label>Sale type</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" id="pos_sale_credit" class="pos-sale-type-btn">Credit</button>
+                                    <button type="button" id="pos_sale_cash" class="pos-sale-type-btn">Cash</button>
+                                </div>
+                                <select name="sale_type" id="sale_type" required class="sr-only @error('sale_type') border-red-500 @enderror">
+                                    <option value="cash" {{ old('sale_type', 'cash') == 'cash' ? 'selected' : '' }}>Cash</option>
+                                    <option value="credit" {{ old('sale_type', 'cash') === 'credit' ? 'selected' : '' }}>Credit (Party)</option>
                                 </select>
                                 @error('sale_type')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div id="bank_field" style="display: none;">
-                                <label for="bank_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Bank <span class="text-red-500">*</span>
-                                </label>
-                                                                 <select name="bank_id" id="bank_id" 
-                                     class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('bank_id') border-red-500 @enderror">
-                                    <option value="">Select Bank</option>
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            <div class="form-group">
+                                <label for="invoice_date">Date <span class="text-red-600">*</span></label>
+                                <input type="date" name="invoice_date" id="invoice_date" value="{{ old('invoice_date', date('Y-m-d')) }}"
+                                    required class="ci-form-control @error('invoice_date') border-red-500 @enderror">
+                                @error('invoice_date')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            <div id="bank_field" class="form-group">
+                                <label for="bank_id">Bank <span class="text-red-600">*</span></label>
+                                <select name="bank_id" id="bank_id" class="ci-form-control @error('bank_id') border-red-500 @enderror">
+                                    <option value="">Select bank</option>
                                     @foreach($banks as $bank)
-                                        <option value="{{ $bank->id }}" {{ old('bank_id') == $bank->id ? 'selected' : '' }}>
+                                        <option value="{{ $bank->id }}" {{ (string) old('bank_id', $banks->first()?->id) === (string) $bank->id ? 'selected' : '' }}>
                                             {{ $bank->chartOfAccount->name ?? $bank->account_name }}
                                         </option>
                                     @endforeach
@@ -501,473 +725,101 @@
                                     <span id="bank_balance_amount" class="ml-1"></span>
                                 </div>
                                 @error('bank_id')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="invoice_date" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Invoice Date <span class="text-red-500">*</span>
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            <div id="credit_party_block" class="form-group credit_block">
+                                <label for="party_search_input">
+                                    <span id="party_field_label">Party</span>
                                 </label>
-                                                                 <input type="date" name="invoice_date" id="invoice_date" value="{{ old('invoice_date', date('Y-m-d')) }}" 
-                                    required class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('invoice_date') border-red-500 @enderror">
-                                @error('invoice_date')
+                                <div class="searchable-select-container relative">
+                                    <input type="text"
+                                           id="party_search_input"
+                                           class="ci-form-control searchable-input bg-white @error('party_id') border-red-500 @enderror"
+                                           placeholder="Search parties..."
+                                           autocomplete="off"
+                                           value="{{ old('party_search_input') }}">
+                                    <input type="hidden" name="party_id" id="party_id" class="selected-item-id" value="{{ old('party_id') }}">
+                                    <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
+                                        <div class="search-results-container max-h-40 overflow-y-auto"></div>
+                                        <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <button type="button" class="prev-page text-green-600 hover:text-green-800 disabled:opacity-40 px-2 py-1 rounded">Previous</button>
+                                                <span class="page-info text-gray-500 text-xs"></span>
+                                                <button type="button" class="next-page text-green-600 hover:text-green-800 disabled:opacity-40 px-2 py-1 rounded">Next</button>
+                                </div>
+                                </div>
+                                </div>
+                                    <div class="loading-indicator hidden absolute right-2 top-1/2 transform -translate-y-1/2">
+                                        <svg class="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                            </div>
+                        </div>
+                                <p class="mt-1 text-xs text-gray-600" id="party_help_text">Required for credit sales</p>
+                                <div id="party_balance" class="mt-1 text-sm hidden">
+                                    <span class="font-medium">Balance:</span>
+                                    <span id="party_balance_amount" class="ml-1"></span>
+                    </div>
+                                @error('party_id')
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
-                            </div>
-
-                            <div>
-                                <label for="shipping_charges" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Shipping Charges
-                                </label>
-                                                                 <input type="number" name="shipping_charges" id="shipping_charges" value="{{ old('shipping_charges', 0) }}" 
-                                        step="1" min="0" 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('shipping_charges') border-red-500 @enderror">
-                                @error('shipping_charges')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Customer Details Section (for Cash sales) -->
-                    <div id="customer_details_field" style="display: none;" class="mb-4">
-                        <div class="bg-gray-50 border rounded-lg p-4">
-                            <h3 class="text-sm font-medium text-gray-700 mb-3">Customer Details</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                                <div>
-                                    <label for="name_of_customer" class="block text-xs font-medium text-gray-600 mb-1">Customer Name</label>
-                                    <input type="text" name="name_of_customer" id="name_of_customer" value="{{ old('name_of_customer') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('name_of_customer') border-red-500 @enderror">
-                                    @error('name_of_customer')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
                                 </div>
-                                
-                                <div>
-                                    <label for="father_name" class="block text-xs font-medium text-gray-600 mb-1">Father Name</label>
-                                    <input type="text" name="father_name" id="father_name" value="{{ old('father_name') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('father_name') border-red-500 @enderror">
-                                    @error('father_name')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div>
-                                    <label for="contact" class="block text-xs font-medium text-gray-600 mb-1">Contact</label>
-                                    <input type="text" name="contact" id="contact" value="{{ old('contact') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('contact') border-red-500 @enderror"
-                                           placeholder="03XX-XXXXXXX">
-                                    @error('contact')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div>
-                                    <label for="cnic" class="block text-xs font-medium text-gray-600 mb-1">CNIC</label>
-                                    <input type="text" name="cnic" id="cnic" value="{{ old('cnic') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('cnic') border-red-500 @enderror"
-                                           placeholder="12345-1234567-1" data-mask="00000-0000000-0">
-                                    @error('cnic')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_no" class="block text-xs font-medium text-gray-600 mb-1">Licence No</label>
-                                    <input type="text" name="licence_no" id="licence_no" value="{{ old('licence_no') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_no') border-red-500 @enderror">
-                                    @error('licence_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_issue_date" class="block text-xs font-medium text-gray-600 mb-1">Issue Date</label>
-                                    <input type="date" name="licence_issue_date" id="licence_issue_date" value="{{ old('licence_issue_date') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_issue_date') border-red-500 @enderror">
-                                    @error('licence_issue_date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_valid_upto" class="block text-xs font-medium text-gray-600 mb-1">Valid Upto</label>
-                                    <input type="date" name="licence_valid_upto" id="licence_valid_upto" value="{{ old('licence_valid_upto') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_valid_upto') border-red-500 @enderror">
-                                    @error('licence_valid_upto')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_issued_by" class="block text-xs font-medium text-gray-600 mb-1">Issued By</label>
-                                    <input type="text" name="licence_issued_by" id="licence_issued_by" value="{{ old('licence_issued_by') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_issued_by') border-red-500 @enderror">
-                                    @error('licence_issued_by')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="re_reg_no" class="block text-xs font-medium text-gray-600 mb-1">Re-Reg No</label>
-                                    <input type="text" name="re_reg_no" id="re_reg_no" value="{{ old('re_reg_no') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('re_reg_no') border-red-500 @enderror">
-                                    @error('re_reg_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="dc" class="block text-xs font-medium text-gray-600 mb-1">DC</label>
-                                    <input type="text" name="dc" id="dc" value="{{ old('dc') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('dc') border-red-500 @enderror">
-                                    @error('dc')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="Date" class="block text-xs font-medium text-gray-600 mb-1">Date</label>
-                                    <input type="date" name="Date" id="Date" value="{{ old('Date') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('Date') border-red-500 @enderror">
-                                    @error('Date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div class="md:col-span-2 lg:col-span-3">
-                                    <label for="address" class="block text-xs font-medium text-gray-600 mb-1">Address</label>
-                                    <textarea name="address" id="address" rows="1" 
-                                              class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('address') border-red-500 @enderror"
-                                              placeholder="Enter customer address">{{ old('address') }}</textarea>
-                                    @error('address')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Party Details Section (for Credit sales when party is selected) -->
-                    <div id="party_details_field" style="display: none;" class="mb-4">
-                        <div class="bg-gray-50 border rounded-lg p-4">
-                            <h3 class="text-sm font-medium text-gray-700 mb-3">Party Details</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                                <div>
-                                    <label for="party_name" class="block text-xs font-medium text-gray-600 mb-1">Party Name</label>
-                                    <input type="text" id="party_name" readonly 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600">
-                                </div>
-                                
-                                <div>
-                                    <label for="party_cnic" class="block text-xs font-medium text-gray-600 mb-1">Party CNIC</label>
-                                    <input type="text" id="party_cnic" readonly 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600">
-                                </div>
-                                
-                                <div>
-                                    <label for="party_contact" class="block text-xs font-medium text-gray-600 mb-1">Party Contact</label>
-                                    <input type="text" id="party_contact" readonly 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600">
-                                </div>
-                                
-                                <div>
-                                    <label for="party_address" class="block text-xs font-medium text-gray-600 mb-1">Party Address</label>
-                                    <textarea id="party_address" rows="1" readonly 
-                                              class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600"></textarea>
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_no" class="block text-xs font-medium text-gray-600 mb-1">Licence No</label>
-                                    <input type="text" name="party_license_no" id="party_license_no" value="{{ old('party_license_no') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_no') border-red-500 @enderror">
-                                    @error('party_license_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_issue_date" class="block text-xs font-medium text-gray-600 mb-1">Issue Date</label>
-                                    <input type="date" name="party_license_issue_date" id="party_license_issue_date" value="{{ old('party_license_issue_date') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_issue_date') border-red-500 @enderror">
-                                    @error('party_license_issue_date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_valid_upto" class="block text-xs font-medium text-gray-600 mb-1">Valid Upto</label>
-                                    <input type="date" name="party_license_valid_upto" id="party_license_valid_upto" value="{{ old('party_license_valid_upto') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_valid_upto') border-red-500 @enderror">
-                                    @error('party_license_valid_upto')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_issued_by" class="block text-xs font-medium text-gray-600 mb-1">Issued By</label>
-                                    <input type="text" name="party_license_issued_by" id="party_license_issued_by" value="{{ old('party_license_issued_by') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_issued_by') border-red-500 @enderror">
-                                    @error('party_license_issued_by')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_re_reg_no" class="block text-xs font-medium text-gray-600 mb-1">Re-Reg No</label>
-                                    <input type="text" name="party_re_reg_no" id="party_re_reg_no" value="{{ old('party_re_reg_no') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_re_reg_no') border-red-500 @enderror">
-                                    @error('party_re_reg_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_dc" class="block text-xs font-medium text-gray-600 mb-1">DC</label>
-                                    <input type="text" name="party_dc" id="party_dc" value="{{ old('party_dc') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_dc') border-red-500 @enderror">
-                                    @error('party_dc')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_dc_date" class="block text-xs font-medium text-gray-600 mb-1">DC Date</label>
-                                    <input type="date" name="party_dc_date" id="party_dc_date" value="{{ old('party_dc_date') }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_dc_date') border-red-500 @enderror">
-                                    @error('party_dc_date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- General Items Section -->
-                    <div class="mb-6">
-                        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-                            <h2 class="text-lg font-semibold text-gray-900">General Items (FIFO batches)</h2>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <div class="flex items-center gap-2">
-                                    <label for="item_type_filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Type:</label>
-                                    <select id="item_type_filter" class="chosen-select px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 bg-white min-w-[160px]">
-                                        <option value="">All Item Types</option>
-                                        @foreach($itemTypes as $itemType)
-                                            <option value="{{ $itemType->id }}">{{ $itemType->item_type }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <button type="button" id="add_general_item" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                    </svg>
-                                    Add Line
-                                </button>
-                            </div>
+                        </aside>
                         </div>
                         
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200" id="general_items_table">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Price</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Line Total</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <table id="shortcut_keys">
+                        <thead>
+                            <tr>
+                                <th class="sk-f2" scope="col">F2</th>
+                                <th class="sk-f4" scope="col">F4</th>
+                                <th class="sk-f8" scope="col">F8</th>
+                                <th class="sk-f9" scope="col">F9</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200" id="general_items_container">
-                                    <!-- General items will be added here dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Arms Section - Hidden: StoreBook is items-only -->
-                    <div class="form-section" style="display: none;">
-                        <div class="flex justify-between items-center mb-3">
-                            <div>
-                                <h2 class="text-base font-semibold text-gray-900">Arms (serial-based)</h2>
-                            </div>
-                            <button type="button" id="add_arm" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Add Line
-                            </button>
-                        </div>
-                        
-                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                            <table class="min-w-full divide-y divide-gray-200" id="arms_table">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arm</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Price</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <tbody>
+                            <tr>
+                                <td>Save draft</td>
+                                <td>Post &amp; print</td>
+                                <td>Focus barcode</td>
+                                <td>Post invoice</td>
                                     </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200" id="arms_container">
-                                    <!-- Arms will be added here dynamically -->
                                 </tbody>
                             </table>
-                        </div>
                     </div>
 
-                    <!-- Total Summary -->
-                    <div class="bg-gray-50 rounded-lg p-3 mb-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <p class="text-sm text-gray-600">Subtotal: <span id="subtotal" class="font-medium">0</span></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Shipping: <span id="shipping_display" class="font-medium">+ 0</span></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Total Amount: <span id="total_amount" class="font-medium text-lg">0</span></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
-                        <a href="{{ route('sale-invoices.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                            </svg>
-                            Cancel
-                        </a>
-                        <button type="submit" name="action" value="save" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-                            </svg>
-                            Save Draft
-                        </button>
-                        <button type="submit" name="action" value="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Post Sale Invoice
-                        </button>
-                    </div>
-                </div>
             </div>
         </form>
-    </div>
 
     <!-- Templates for dynamic content -->
     <template id="general_item_template">
         <tr class="general-item-row">
-            <td class="px-4 py-4 whitespace-nowrap">
-                <div class="relative">
-                    <div class="searchable-select-container relative">
-                        <input type="text" 
-                               class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-green-400 focus:ring-1 focus:ring-green-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
-                               placeholder="Search items..."
-                               autocomplete="off"
-                               data-index="INDEX">
-                        <input type="hidden" name="general_lines[INDEX][general_item_id]" class="selected-item-id">
-                        
-                        <!-- Error display for general item selection -->
+            <td class="p-2 text-center align-middle">
+                <input type="checkbox" class="line-check rounded border-gray-400" title="Select line">
+            </td>
+            <td class="p-2 align-top">
+                <div class="line-item-name-wrap relative">
+                    <input type="text" readonly
+                           class="item-display-name ci-form-control bg-gray-50 font-medium"
+                           placeholder="Item" value="" autocomplete="off">
+                    <input type="hidden" name="general_lines[INDEX][general_item_id]" class="line-item-id" value="">
                         <div class="general-item-error mt-1 text-xs text-red-600 hidden"></div>
-                        
-                        <!-- Dropdown -->
-                        <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
-                            <div class="search-results-container max-h-40 overflow-y-auto">
-                                <!-- Results will be populated here -->
-                            </div>
-                            <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
-                                <div class="flex justify-between items-center text-xs">
-                                    <button type="button" class="prev-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Previous</button>
-                                    <span class="page-info text-gray-500 text-xs"></span>
-                                    <button type="button" class="next-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Next</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Loading indicator -->
-                        <div class="loading-indicator hidden absolute right-2 top-1/2 transform -translate-y-1/2">
-                            <svg class="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </div>
-                    </div>
                 </div>
             </td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
-                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-qty focus:border-green-500 focus:ring-green-500"
-                       placeholder="0" value="1">
-            </td>
-            <td class="px-4 py-4 whitespace-nowrap">
+            <td class="p-2 general-details-cell align-middle text-sm text-gray-600">—</td>
+            <td class="p-2 align-middle">
                 <input type="number" name="general_lines[INDEX][sale_price]" required step="0.01" min="0" 
-                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-sale-price focus:border-green-500 focus:ring-green-500"
+                       class="ci-form-control general-sale-price"
                        placeholder="0">
             </td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium general-line-total text-gray-900">0</span>
+            <td class="p-2 align-middle">
+                <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
+                       class="ci-form-control general-qty"
+                       placeholder="0" value="1">
             </td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <button type="button" class="remove-general-item text-red-600 hover:text-red-800 text-sm p-1 rounded hover:bg-red-50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                </button>
-            </td>
-        </tr>
-    </template>
-
-         <!-- Arms template hidden: StoreBook is items-only -->
-         <template id="arm_template" style="display: none;">
-         <tr class="arm-row">
-             <td class="px-4 py-4 whitespace-nowrap">
-                 <div class="searchable-select-container relative">
-                     <input type="text" 
-                            class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
-                            placeholder="Search arms..."
-                            autocomplete="off"
-                            data-index="INDEX">
-                     <input type="hidden" name="arm_lines[INDEX][arm_id]" class="selected-arm-id">
-                     
-                     <!-- Error display for arm selection -->
-                     <div class="arm-error mt-1 text-xs text-red-600 hidden"></div>
-                     
-                     <!-- Dropdown -->
-                     <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
-                         <div class="search-results-container max-h-40 overflow-y-auto">
-                             <!-- Results will be populated here -->
-                         </div>
-                         <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
-                             <div class="flex justify-between items-center text-xs">
-                                 <button type="button" class="prev-page text-blue-500 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-blue-50 transition-colors">Previous</button>
-                                 <span class="page-info text-gray-500 text-xs"></span>
-                                 <button type="button" class="next-page text-blue-500 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-blue-50 transition-colors">Next</button>
-                             </div>
-                         </div>
-                     </div>
-                     
-                     <!-- Loading indicator -->
-                     <div class="loading-indicator hidden absolute right-2 top-1/2 transform -translate-y-1/2">
-                         <svg class="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                         </svg>
-                     </div>
-                 </div>
-             </td>
-             <td class="px-4 py-4 whitespace-nowrap">
-                 <input type="number" name="arm_lines[INDEX][sale_price]" required step="0.01" min="0" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm arm-sale-price focus:border-blue-500 focus:ring-blue-500"
-                        placeholder="0">
-             </td>
-             <td class="px-4 py-4 whitespace-nowrap">
-                 <button type="button" class="remove-arm text-red-600 hover:text-red-800 text-sm p-2 rounded hover:bg-red-50 transition-colors duration-200">
-                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                     </svg>
-                 </button>
+            <td class="p-2 align-middle">
+                <span class="text-sm font-semibold general-line-total text-gray-900">0.00</span>
              </td>
          </tr>
      </template>
@@ -1021,19 +873,55 @@
         }
     })();
 
+    function getCatalogItemById(id) {
+        if (id === undefined || id === null || id === '') {
+            return null;
+        }
+        const list = window.__POS_ITEM_CATALOG || [];
+        const sid = String(id);
+        for (let i = 0; i < list.length; i++) {
+            if (String(list[i].id) === sid) {
+                return list[i];
+            }
+        }
+        return null;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         let generalItemIndex = 0;
-        let armIndex = 0;
+
+        function updatePosSaleTypeButtons() {
+            const v = document.getElementById('sale_type').value;
+            const creditBtn = document.getElementById('pos_sale_credit');
+            const cashBtn = document.getElementById('pos_sale_cash');
+            if (!creditBtn || !cashBtn) return;
+            creditBtn.classList.toggle('is-active-credit', v === 'credit');
+            creditBtn.classList.remove('is-active-cash');
+            cashBtn.classList.toggle('is-active-cash', v === 'cash');
+            cashBtn.classList.remove('is-active-credit');
+        }
+
+        document.getElementById('pos_sale_credit')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const st = document.getElementById('sale_type');
+            st.value = 'credit';
+            st.dispatchEvent(new Event('change'));
+        });
+        document.getElementById('pos_sale_cash')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const st = document.getElementById('sale_type');
+            st.value = 'cash';
+            st.dispatchEvent(new Event('change'));
+        });
 
         // Sale type change handler
         document.getElementById('sale_type').addEventListener('change', function() {
             const bankField = document.getElementById('bank_field');
             const bankSelect = document.getElementById('bank_id');
             const customerField = document.getElementById('party_id');
-            const customerLabel = document.querySelector('label[for="party_id"]');
+            const partyFieldLabel = document.getElementById('party_field_label');
             const customerHelpText = document.getElementById('party_help_text');
-            const customerDetailsField = document.getElementById('customer_details_field');
-            const partyDetailsField = document.getElementById('party_details_field');
+            const creditPartyBlock = document.getElementById('credit_party_block');
 
             // Clear any existing party error when sale type changes
             const partyError = document.getElementById('party_error');
@@ -1044,30 +932,33 @@
             if (this.value === 'cash') {
                 bankField.style.display = 'block';
                 bankSelect.required = true;
-                customerDetailsField.style.display = 'block';
-                partyDetailsField.style.display = 'none';
-                
                 customerField.required = false;
-                customerLabel.innerHTML = 'Party';
-                customerHelpText.textContent = 'Optional for cash sales - you can leave this blank';
+                if (partyFieldLabel) {
+                    partyFieldLabel.textContent = 'Party';
+                }
+                if (customerHelpText) {
+                    customerHelpText.textContent = 'Party is only used for credit sales.';
+                }
+                if (creditPartyBlock) {
+                    creditPartyBlock.style.display = 'none';
+                }
             } else {
                 bankField.style.display = 'none';
                 bankSelect.required = false;
                 bankSelect.value = '';
-                customerDetailsField.style.display = 'none';
-                
+                hideBankBalance();
                 customerField.required = true;
-                customerLabel.innerHTML = 'Party <span class="text-red-500">*</span>';
+                if (partyFieldLabel) {
+                    partyFieldLabel.textContent = 'Party *';
+                }
+                if (customerHelpText) {
                 customerHelpText.textContent = 'Required for credit sales';
-                
-                // Show party details if party is selected
-                if (customerField.value) {
-                    loadPartyDetails(customerField.value);
-                    partyDetailsField.style.display = 'block';
-                } else {
-                    partyDetailsField.style.display = 'none';
+                }
+                if (creditPartyBlock) {
+                    creditPartyBlock.style.display = 'block';
                 }
             }
+            updatePosSaleTypeButtons();
         });
 
         // Party selection change handler
@@ -1080,18 +971,8 @@
             
             if (this.value) {
                 fetchCustomerBalance(this.value);
-                
-                // If sale type is credit, show party details
-                const saleType = document.getElementById('sale_type').value;
-                if (saleType === 'credit') {
-                    loadPartyDetails(this.value);
-                    document.getElementById('party_details_field').style.display = 'block';
-                }
             } else {
                 hideCustomerBalance();
-                
-                // Hide party details if no party selected
-                document.getElementById('party_details_field').style.display = 'none';
             }
         });
 
@@ -1204,66 +1085,6 @@
             balanceDiv.classList.add('hidden');
         }
 
-        // Function to load party details
-        function loadPartyDetails(partyId) {
-            console.log(`Loading details for party ${partyId}`);
-            
-            // Add CSRF token to the request
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            fetch(`/api/parties/${partyId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', response.headers);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Party details data received:', data);
-                    console.log('Data type:', typeof data);
-                    console.log('Data keys:', Object.keys(data));
-                    
-                    // Check if elements exist
-                    const nameField = document.getElementById('party_name');
-                    const cnicField = document.getElementById('party_cnic');
-                    const contactField = document.getElementById('party_contact');
-                    const addressField = document.getElementById('party_address');
-                    
-                    console.log('Form fields found:', {
-                        nameField: !!nameField,
-                        cnicField: !!cnicField,
-                        contactField: !!contactField,
-                        addressField: !!addressField
-                    });
-                    
-                    // Populate party form fields
-                    if (nameField) nameField.value = data.name || '';
-                    if (cnicField) cnicField.value = data.cnic || '';
-                    if (contactField) contactField.value = data.phone_no || '';
-                    if (addressField) addressField.value = data.address || '';
-                    
-                    console.log('Fields populated with values:', {
-                        name: data.name,
-                        cnic: data.cnic,
-                        phone_no: data.phone_no,
-                        address: data.address
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading party details:', error);
-                    console.error('Error details:', error.message);
-                });
-        }
-
         // Function to hide bank balance
         function hideBankBalance() {
             const balanceDiv = document.getElementById('bank_balance');
@@ -1291,8 +1112,8 @@
             let stockErrors = [];
             
             generalItemRows.forEach((row, index) => {
-                const itemInput = row.querySelector('.searchable-input');
-                const selectedItemId = row.querySelector('.selected-item-id').value;
+                const itemInput = row.querySelector('.item-display-name');
+                const selectedItemId = row.querySelector('.line-item-id')?.value;
                 const quantityInput = row.querySelector('input[name*="[qty]"]');
                 const quantity = parseFloat(quantityInput?.value || 0);
                 
@@ -1333,8 +1154,8 @@
         // Validate quantity for a specific row
         function validateQuantityForRow(quantityInput) {
             const row = quantityInput.closest('.general-item-row');
-            const itemInput = row.querySelector('.searchable-input');
-            const selectedItemId = row.querySelector('.selected-item-id').value;
+            const itemInput = row.querySelector('.item-display-name');
+            const selectedItemId = row.querySelector('.line-item-id')?.value;
             const quantity = parseFloat(quantityInput.value || 0);
             
             if (selectedItemId && itemInput && quantity > 0) {
@@ -1379,131 +1200,535 @@
             }
         }
 
-        // Add general item
-        document.getElementById('add_general_item').addEventListener('click', function() {
-            const container = document.getElementById('general_items_container');
-            const template = document.getElementById('general_item_template');
-            const clone = template.content.cloneNode(true);
-            
-            // Replace INDEX placeholder
-            clone.querySelectorAll('[name*="INDEX"]').forEach(element => {
-                element.name = element.name.replace('INDEX', generalItemIndex);
-            });
-            
-            container.appendChild(clone);
-            
-            // Add event listeners for the new row
-            const newRow = container.lastElementChild;
-            const searchableContainer = newRow.querySelector('.searchable-select-container');
-            const qtyInput = newRow.querySelector('input[name*="[qty]"]');
-            const salePriceInput = newRow.querySelector('input[name*="[sale_price]"]');
-            
-            // Initialize searchable dropdown for general items
-            if (searchableContainer) {
-                new GeneralItemSearchableDropdown(searchableContainer, {
-                    itemsPerPage: 15,
-                    debounceDelay: 300,
-                    minSearchLength: 2
-                });
-                searchableContainer.dataset.initialized = 'true';
+        class PosTopItemSearch {
+            constructor() {
+                this.wrap = document.getElementById('pos_item_search_wrap');
+                this.input = document.getElementById('pos_item_search');
+                this.itemTypeSelect = document.getElementById('pos_item_type_id');
+                this.dropdown = document.getElementById('pos_item_search_dropdown');
+                this.resultsContainer = document.getElementById('pos_item_search_results');
+                this.paginationContainer = document.getElementById('pos_item_search_pager');
+                this.loadingIndicator = document.getElementById('pos_item_search_loading');
+                this.pageInfo = document.getElementById('pos_item_page_info');
+                this.prevBtn = document.getElementById('pos_item_prev');
+                this.nextBtn = document.getElementById('pos_item_next');
+                this.searchTimeout = null;
+                this.currentPage = 1;
+                this.searchTerm = '';
+                this.itemsPerPage = 15;
+                this.debounceDelay = 300;
+                this.minSearchLength = 2;
+                this.init();
+            }
+
+            getSelectedItemTypeId() {
+                if (!this.itemTypeSelect) {
+                    return null;
+                }
+                const v = (this.itemTypeSelect.value || '').trim();
+                return v !== '' ? v : null;
+            }
+
+            appendItemTypeToUrl(url) {
+                const tid = this.getSelectedItemTypeId();
+                if (tid) {
+                    url.searchParams.set('item_type_id', tid);
+                }
             }
             
-            // Add input event listeners for calculations
-            [qtyInput, salePriceInput].forEach(input => {
+            init() {
+                this.bindEvents();
+                document.addEventListener('click', (e) => {
+                    if (this.wrap && !this.wrap.contains(e.target)) {
+                        this.hideDropdown();
+                    }
+                });
+            }
+            
+            bindEvents() {
+                this.input.addEventListener('focus', () => {
+                    this.showDropdown();
+                    this.performSearch();
+                });
+                this.input.addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value;
+                    this.currentPage = 1;
+                    this.showDropdown();
+                    this.debounceSearch();
+                });
+        this.input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                        this.commitSelection();
+            } else if (e.key === 'Escape') {
+                this.hideDropdown();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                this.navigateResults('down');
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                this.navigateResults('up');
+            }
+        });
+                if (this.itemTypeSelect) {
+                    this.itemTypeSelect.addEventListener('change', () => {
+                        this.currentPage = 1;
+                        if (this.dropdown.classList.contains('hidden')) {
+                            return;
+                        }
+                        if (this.searchTerm.length >= this.minSearchLength) {
+                            this.performSearch();
+                        } else {
+                            this.showInitialResults();
+                        }
+                    });
+                }
+            }
+            
+            debounceSearch() {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => this.performSearch(), this.debounceDelay);
+            }
+            
+            async performSearch() {
+                if (this.searchTerm.length < this.minSearchLength) {
+                    await this.showInitialResults();
+                    return;
+                }
+                this.showLoading();
+                try {
+                    const url = new URL('/api/general-items/search', window.location.origin);
+                    url.searchParams.set('q', this.searchTerm);
+                    url.searchParams.set('page', this.currentPage);
+                    url.searchParams.set('limit', this.itemsPerPage);
+                    this.appendItemTypeToUrl(url);
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    const data = await response.json();
+                    if (data.error) {
+                        throw new Error(data.message || data.error);
+                    }
+                    if (!Array.isArray(data.data)) {
+                        throw new Error('Invalid search response');
+                    }
+                    this.displayResults(data.data || [], data.meta || {});
+                } catch (err) {
+                    console.error(err);
+                    this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-red-500 text-center">' + err.message + '</div>';
+                    this.paginationContainer.classList.add('hidden');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+            
+            async showInitialResults() {
+                this.showLoading();
+                try {
+                    const url = new URL('/api/general-items', window.location.origin);
+                    url.searchParams.set('page', this.currentPage);
+                    url.searchParams.set('limit', this.itemsPerPage);
+                    this.appendItemTypeToUrl(url);
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    const data = await response.json();
+                    if (!Array.isArray(data.data)) {
+                        throw new Error('Invalid list response');
+                    }
+                    this.displayResults(data.data || [], data.meta || {});
+                } catch (err) {
+                    console.error(err);
+                    this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-red-500 text-center">' + err.message + '</div>';
+                    this.paginationContainer.classList.add('hidden');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+            
+            displayResults(items, meta) {
+                this.resultsContainer.innerHTML = '';
+                if (!items || !items.length) {
+                    this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">No items found.</div>';
+                    this.paginationContainer.classList.add('hidden');
+                    return;
+                }
+                items.forEach((item) => {
+                    if (!item || !item.id) {
+                        return;
+                    }
+                    const el = document.createElement('div');
+                    el.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer pos-top-result';
+                    el.dataset.itemId = item.id;
+                    el.dataset.itemName = item.item_name || '';
+                    el.dataset.salePrice = this.safeNumber(item.sale_price);
+                    el.dataset.availableStock = this.safeNumber(item.available_stock);
+                    el.dataset.itemCode = item.item_code || '';
+                    const tn = (item.item_type && item.item_type.item_type) ? item.item_type.item_type : '';
+                    el.dataset.itemTypeName = tn;
+                    el.innerHTML = '<div class="font-medium text-gray-900">' + item.item_name + '</div>' +
+                        (item.item_code ? '<div class="text-xs text-gray-400">' + item.item_code + '</div>' : '') +
+                        (tn ? '<div class="text-xs text-gray-500">' + tn + '</div>' : '');
+                    el.addEventListener('mousedown', (ev) => {
+                        ev.preventDefault();
+                        this.pickItemFromDataset(el);
+                    });
+                    this.resultsContainer.appendChild(el);
+                });
+                if (meta && meta.last_page > 1) {
+                this.paginationContainer.classList.remove('hidden');
+                    this.pageInfo.textContent = 'Page ' + meta.current_page + ' of ' + meta.last_page;
+                    this.prevBtn.disabled = meta.current_page <= 1;
+                    this.nextBtn.disabled = meta.current_page >= meta.last_page;
+                    this.prevBtn.onclick = () => {
+                    if (meta.current_page > 1) {
+                        this.currentPage = meta.current_page - 1;
+                        this.performSearch();
+                    }
+                };
+                    this.nextBtn.onclick = () => {
+                    if (meta.current_page < meta.last_page) {
+                        this.currentPage = meta.current_page + 1;
+                        this.performSearch();
+                    }
+                };
+                } else {
+                    this.paginationContainer.classList.add('hidden');
+                }
+            }
+
+            pickItemFromDataset(el) {
+                    const item = {
+                    id: el.dataset.itemId,
+                    item_name: el.dataset.itemName,
+                    item_code: el.dataset.itemCode,
+                    sale_price: this.safeNumber(el.dataset.salePrice),
+                    available_stock: this.safeNumber(el.dataset.availableStock),
+                    item_type: el.dataset.itemTypeName ? { item_type: el.dataset.itemTypeName } : null
+                };
+                window.addOrBumpItemLine(item);
+                this.input.value = '';
+                this.hideDropdown();
+            }
+
+            commitSelection() {
+                const hi = this.resultsContainer.querySelector('.pos-top-result.selected');
+                if (hi) {
+                    this.pickItemFromDataset(hi);
+                    return;
+                }
+                const first = this.resultsContainer.querySelector('.pos-top-result');
+                if (first) {
+                    this.pickItemFromDataset(first);
+                    return;
+                }
+                alert('No item to add. Type at least 2 characters and choose from the list.');
+            }
+            
+            navigateResults(direction) {
+                const results = this.resultsContainer.querySelectorAll('.pos-top-result');
+                if (!results.length) {
+                    return;
+                }
+                const currentIndex = Array.from(results).findIndex((item) => item.classList.contains('selected'));
+                let newIndex;
+                if (direction === 'down') {
+                    newIndex = currentIndex < results.length - 1 ? currentIndex + 1 : 0;
+                } else {
+                    newIndex = currentIndex > 0 ? currentIndex - 1 : results.length - 1;
+                }
+                results.forEach((item) => item.classList.remove('selected', 'bg-emerald-50'));
+                if (results[newIndex]) {
+                    results[newIndex].classList.add('selected', 'bg-emerald-50');
+                    results[newIndex].scrollIntoView({ block: 'nearest' });
+                }
+            }
+            
+            showDropdown() {
+                this.dropdown.classList.remove('hidden');
+            }
+            
+            hideDropdown() {
+                this.dropdown.classList.add('hidden');
+            }
+            
+            showLoading() {
+                if (this.loadingIndicator) {
+                this.loadingIndicator.classList.remove('hidden');
+                }
+            }
+            
+            hideLoading() {
+                if (this.loadingIndicator) {
+                this.loadingIndicator.classList.add('hidden');
+                }
+            }
+            
+            safeNumber(value) {
+                if (value === null || value === undefined || value === '') {
+                    return 0;
+                }
+                const n = parseFloat(value);
+                return isNaN(n) ? 0 : n;
+            }
+        }
+
+        function findGeneralRowByItemId(itemId) {
+            const sid = String(itemId);
+            const rows = document.querySelectorAll('.general-item-row');
+            for (let i = 0; i < rows.length; i++) {
+                const hid = rows[i].querySelector('.line-item-id');
+                if (hid && String(hid.value) === sid) {
+                    return rows[i];
+                }
+            }
+            return null;
+        }
+
+        function attachGeneralRowListeners(row) {
+            const qtyInput = row.querySelector('.general-qty');
+            const salePriceInput = row.querySelector('.general-sale-price');
+            [qtyInput, salePriceInput].forEach((input) => {
+                if (!input) {
+                    return;
+                }
                 input.addEventListener('input', function() {
                     calculateLineTotal(this);
                     calculateTotals();
                 });
             });
-            
-            // Add quantity validation for stock checking
             if (qtyInput) {
                 qtyInput.addEventListener('input', function() {
                     validateQuantityForRow(this);
                 });
             }
-            
-            generalItemIndex++;
-        });
+        }
 
-        // Item type filter change - refresh all active general item dropdowns
-        document.getElementById('item_type_filter').addEventListener('change', function() {
-            document.querySelectorAll('.general-item-row').forEach(row => {
-                const input = row.querySelector('.searchable-input');
-                const dropdown = row.querySelector('.searchable-dropdown');
-                if (input && dropdown && !dropdown.classList.contains('hidden')) {
-                    input.dispatchEvent(new Event('focus'));
-                }
-            });
-        });
-
-        // Add arm
-        document.getElementById('add_arm').addEventListener('click', function() {
-            const container = document.getElementById('arms_container');
-            const template = document.getElementById('arm_template');
+        function appendStaticGeneralRow() {
+            const container = document.getElementById('general_items_container');
+            const template = document.getElementById('general_item_template');
             const clone = template.content.cloneNode(true);
-            
-            // Replace INDEX placeholder
-            clone.querySelectorAll('[name*="INDEX"]').forEach(element => {
-                element.name = element.name.replace('INDEX', armIndex);
+            clone.querySelectorAll('[name*="INDEX"]').forEach((element) => {
+                element.name = element.name.replace('INDEX', generalItemIndex);
             });
-            
             container.appendChild(clone);
-            
-            // Add event listeners
             const newRow = container.lastElementChild;
-            const searchableContainer = newRow.querySelector('.searchable-select-container');
-            const salePriceInput = newRow.querySelector('input[name*="[sale_price]"]');
-            
-            // Initialize searchable dropdown for arms
-            if (searchableContainer) {
-                new ArmSearchableDropdown(searchableContainer, {
-                    itemsPerPage: 15,
-                    debounceDelay: 300,
-                    minSearchLength: 2
-                });
-                searchableContainer.dataset.initialized = 'true';
+            attachGeneralRowListeners(newRow);
+            generalItemIndex++;
+            return newRow;
+        }
+
+        function fillStaticGeneralRow(row, item) {
+            if (!row || !item || !item.id) {
+                return;
             }
-            
-            // Add calculation listener
-            salePriceInput.addEventListener('input', function() {
+            const hidden = row.querySelector('.line-item-id');
+            const nameEl = row.querySelector('.item-display-name');
+            if (hidden) {
+                hidden.value = item.id;
+            }
+            if (nameEl) {
+                nameEl.value = item.item_name || '';
+            }
+                const salePriceInput = row.querySelector('.general-sale-price');
+                if (salePriceInput) {
+                salePriceInput.value = item.sale_price != null && item.sale_price !== '' ? item.sale_price : '';
+            }
+            setGeneralLineDetailsCell(row, item);
+            const availableStock = item.available_stock ?? 0;
+            row.querySelectorAll('.stock-warning, .item-info').forEach((n) => n.remove());
+            const wrap = row.querySelector('.line-item-name-wrap');
+            if (wrap) {
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'item-info mt-1 text-xs leading-snug';
+                if (availableStock <= 0) {
+                    infoDiv.className += ' text-red-600 font-medium';
+                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — No stock</span>';
+                } else if (availableStock <= 5) {
+                    infoDiv.className += ' text-orange-700 font-medium';
+                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — Low stock</span>';
+                } else {
+                    infoDiv.className += ' text-gray-600';
+                    infoDiv.innerHTML = '<span>Stock: <span class="font-medium">' + availableStock + '</span></span>';
+                }
+                wrap.appendChild(infoDiv);
+            }
+            if (salePriceInput) {
+                calculateLineTotal(salePriceInput);
                 calculateTotals();
-            });
-            
-            armIndex++;
+            }
+            const qtyInput = row.querySelector('.general-qty');
+            if (qtyInput) {
+                validateQuantityForRow(qtyInput);
+            }
+        }
+
+        window.addOrBumpItemLine = function(item) {
+            if (!item || !item.id) {
+                return;
+            }
+            const existing = findGeneralRowByItemId(item.id);
+            if (existing) {
+                const qtyInput = existing.querySelector('.general-qty');
+                const q = (parseFloat(qtyInput.value) || 0) + 1;
+                qtyInput.value = q;
+                calculateLineTotal(qtyInput);
+                calculateTotals();
+                validateQuantityForRow(qtyInput);
+                document.getElementById('pos_barcode')?.focus();
+                return;
+            }
+            const row = appendStaticGeneralRow();
+            fillStaticGeneralRow(row, item);
+            const rate = row.querySelector('.general-sale-price');
+            if (rate) {
+                rate.focus();
+                rate.select();
+            }
+        };
+
+        window._saleInvoiceAppendStaticRow = appendStaticGeneralRow;
+        window._saleInvoiceFillStaticRow = fillStaticGeneralRow;
+        window._saleInvoiceResetGeneralItemIndexForRestore = function() {
+            generalItemIndex = 0;
+        };
+
+        document.getElementById('pos_barcode')?.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') {
+                return;
+            }
+            e.preventDefault();
+            const raw = (this.value || '').trim();
+            if (!raw) {
+                return;
+            }
+            const map = window.__POS_ITEM_BY_CODE || {};
+            const item = map[raw.toLowerCase()];
+            if (!item) {
+                alert('No item matches this code.');
+                return;
+            }
+            const typeSel = document.getElementById('pos_item_type_id');
+            const selectedType = typeSel && typeSel.value ? String(typeSel.value) : '';
+            if (selectedType && String(item.item_type_id ?? '') !== selectedType) {
+                alert('This code does not match the selected item type. Change item type to "All types" or pick another item.');
+                return;
+            }
+            window.addOrBumpItemLine(item);
+            this.value = '';
+            this.focus();
         });
 
-        // Remove buttons
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-general-item') || e.target.closest('.remove-general-item')) {
-                const generalItemRow = e.target.closest('.general-item-row');
-                const selectedGeneralItemId = generalItemRow.querySelector('.selected-item-id')?.value;
-                
-                // Remove general item ID from global array if it exists
-                if (selectedGeneralItemId && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds) && window.selectedGeneralItemIds.includes(selectedGeneralItemId)) {
-                    window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(id => id !== selectedGeneralItemId);
+        document.getElementById('check_all_lines')?.addEventListener('change', function() {
+            document.querySelectorAll('.general-item-row .line-check').forEach(cb => {
+                cb.checked = this.checked;
+            });
+        });
+
+        document.getElementById('delete_selected_lines')?.addEventListener('click', function() {
+            let removed = 0;
+            document.querySelectorAll('.general-item-row').forEach(row => {
+                const cb = row.querySelector('.line-check');
+                if (cb && cb.checked) {
+                    const sid = row.querySelector('.line-item-id')?.value;
+                    if (sid && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds)) {
+                        window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(x => String(x) !== String(sid));
+                    }
+                    row.remove();
+                    removed++;
                 }
-                
-                generalItemRow.remove();
-                calculateTotals();
+            });
+            const hall = document.getElementById('check_all_lines');
+            if (hall) {
+                hall.checked = false;
             }
-            
-            if (e.target.classList.contains('remove-arm') || e.target.closest('.remove-arm')) {
-                const armRow = e.target.closest('.arm-row');
-                const selectedArmId = armRow.querySelector('.selected-arm-id')?.value;
-                
-                // Remove arm ID from global array if it exists
-                if (selectedArmId && window.selectedArmIds && Array.isArray(window.selectedArmIds) && window.selectedArmIds.includes(selectedArmId)) {
-                    window.selectedArmIds = window.selectedArmIds.filter(id => id !== selectedArmId);
-                }
-                
-                armRow.remove();
-                calculateTotals();
+            calculateTotals();
+            if (!removed) {
+                alert('Tick the boxes on the lines you want to remove.');
             }
         });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey || e.ctrlKey || e.metaKey) {
+                return;
+            }
+            const t = e.target;
+            const tag = t && t.tagName;
+            const isLineQtyPrice = t && t.classList && (t.classList.contains('general-qty') || t.classList.contains('general-sale-price'));
+            if (tag && ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) && !isLineQtyPrice && t.id !== 'pos_barcode' && t.id !== 'pos_item_search' && t.id !== 'pos_item_type_id') {
+                if (e.key === 'F2' || e.key === 'F4' || e.key === 'F8' || e.key === 'F9') {
+                    return;
+                }
+            }
+            if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('btn_save_draft')?.click();
+            } else if (e.key === 'F4') {
+                e.preventDefault();
+                document.getElementById('btn_post_print')?.click();
+            } else if (e.key === 'F8') {
+                e.preventDefault();
+                document.getElementById('pos_barcode')?.focus();
+            } else if (e.key === 'F9') {
+                e.preventDefault();
+                document.getElementById('btn_post_invoice')?.click();
+            }
+        });
+
+        new PosTopItemSearch();
+
+        function showSaleInvoiceLinesBlockedMessage(message) {
+            const text = message || 'Item selection is required. Add at least one line using the barcode or item search before posting.';
+            let el = document.getElementById('sale_invoice_general_lines_error');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'sale_invoice_general_lines_error';
+                el.className = 'mt-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800';
+                el.setAttribute('role', 'alert');
+                const posQuick = document.querySelector('.pos-quick-add');
+                if (posQuick) {
+                    posQuick.appendChild(el);
+                } else {
+                    const hr = document.querySelector('.ci-white-box hr.ci-hr');
+                    if (hr && hr.parentNode) {
+                        hr.insertAdjacentElement('afterend', el);
+                    }
+                }
+            }
+            el.textContent = text;
+            requestAnimationFrame(function() {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
 
         // Form validation
         document.getElementById('saleInvoiceForm').addEventListener('submit', function(e) {
+            const submitter = e.submitter;
+            const submitAction = submitter && submitter.getAttribute('name') === 'action' ? submitter.value : null;
+            if ((submitAction === 'post' || submitAction === 'post_print') && document.querySelectorAll('.general-item-row').length === 0) {
+                e.preventDefault();
+                showSaleInvoiceLinesBlockedMessage('Item selection is required. Add at least one line using the barcode or item search before posting.');
+                return false;
+            }
+
             // Validate party selection for credit sales
             const saleType = document.getElementById('sale_type').value;
             const partyId = document.getElementById('party_id').value;
@@ -1547,19 +1772,9 @@
             // Validate general items
             const generalItemRows = document.querySelectorAll('.general-item-row');
             generalItemRows.forEach((row, index) => {
-                const selectedItemId = row.querySelector('.selected-item-id').value;
+                const selectedItemId = row.querySelector('.line-item-id')?.value;
                 if (!selectedItemId || selectedItemId === '') {
-                    showGeneralItemError(row, 'Please select a general item.');
-                    hasErrors = true;
-                }
-            });
-            
-            // Validate arms
-            const armRows = document.querySelectorAll('.arm-row');
-            armRows.forEach((row, index) => {
-                const selectedArmId = row.querySelector('.selected-arm-id').value;
-                if (!selectedArmId || selectedArmId === '') {
-                    showArmError(row, 'Please select an arm.');
+                    showGeneralItemError(row, 'Please add items using search or barcode.');
                     hasErrors = true;
                 }
             });
@@ -1582,7 +1797,7 @@
             });
             
             // Remove red borders
-            document.querySelectorAll('.searchable-input').forEach(input => {
+            document.querySelectorAll('.searchable-input, .item-display-name').forEach(input => {
                 input.classList.remove('border-red-500');
             });
         }
@@ -1590,7 +1805,7 @@
         // Function to show general item error
         function showGeneralItemError(row, message) {
             const errorDiv = row.querySelector('.general-item-error');
-            const input = row.querySelector('.searchable-input');
+            const input = row.querySelector('.item-display-name');
             
             if (errorDiv) {
                 errorDiv.textContent = message;
@@ -1638,12 +1853,6 @@
                 subtotal += qty * salePrice;
             });
             
-            // Calculate arms
-            document.querySelectorAll('.arm-row').forEach(row => {
-                const salePrice = parseFloat(row.querySelector('.arm-sale-price').value) || 0;
-                subtotal += salePrice;
-            });
-            
             // Get charges
             const shipping = parseFloat(document.getElementById('shipping_charges').value) || 0;
             
@@ -1656,837 +1865,34 @@
             document.getElementById('total_amount').textContent = total.toFixed(2);
         }
 
-        // General Item Searchable Dropdown
-        class GeneralItemSearchableDropdown {
-            constructor(container, options = {}) {
-                this.container = container;
-                this.input = container.querySelector('.searchable-input');
-                this.hiddenInput = container.querySelector('.selected-item-id');
-                this.dropdown = container.querySelector('.searchable-dropdown');
-                this.resultsContainer = container.querySelector('.search-results-container');
-                this.paginationContainer = container.querySelector('.pagination-container');
-                this.loadingIndicator = container.querySelector('.loading-indicator');
-                
-                this.searchTimeout = null;
-                this.currentPage = 1;
-                this.searchTerm = '';
-                this.selectedItem = null;
-                
-                this.itemsPerPage = options.itemsPerPage || 10;
-                this.debounceDelay = options.debounceDelay || 300;
-                this.minSearchLength = options.minSearchLength || 2;
-                
-                this.init();
+        function setGeneralLineDetailsCell(row, item) {
+            const cell = row.querySelector('.general-details-cell');
+            if (!cell) return;
+            const parts = [];
+            if (item.item_code) {
+                parts.push('Code: ' + item.item_code);
             }
-
-            getSelectedItemTypeId() {
-                const filter = document.getElementById('item_type_filter');
-                return filter ? filter.value : '';
+            const typeName = (item.item_type && item.item_type.item_type) ? item.item_type.item_type : (item.item_type_name || '');
+            if (typeName) {
+                parts.push(typeName);
             }
-            
-            init() {
-                this.bindEvents();
-                this.setupGlobalClickHandler();
+            const st = item.available_stock;
+            if (st !== undefined && st !== null && st !== '') {
+                parts.push('Stock: ' + st);
             }
-            
-            bindEvents() {
-                this.input.addEventListener('focus', () => {
-                    this.showDropdown();
-                    this.performSearch();
-                });
-                
-                this.input.addEventListener('input', (e) => {
-                    this.searchTerm = e.target.value;
-                    this.currentPage = 1;
-                    this.showDropdown(); // Ensure dropdown is visible when typing
-                    
-                    // Clear selection if input becomes empty
-                    if (!this.searchTerm.trim() && this.selectedItem) {
-                        this.clearSelection();
-                    }
-                    
-                    this.debounceSearch();
-                });
-                
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.selectHighlightedResult();
-            } else if (e.key === 'Escape') {
-                this.hideDropdown();
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                this.navigateResults('down');
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                this.navigateResults('up');
-            }
-        });
-            }
-            
-            setupGlobalClickHandler() {
-                document.addEventListener('click', (e) => {
-                    if (!this.container.contains(e.target)) {
-                        this.hideDropdown();
-                    }
-                });
-            }
-            
-            debounceSearch() {
-                clearTimeout(this.searchTimeout);
-                this.searchTimeout = setTimeout(() => {
-                    this.performSearch();
-                }, this.debounceDelay);
-            }
-            
-            async performSearch() {
-                if (this.searchTerm.length < this.minSearchLength) {
-                    this.showInitialResults();
-                    return;
-                }
-                
-                this.showLoading();
-                
-                try {
-                    const url = new URL('/api/general-items/search', window.location.origin);
-                    url.searchParams.set('q', this.searchTerm);
-                    url.searchParams.set('page', this.currentPage);
-                    url.searchParams.set('limit', this.itemsPerPage);
-                    const itemTypeId = this.getSelectedItemTypeId();
-                    if (itemTypeId) {
-                        url.searchParams.set('item_type_id', itemTypeId);
-                    }
-                    
-                    const response = await fetch(url.toString(), {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        throw new Error(data.message || data.error);
-                    }
-                    
-                    if (!Array.isArray(data.data)) {
-                        throw new Error('Invalid data format received from search API');
-                    }
-                    
-                    this.displayResults(data.data || [], data.meta || {});
-                } catch (error) {
-                    console.error('Search error:', error);
-                    this.showError(`Search failed: ${error.message}`);
-                } finally {
-                    this.hideLoading();
-                }
-            }
-            
-            async showInitialResults() {
-                this.showLoading();
-                
-                try {
-                    const url = new URL('/api/general-items', window.location.origin);
-                    url.searchParams.set('page', this.currentPage);
-                    url.searchParams.set('limit', this.itemsPerPage);
-                    const itemTypeId = this.getSelectedItemTypeId();
-                    if (itemTypeId) {
-                        url.searchParams.set('item_type_id', itemTypeId);
-                    }
-                    
-                    const response = await fetch(url.toString(), {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        throw new Error(data.message || data.error);
-                    }
-                    
-                    if (!Array.isArray(data.data)) {
-                        throw new Error('Invalid data format received from API');
-                    }
-                    
-                    this.displayResults(data.data || [], data.meta || {});
-                } catch (error) {
-                    console.error('Initial load error:', error);
-                    this.showError(`Failed to load items: ${error.message}`);
-                } finally {
-                    this.hideLoading();
-                }
-            }
-            
-            displayResults(items, meta) {
-                this.resultsContainer.innerHTML = '';
-                
-                if (!items || !Array.isArray(items) || items.length === 0) {
-                    this.resultsContainer.innerHTML = `
-                        <div class="px-4 py-3 text-sm text-gray-500 text-center">
-                            ${this.searchTerm ? 'No items found matching your search.' : 'No items available.'}
-                        </div>
-                    `;
-                    this.paginationContainer.classList.add('hidden');
-                    return;
-                }
-                
-                items.forEach((item, index) => {
-                    if (!item || !item.id || !item.item_name) {
-                        return;
-                    }
-                    
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
-                    resultItem.dataset.itemId = item.id;
-                    resultItem.dataset.itemName = item.item_name;
-                    resultItem.dataset.salePrice = this.safeNumber(item.sale_price);
-                    resultItem.dataset.availableStock = this.safeNumber(item.available_stock);
-                    resultItem.dataset.itemCode = item.item_code || '';
-                    
-                    resultItem.innerHTML = `
-                        <div class="font-medium text-gray-900">${item.item_name}</div>
-                        ${item.item_code ? `<div class="text-xs text-gray-400">${item.item_code}</div>` : ''}
-                    `;
-                    
-                    resultItem.addEventListener('click', () => {
-                        this.selectItem(item);
-                    });
-                    
-                    this.resultsContainer.appendChild(resultItem);
-                });
-                
-                if (meta && meta.last_page > 1) {
-                    this.showPagination(meta);
-                } else {
-                    this.paginationContainer.classList.add('hidden');
-                }
-            }
-            
-            showPagination(meta) {
-                this.paginationContainer.classList.remove('hidden');
-                
-                const pageInfo = this.paginationContainer.querySelector('.page-info');
-                const prevBtn = this.paginationContainer.querySelector('.prev-page');
-                const nextBtn = this.paginationContainer.querySelector('.next-page');
-                
-                pageInfo.textContent = `Page ${meta.current_page} of ${meta.last_page}`;
-                
-                prevBtn.disabled = meta.current_page <= 1;
-                nextBtn.disabled = meta.current_page >= meta.last_page;
-                
-                prevBtn.onclick = () => {
-                    if (meta.current_page > 1) {
-                        this.currentPage = meta.current_page - 1;
-                        this.performSearch();
-                    }
-                };
-                
-                nextBtn.onclick = () => {
-                    if (meta.current_page < meta.last_page) {
-                        this.currentPage = meta.current_page + 1;
-                        this.performSearch();
-                    }
-                };
-            }
-            
-            selectItem(item) {
-                this.selectedItem = item;
-                this.input.value = item.item_name;
-                this.hiddenInput.value = item.id;
-                
-                // Add selected general item ID to global array to exclude from other dropdowns
-                if (!window.selectedGeneralItemIds || !Array.isArray(window.selectedGeneralItemIds)) {
-                    window.selectedGeneralItemIds = [];
-                }
-                if (!window.selectedGeneralItemIds.includes(item.id)) {
-                    window.selectedGeneralItemIds.push(item.id);
-                }
-                
-                // Show available stock and stock warning if needed
-                const availableStock = item.available_stock || 0;
-                const row = this.container.closest('.general-item-row');
-                
-                // Remove any existing stock warning and info
-                const existingWarning = row.querySelector('.stock-warning');
-                const existingInfo = row.querySelector('.item-info');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-                if (existingInfo) {
-                    existingInfo.remove();
-                }
-                
-                // Add item info (available stock) - positioned absolutely to not affect layout
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'item-info absolute text-xs text-gray-500 top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                infoDiv.innerHTML = `
-                    <span>Stock: <span class="font-medium">${availableStock}</span></span>
-                `;
-                this.container.style.position = 'relative';
-                this.container.appendChild(infoDiv);
-                
-                // Add stock warning if stock is low or zero - positioned absolutely
-                if (availableStock <= 0) {
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'stock-warning absolute text-red-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                    warningDiv.textContent = '⚠️ No stock!';
-                    this.container.appendChild(warningDiv);
-                } else if (availableStock <= 5) {
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'stock-warning absolute text-orange-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                    warningDiv.textContent = `⚠️ Low: ${availableStock}`;
-                    this.container.appendChild(warningDiv);
-                }
-                
-                // Populate sale price
-                const salePriceInput = row.querySelector('.general-sale-price');
-                
-                if (salePriceInput) {
-                    salePriceInput.value = item.sale_price ? item.sale_price : '';
-                }
-                
-                // Trigger calculation
-                if (salePriceInput) {
-                    calculateLineTotal(salePriceInput);
-                    calculateTotals();
-                }
-                
-                this.hideDropdown();
-            }
-            
-            selectFirstResult() {
-                const firstResult = this.resultsContainer.querySelector('.result-item');
-                if (firstResult) {
-                    const item = {
-                        id: firstResult.dataset.itemId,
-                        item_name: firstResult.dataset.itemName,
-                        sale_price: this.safeNumber(firstResult.dataset.salePrice),
-                        available_stock: this.safeNumber(firstResult.dataset.availableStock)
-                    };
-                    this.selectItem(item);
-                }
-            }
-            
-            selectHighlightedResult() {
-                const highlightedResult = this.resultsContainer.querySelector('.result-item.selected');
-                if (highlightedResult) {
-                    const item = {
-                        id: highlightedResult.dataset.itemId,
-                        item_name: highlightedResult.dataset.itemName,
-                        sale_price: this.safeNumber(highlightedResult.dataset.salePrice),
-                        available_stock: this.safeNumber(highlightedResult.dataset.availableStock)
-                    };
-                    this.selectItem(item);
-                } else {
-                    // Fallback to first result if no item is highlighted
-                    this.selectFirstResult();
-                }
-            }
-            
-            navigateResults(direction) {
-                const results = this.resultsContainer.querySelectorAll('.result-item');
-                const currentIndex = Array.from(results).findIndex(item => item.classList.contains('selected'));
-                
-                let newIndex;
-                if (direction === 'down') {
-                    newIndex = currentIndex < results.length - 1 ? currentIndex + 1 : 0;
-                } else {
-                    newIndex = currentIndex > 0 ? currentIndex - 1 : results.length - 1;
-                }
-                
-                results.forEach(item => item.classList.remove('selected', 'bg-green-100'));
-                
-                if (results[newIndex]) {
-                    results[newIndex].classList.add('selected', 'bg-green-100');
-                    results[newIndex].scrollIntoView({ block: 'nearest' });
-                }
-            }
-            
-            showDropdown() {
-                this.dropdown.classList.remove('hidden');
-            }
-            
-            hideDropdown() {
-                this.dropdown.classList.add('hidden');
-            }
-            
-            showLoading() {
-                this.loadingIndicator.classList.remove('hidden');
-            }
-            
-            hideLoading() {
-                this.loadingIndicator.classList.add('hidden');
-            }
-            
-            safeNumber(value) {
-                if (value === null || value === undefined || value === '') {
-                    return 0;
-                }
-                
-                const num = parseFloat(value);
-                return isNaN(num) ? 0 : num;
-            }
-            
-            showError(message) {
-                this.resultsContainer.innerHTML = `
-                    <div class="px-4 py-3 text-sm text-red-500 text-center">
-                        <div class="font-medium">Error Loading Items</div>
-                        <div class="mt-1">${message}</div>
-                        <div class="mt-2 text-xs text-gray-500">
-                            Please check your browser console for more details.
-                        </div>
-                    </div>
-                `;
-            }
-            
-            clearSelection() {
-                // Remove the previously selected general item ID from global array
-                if (this.selectedItem && this.selectedItem.id && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds)) {
-                    window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(id => id !== this.selectedItem.id);
-                }
-                
-                // Clear the current selection
-                this.selectedItem = null;
-                this.input.value = '';
-                this.hiddenInput.value = '';
-                
-                // Clear sale price and qty
-                const row = this.container.closest('.general-item-row');
-                const salePriceInput = row.querySelector('.general-sale-price');
-                const qtyInput = row.querySelector('.general-qty');
-                
-                if (salePriceInput) {
-                    salePriceInput.value = '';
-                }
-                if (qtyInput) {
-                    qtyInput.value = '1';
-                }
-                
-                // Remove any stock warnings and item info
-                const existingWarning = row.querySelector('.stock-warning');
-                const existingInfo = row.querySelector('.item-info');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-                if (existingInfo) {
-                    existingInfo.remove();
-                }
-                
-                // Trigger calculation
-                calculateTotals();
-            }
+            cell.textContent = parts.length ? parts.join(' · ') : '—';
         }
 
-        // Global array to track selected arm IDs
-        window.selectedArmIds = window.selectedArmIds || [];
+        window.clearValidationErrors = clearValidationErrors;
+        window.showGeneralItemError = showGeneralItemError;
+        window.showArmError = showArmError;
+        window._saleInvoiceCalculateLineTotal = calculateLineTotal;
+        window._saleInvoiceCalculateTotals = calculateTotals;
+        window._saleInvoiceSetGeneralLineDetailsCell = setGeneralLineDetailsCell;
+        window.fetchCustomerBalance = fetchCustomerBalance;
 
         // Global array to track selected general item IDs
         window.selectedGeneralItemIds = window.selectedGeneralItemIds || [];
-
-        // Arm Searchable Dropdown
-        class ArmSearchableDropdown {
-            constructor(container, options = {}) {
-                this.container = container;
-                this.input = container.querySelector('.searchable-input');
-                this.hiddenInput = container.querySelector('.selected-arm-id');
-                this.dropdown = container.querySelector('.searchable-dropdown');
-                this.resultsContainer = container.querySelector('.search-results-container');
-                this.paginationContainer = container.querySelector('.pagination-container');
-                this.loadingIndicator = container.querySelector('.loading-indicator');
-                
-                this.searchTimeout = null;
-                this.currentPage = 1;
-                this.searchTerm = '';
-                this.selectedItem = null;
-                
-                this.itemsPerPage = options.itemsPerPage || 10;
-                this.debounceDelay = options.debounceDelay || 300;
-                this.minSearchLength = options.minSearchLength || 2;
-                
-                this.init();
-            }
-            
-            init() {
-                this.bindEvents();
-                this.setupGlobalClickHandler();
-                
-                // Add blur event listener for clearing selection
-                this.input.addEventListener('blur', () => {
-                    if (!this.input.value.trim()) {
-                        this.clearSelection();
-                    }
-                });
-            }
-            
-            bindEvents() {
-                this.input.addEventListener('focus', () => {
-                    this.showDropdown();
-                    this.performSearch();
-                });
-                
-                this.input.addEventListener('input', (e) => {
-                    this.searchTerm = e.target.value;
-                    this.currentPage = 1;
-                    this.showDropdown(); // Ensure dropdown is visible when typing
-                    
-                    // Clear selection if input becomes empty
-                    if (!this.searchTerm.trim() && this.selectedItem) {
-                        this.clearSelection();
-                    }
-                    
-                    this.debounceSearch();
-                });
-                
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.selectHighlightedResult();
-            } else if (e.key === 'Escape') {
-                this.hideDropdown();
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                this.navigateResults('down');
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                this.navigateResults('up');
-            }
-        });
-            }
-            
-            setupGlobalClickHandler() {
-                document.addEventListener('click', (e) => {
-                    if (!this.container.contains(e.target)) {
-                        this.hideDropdown();
-                    }
-                });
-            }
-            
-            debounceSearch() {
-                clearTimeout(this.searchTimeout);
-                this.searchTimeout = setTimeout(() => {
-                    this.performSearch();
-                }, this.debounceDelay);
-            }
-            
-            async performSearch() {
-                if (this.searchTerm.length < this.minSearchLength) {
-                    this.showInitialResults();
-                    return;
-                }
-                
-                this.showLoading();
-                
-                try {
-                    // Build URL with excluded arm IDs
-                    const url = new URL('/api/arms/search', window.location.origin);
-                    url.searchParams.set('q', this.searchTerm);
-                    url.searchParams.set('page', this.currentPage);
-                    url.searchParams.set('limit', this.itemsPerPage);
-                    
-                    // Add excluded arm IDs if any
-                    if (window.selectedArmIds && Array.isArray(window.selectedArmIds) && window.selectedArmIds.length > 0) {
-                        url.searchParams.set('exclude_ids', window.selectedArmIds.join(','));
-                    }
-                    
-                    const response = await fetch(url.toString(), {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        throw new Error(data.message || data.error);
-                    }
-                    
-                    if (!Array.isArray(data.data)) {
-                        throw new Error('Invalid data format received from search API');
-                    }
-                    
-                    this.displayResults(data.data || [], data.meta || {});
-                } catch (error) {
-                    console.error('Search error:', error);
-                    this.showError(`Search failed: ${error.message}`);
-                } finally {
-                    this.hideLoading();
-                }
-            }
-            
-            async showInitialResults() {
-                this.showLoading();
-                
-                try {
-                    // Build URL with excluded arm IDs
-                    const url = new URL('/api/arms', window.location.origin);
-                    url.searchParams.set('page', this.currentPage);
-                    url.searchParams.set('limit', this.itemsPerPage);
-                    
-                    // Add excluded arm IDs if any
-                    if (window.selectedArmIds && Array.isArray(window.selectedArmIds) && window.selectedArmIds.length > 0) {
-                        url.searchParams.set('exclude_ids', window.selectedArmIds.join(','));
-                    }
-                    
-                    const response = await fetch(url.toString(), {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        throw new Error(data.message || data.error);
-                    }
-                    
-                    if (!Array.isArray(data.data)) {
-                        throw new Error('Invalid data format received from API');
-                    }
-                    
-                    this.displayResults(data.data || [], data.meta || {});
-                } catch (error) {
-                    console.error('Initial load error:', error);
-                    this.showError(`Failed to load arms: ${error.message}`);
-                } finally {
-                    this.hideLoading();
-                }
-            }
-            
-            displayResults(items, meta) {
-                this.resultsContainer.innerHTML = '';
-                
-                if (!items || !Array.isArray(items) || items.length === 0) {
-                    this.resultsContainer.innerHTML = `
-                        <div class="px-4 py-3 text-sm text-gray-500 text-center">
-                            ${this.searchTerm ? 'No arms found matching your search.' : 'No arms available.'}
-                        </div>
-                    `;
-                    this.paginationContainer.classList.add('hidden');
-                    return;
-                }
-                
-                                 items.forEach((item, index) => {
-                     if (!item || !item.id || !item.arm_title) {
-                         return;
-                     }
-                     
-                     const resultItem = document.createElement('div');
-                     resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
-                     resultItem.dataset.itemId = item.id;
-                     resultItem.dataset.itemName = item.arm_title;
-                     resultItem.dataset.salePrice = this.safeNumber(item.sale_price);
-                     
-                     resultItem.innerHTML = `
-                         <div class="font-medium text-gray-900">${item.arm_title}</div>
-                     `;
-                     
-                     resultItem.addEventListener('click', () => {
-                         this.selectItem(item);
-                     });
-                     
-                     this.resultsContainer.appendChild(resultItem);
-                 });
-                
-                if (meta && meta.last_page > 1) {
-                    this.showPagination(meta);
-                } else {
-                    this.paginationContainer.classList.add('hidden');
-                }
-            }
-            
-            showPagination(meta) {
-                this.paginationContainer.classList.remove('hidden');
-                
-                const pageInfo = this.paginationContainer.querySelector('.page-info');
-                const prevBtn = this.paginationContainer.querySelector('.prev-page');
-                const nextBtn = this.paginationContainer.querySelector('.next-page');
-                
-                pageInfo.textContent = `Page ${meta.current_page} of ${meta.last_page}`;
-                
-                prevBtn.disabled = meta.current_page <= 1;
-                nextBtn.disabled = meta.current_page >= meta.last_page;
-                
-                prevBtn.onclick = () => {
-                    if (meta.current_page > 1) {
-                        this.currentPage = meta.current_page - 1;
-                        this.performSearch();
-                    }
-                };
-                
-                nextBtn.onclick = () => {
-                    if (meta.current_page < meta.last_page) {
-                        this.currentPage = meta.current_page + 1;
-                        this.performSearch();
-                    }
-                };
-            }
-            
-                         selectItem(item) {
-                 this.selectedItem = item;
-                 this.input.value = item.arm_title;
-                 this.hiddenInput.value = item.id;
-                 
-                 // Add selected arm ID to global array to exclude from other dropdowns
-                 if (!window.selectedArmIds || !Array.isArray(window.selectedArmIds)) {
-                     window.selectedArmIds = [];
-                 }
-                 if (!window.selectedArmIds.includes(item.id)) {
-                     window.selectedArmIds.push(item.id);
-                 }
-                 
-                 // Populate sale price
-                 const row = this.container.closest('.arm-row');
-                 const salePriceInput = row.querySelector('.arm-sale-price');
-                 
-                 if (salePriceInput) {
-                     salePriceInput.value = item.sale_price ? item.sale_price : '';
-                 }
-                 
-                 // Trigger calculation
-                 if (salePriceInput) {
-                     calculateTotals();
-                 }
-                 
-                 this.hideDropdown();
-             }
-            
-                         selectFirstResult() {
-                 const firstResult = this.resultsContainer.querySelector('.result-item');
-                 if (firstResult) {
-                     const item = {
-                         id: firstResult.dataset.itemId,
-                         arm_title: firstResult.dataset.itemName,
-                         sale_price: this.safeNumber(firstResult.dataset.salePrice)
-                     };
-                     this.selectItem(item);
-                 }
-             }
-             
-             selectHighlightedResult() {
-                 const highlightedResult = this.resultsContainer.querySelector('.result-item.selected');
-                 if (highlightedResult) {
-                     const item = {
-                         id: highlightedResult.dataset.itemId,
-                         arm_title: highlightedResult.dataset.itemName,
-                         sale_price: this.safeNumber(highlightedResult.dataset.salePrice)
-                     };
-                     this.selectItem(item);
-                 } else {
-                     // Fallback to first result if no item is highlighted
-                     this.selectFirstResult();
-                 }
-             }
-            
-            navigateResults(direction) {
-                const results = this.resultsContainer.querySelectorAll('.result-item');
-                const currentIndex = Array.from(results).findIndex(item => item.classList.contains('selected'));
-                
-                let newIndex;
-                if (direction === 'down') {
-                    newIndex = currentIndex < results.length - 1 ? currentIndex + 1 : 0;
-                } else {
-                    newIndex = currentIndex > 0 ? currentIndex - 1 : results.length - 1;
-                }
-                
-                results.forEach(item => item.classList.remove('selected', 'bg-blue-100'));
-                
-                if (results[newIndex]) {
-                    results[newIndex].classList.add('selected', 'bg-blue-100');
-                    results[newIndex].scrollIntoView({ block: 'nearest' });
-                }
-            }
-            
-            showDropdown() {
-                this.dropdown.classList.remove('hidden');
-            }
-            
-            hideDropdown() {
-                this.dropdown.classList.add('hidden');
-            }
-            
-            showLoading() {
-                this.loadingIndicator.classList.remove('hidden');
-            }
-            
-            hideLoading() {
-                this.loadingIndicator.classList.add('hidden');
-            }
-            
-            safeNumber(value) {
-                if (value === null || value === undefined || value === '') {
-                    return 0;
-                }
-                
-                const num = parseFloat(value);
-                return isNaN(num) ? 0 : num;
-            }
-            
-            showError(message) {
-                this.resultsContainer.innerHTML = `
-                    <div class="px-4 py-3 text-sm text-red-500 text-center">
-                        <div class="font-medium">Error Loading Arms</div>
-                        <div class="mt-1">${message}</div>
-                        <div class="mt-2 text-xs text-gray-500">
-                            Please check your browser console for more details.
-                        </div>
-                    </div>
-                `;
-            }
-            
-            clearSelection() {
-                // Remove the previously selected arm ID from global array
-                if (this.selectedItem && this.selectedItem.id && window.selectedArmIds && Array.isArray(window.selectedArmIds)) {
-                    window.selectedArmIds = window.selectedArmIds.filter(id => id !== this.selectedItem.id);
-                }
-                
-                // Clear the current selection
-                this.selectedItem = null;
-                this.input.value = '';
-                this.hiddenInput.value = '';
-                
-                // Clear sale price
-                const row = this.container.closest('.arm-row');
-                const salePriceInput = row.querySelector('.arm-sale-price');
-                if (salePriceInput) {
-                    salePriceInput.value = '';
-                    calculateTotals();
-                }
-            }
-        }
 
         // Party Searchable Dropdown
         class PartySearchableDropdown {
@@ -2918,11 +2324,28 @@
         // Initialize input masks on page load
         applyInputMasks();
 
-        // Initialize sale type state
+        // Initialize sale type state (bank / party panels, POS buttons)
         const saleTypeSelect = document.getElementById('sale_type');
-        if (saleTypeSelect.value === 'cash') {
             saleTypeSelect.dispatchEvent(new Event('change'));
+        const bankSelectInit = document.getElementById('bank_id');
+        if (bankSelectInit && bankSelectInit.value) {
+            fetchBankBalance(bankSelectInit.value);
         }
+
+        @if (!$errors->any())
+        requestAnimationFrame(function() {
+            document.getElementById('pos_barcode')?.focus();
+        });
+        @endif
+
+        @error('general_lines')
+        requestAnimationFrame(function() {
+            const el = document.getElementById('sale_invoice_general_lines_error');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+        @enderror
     });
 
     // ===== PARTY RESTORATION FUNCTION =====
@@ -2943,8 +2366,9 @@
                         }
                         
                         partySearchInput.value = displayText;
-                        // Trigger balance fetch
-                        fetchPartyBalance(party.id);
+                        if (window.fetchCustomerBalance) {
+                            window.fetchCustomerBalance(party.id);
+                        }
                     }
                 })
                 .catch(error => {
@@ -2981,11 +2405,10 @@
             // Collect general items data
             const generalRows = document.querySelectorAll('.general-item-row');
             generalRows.forEach((row, index) => {
-                const generalItemId = row.querySelector('.selected-item-id')?.value || '';
-                const generalItemDisplay = row.querySelector('.searchable-input')?.value || '';
+                const generalItemId = row.querySelector('.line-item-id')?.value || '';
+                const generalItemDisplay = row.querySelector('.item-display-name')?.value || '';
                 const qty = row.querySelector('.general-qty')?.value || '';
-                const unitPrice = row.querySelector('.general-price')?.value || '';
-                const description = row.querySelector('.general-description')?.value || '';
+                const unitPrice = row.querySelector('.general-sale-price')?.value || '';
 
                 if (generalItemId || qty || unitPrice) {
                     formData.general_items.push({
@@ -2993,7 +2416,7 @@
                         general_item_display: generalItemDisplay,
                         qty: qty,
                         unit_price: unitPrice,
-                        description: description
+                        description: ''
                     });
                 }
             });
@@ -3122,128 +2545,60 @@
     // Function to restore general items
     function restoreGeneralItems(generalItems) {
         console.log('restoreGeneralItems called with:', generalItems);
-        
-        // Ensure we have at least one general item row
-        const existingRows = document.querySelectorAll('.general-item-row');
-        if (existingRows.length === 0) {
-            console.log('No existing rows found, creating first row');
-            document.getElementById('add_general_item').click();
-            
-            // Wait for the row to be added
-            setTimeout(() => {
-                restoreGeneralItems(generalItems);
-            }, 100);
+        const appendRow = window._saleInvoiceAppendStaticRow;
+        const fillRow = window._saleInvoiceFillStaticRow;
+        if (!appendRow || !fillRow) {
+            console.warn('POS row helpers not ready; retrying restore.');
+            setTimeout(() => restoreGeneralItems(generalItems), 150);
             return;
         }
 
-        generalItems.forEach((item, index) => {
-            const rows = document.querySelectorAll('.general-item-row');
-            const targetRow = rows[index];
-            
-            if (targetRow) {
-                console.log(`Restoring item ${index}, found ${rows.length} rows, targeting row:`, targetRow);
-                
-                // Restore general item selection
-                if (item.general_item_id) {
-                    const hiddenInput = targetRow.querySelector('.selected-item-id');
-                    const searchInput = targetRow.querySelector('.searchable-input');
-                    
-                    if (hiddenInput) {
-                        hiddenInput.value = item.general_item_id;
-                    }
-                    if (searchInput && item.general_item_display) {
-                        searchInput.value = item.general_item_display;
-                        // Trigger searchable dropdown update
-                        triggerSearchableDropdownUpdate(searchInput);
-                    }
+        document.getElementById('general_items_container').innerHTML = '';
+        if (window._saleInvoiceResetGeneralItemIndexForRestore) {
+            window._saleInvoiceResetGeneralItemIndexForRestore();
+        }
+
+        generalItems.forEach((item) => {
+            const row = appendRow();
+            const cat = getCatalogItemById(item.general_item_id);
+            if (cat) {
+                fillRow(row, cat);
+            } else if (item.general_item_id) {
+                const hidden = row.querySelector('.line-item-id');
+                const nameEl = row.querySelector('.item-display-name');
+                if (hidden) {
+                    hidden.value = item.general_item_id;
                 }
-                
-                // Restore quantity
-                if (item.qty) {
-                    const qtyInput = targetRow.querySelector('.general-qty');
-                    if (qtyInput) {
+                if (nameEl && item.general_item_display) {
+                    nameEl.value = item.general_item_display;
+                }
+                if (window._saleInvoiceSetGeneralLineDetailsCell) {
+                    window._saleInvoiceSetGeneralLineDetailsCell(row, {});
+                }
+            }
+            const qtyInput = row.querySelector('.general-qty');
+            const priceInput = row.querySelector('.general-sale-price');
+            if (qtyInput && item.qty) {
                         qtyInput.value = item.qty;
-                        console.log('Restored qty:', item.qty);
-                    }
-                }
-                
-                // Restore unit price
-                if (item.unit_price) {
-                    const priceInput = targetRow.querySelector('.general-price');
-                    if (priceInput) {
+            }
+            if (priceInput && item.unit_price) {
                         priceInput.value = item.unit_price;
-                        console.log('Restored unit_price:', item.unit_price);
-                    }
-                }
-                
-                // Restore description
-                if (item.description) {
-                    const descInput = targetRow.querySelector('.general-description');
-                    if (descInput) {
-                        descInput.value = item.description;
-                    }
-                }
-                
-                console.log('Successfully restored general item:', item);
+            }
+            if (priceInput && window._saleInvoiceCalculateLineTotal) {
+                window._saleInvoiceCalculateLineTotal(priceInput);
             }
         });
-        
+        if (window._saleInvoiceCalculateTotals) {
+            window._saleInvoiceCalculateTotals();
+        }
         console.log('Finished processing all general items');
     }
 
-    // Function to restore arms
+    // Function to restore arms (UI removed — no-op to keep localStorage restore safe)
     function restoreArms(arms) {
-        console.log('restoreArms called with:', arms);
-        
-        // Ensure we have at least one arm row
-        const existingRows = document.querySelectorAll('.arm-row');
-        if (existingRows.length === 0) {
-            console.log('No existing arm rows found, creating first row');
-            document.getElementById('add_arm').click();
-            
-            // Wait for the row to be added
-            setTimeout(() => {
-                restoreArms(arms);
-            }, 100);
-            return;
+        if (arms && arms.length) {
+            console.log('restoreArms: arms UI removed, skipping', arms.length, 'saved arm row(s)');
         }
-        
-        arms.forEach((arm, index) => {
-            const rows = document.querySelectorAll('.arm-row');
-            const targetRow = rows[index];
-            
-            if (targetRow) {
-                console.log(`Restoring arm ${index}, found ${rows.length} rows, targeting row:`, targetRow);
-                
-                // Restore arm selection
-                if (arm.arm_id) {
-                    const hiddenInput = targetRow.querySelector('.selected-arm-id');
-                    const searchInput = targetRow.querySelector('.searchable-input');
-                    
-                    if (hiddenInput) {
-                        hiddenInput.value = arm.arm_id;
-                    }
-                    if (searchInput && arm.arm_display) {
-                        searchInput.value = arm.arm_display;
-                        // Trigger searchable dropdown update
-                        triggerSearchableDropdownUpdate(searchInput);
-                    }
-                }
-                
-                // Restore sale price
-                if (arm.sale_price) {
-                    const priceInput = targetRow.querySelector('.arm-sale-price');
-                    if (priceInput) {
-                        priceInput.value = arm.sale_price;
-                        console.log('Restored arm sale_price:', arm.sale_price);
-                    }
-                }
-                
-                console.log('Successfully restored arm:', arm);
-            }
-        });
-        
-        console.log('Finished processing all arms');
     }
 
     // Helper function to trigger searchable dropdown update
@@ -3286,13 +2641,13 @@
         // Add listeners to dynamic content (general items and arms)
         // These will be added when rows are created
         document.addEventListener('input', function(e) {
-            if (e.target.closest('.general-item-row') || e.target.closest('.arm-row')) {
+            if (e.target.closest('.general-item-row')) {
                 saveSaleInvoiceFormData();
             }
         });
         
         document.addEventListener('change', function(e) {
-            if (e.target.closest('.general-item-row') || e.target.closest('.arm-row')) {
+            if (e.target.closest('.general-item-row')) {
                 saveSaleInvoiceFormData();
             }
         });
@@ -3463,52 +2818,6 @@
     };
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
-    <style>
-        /* Make Chosen match Tailwind input styles used in filters */
-        .chosen-container { width: 100% !important; }
-        .chosen-container-single .chosen-single {
-            height: 40px;
-            line-height: 38px;
-            border: 1px solid #d1d5db; /* border-gray-300 */
-            border-radius: 0.375rem; /* rounded-md */
-            padding: 0 2.25rem 0 0.75rem;
-            background: #fff;
-            font-size: 0.875rem; /* text-sm */
-            color: #111827; /* text-gray-900 */
-            box-shadow: none;
-        }
-        .chosen-container-single .chosen-single div { right: 0.5rem; }
-        .chosen-container-active .chosen-single {
-            border-color: #a855f7; /* purple-500 */
-            box-shadow: 0 0 0 1px rgba(168,85,247,0.2);
-        }
-        .chosen-container .chosen-drop {
-            border-color: #e5e7eb; /* gray-200 */
-            border-radius: 0.375rem;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        }
-        .chosen-container .chosen-search input {
-            height: 38px;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 0 0.75rem;
-            box-shadow: none;
-        }
-    </style>
-    <script>
-        $(function () {
-            $('.chosen-select').chosen({
-                width: '100%',
-                search_contains: true,
-                allow_single_deselect: true,
-                placeholder_text_single: 'All Item Types'
-            });
-        });
-    </script>
-
     <script>
         // Function to display validation errors for general items and arms
         function displayValidationErrors() {
@@ -3528,7 +2837,9 @@
             }
             
             // Clear any existing error displays first
-            clearValidationErrors();
+            if (window.clearValidationErrors) {
+                window.clearValidationErrors();
+            }
             
             // Display general item selection errors
             errorKeys.forEach((key, index) => {
@@ -3540,8 +2851,8 @@
                         
                         // Find the corresponding row
                         const generalItemRows = document.querySelectorAll('.general-item-row');
-                        if (generalItemRows[rowIndex]) {
-                            showGeneralItemError(generalItemRows[rowIndex], errorMessage);
+                        if (generalItemRows[rowIndex] && window.showGeneralItemError) {
+                            window.showGeneralItemError(generalItemRows[rowIndex], errorMessage);
                         }
                     }
                 }
@@ -3554,8 +2865,8 @@
                         
                         // Find the corresponding row
                         const armRows = document.querySelectorAll('.arm-row');
-                        if (armRows[rowIndex]) {
-                            showArmError(armRows[rowIndex], errorMessage);
+                        if (armRows[rowIndex] && window.showArmError) {
+                            window.showArmError(armRows[rowIndex], errorMessage);
                         }
                     }
                 }
@@ -3582,5 +2893,5 @@
             displayValidationErrors();
         }, 2000);
     </script>
-</x-app-layout>
+</x-invoice-fullscreen-layout>
 

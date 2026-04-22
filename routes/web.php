@@ -298,6 +298,7 @@ Route::middleware('auth')->group(function () {
        
 
         Route::middleware([CheckModuleAndPermission::class . ':view items'])->group(function () {
+            Route::patch('/general-items/{generalItem}/status', [App\Http\Controllers\GeneralItemController::class, 'updateStatus'])->name('general-items.update-status');
             Route::resource('general-items', App\Http\Controllers\GeneralItemController::class);
         });
 
@@ -442,6 +443,7 @@ Route::get('purchases/{purchase}/audit-log', [PurchaseController::class, 'auditL
 
 Route::middleware([CheckModuleAndPermission::class . ':view sales'])->group(function () {
     Route::get('sale-invoices/profit-loss-report', [SaleInvoiceController::class, 'profitLossReport'])->name('sale-invoices.profit-loss-report');
+    Route::get('sale-invoices/{saleInvoice}/thermal-print', [SaleInvoiceController::class, 'thermalPrint'])->name('sale-invoices.thermal-print');
     Route::resource('sale-invoices', SaleInvoiceController::class);
 });
 

@@ -1,17 +1,4 @@
-<x-app-layout>
-    @section('title', 'Edit Sale Invoice - Sales Management - StoreBook')
-    <x-breadcrumb :breadcrumbs="[
-        ['url' => '/', 'label' => 'Home'],
-
-        ['url' => '/sales-dashboard', 'label' => 'Sales Dashboard'],
-        ['url' => '#', 'label' => 'Edit Sale Invoice']
-    ]" />
-
-    <x-dynamic-heading 
-        :title="'Edit Sale Invoice'" 
-        :subtitle="'Modify sale invoice details and items'"
-        :icon="'fas fa-file-invoice-dollar'"
-    />
+<x-invoice-fullscreen-layout :page-title="'Edit Sale Invoice — ' . config('app.name', 'StoreBook')">
     <style>
         
         .w-full {
@@ -383,6 +370,191 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
         }
+
+        /* CI sale invoice layout (aligned with create) */
+        #invoice-fullscreen-root .invoice-fs-root {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .ci-invoice-page {
+            background: linear-gradient(165deg, #eef1f8 0%, #f7f8fc 45%, #eef2f7 100%);
+        }
+        .ci-white-box {
+            background: #fff;
+            border: 1px solid #e2e6ef;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+        .ci-hr {
+            border: 0;
+            border-top: 1px solid #dee2e6;
+            margin: 0.5rem 0;
+        }
+        .ci-form-control,
+        .ci-invoice-page .pos-quick-add input,
+        .ci-invoice-page .pos-quick-add select {
+            width: 100%;
+            min-height: 32px;
+            padding: 0.28rem 0.55rem;
+            font-size: 0.8125rem;
+            line-height: 1.45;
+            color: #495057;
+            background-color: #fff;
+            border: 1px solid #c5cad3;
+            border-radius: 0.25rem;
+            box-sizing: border-box;
+        }
+        .ci-invoice-page .pos-quick-add input:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.15);
+        }
+        .ci-sidebar {
+            border-left: 1px solid #dee2e6;
+            padding-left: 1rem;
+        }
+        @media (max-width: 1023px) {
+            .ci-sidebar {
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid #dee2e6;
+                padding-top: 1rem;
+                margin-top: 0.5rem;
+            }
+        }
+        .ci-sidebar .form-group {
+            margin-bottom: 0.5rem;
+        }
+        .ci-sidebar label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #333;
+            margin-bottom: 0.35rem;
+        }
+        .pos-sale-type-btn {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            padding: 0.35rem 0.4rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            transition: background 0.15s, border-color 0.15s;
+            background: #fff;
+            color: #495057;
+        }
+        .pos-sale-type-btn.is-active-cash {
+            border-color: #28a745;
+            background: #e8f5e9;
+            color: #155724;
+        }
+        .pos-sale-type-btn.is-active-credit {
+            border-color: #007bff;
+            background: #e7f1ff;
+            color: #004085;
+        }
+        .ci-item-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #dee2e6;
+        }
+        .ci-item-table thead tr {
+            background: #fafafa !important;
+        }
+        .ci-item-table th,
+        .ci-item-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.3rem 0.45rem;
+            vertical-align: middle;
+        }
+        .ci-item-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .ci-item-table th {
+            font-weight: 600;
+            font-size: 0.8125rem;
+            color: #333;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        #general_items_table .general-details-cell {
+            font-size: 0.8125rem;
+            color: #4b5563;
+            max-width: 14rem;
+            white-space: normal;
+        }
+        .ci-total-readonly {
+            border: 0 !important;
+            background: transparent !important;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #212529;
+            padding-left: 0 !important;
+        }
+        .ci-btn-primary {
+            background: #007bff;
+            border: 1px solid #007bff;
+            color: #fff;
+            padding: 0.45rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .ci-btn-primary:hover { background: #0069d9; border-color: #0062cc; color: #fff; }
+        .ci-btn-danger {
+            background: #dc3545;
+            border: 1px solid #dc3545;
+            color: #fff;
+            padding: 0.45rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .ci-btn-danger:hover { background: #c82333; border-color: #bd2130; color: #fff; }
+        .ci-btn-outline {
+            background: #fff;
+            border: 1px solid #ced4da;
+            color: #495057;
+            padding: 0.45rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .ci-btn-outline:hover { background: #f8f9fa; }
+        .ci-invoice-page button.ci-btn-primary,
+        .ci-invoice-page button.ci-btn-danger {
+            padding: 0.38rem 0.85rem;
+            border-radius: 0.25rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+        .ci-item-table input.ci-form-control,
+        .ci-item-table .ci-form-control {
+            min-height: 30px;
+            font-size: 0.8125rem;
+        }
+        #shortcut_keys {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #shortcut_keys th,
+        #shortcut_keys td {
+            text-align: center;
+            font-size: 0.6875rem;
+            padding: 0.28rem 0.25rem;
+            border: 1px solid #dee2e6;
+        }
+        #shortcut_keys .sk-f2 { background: #a3ff3f; }
+        #shortcut_keys .sk-f4 { background: #93b9ff; color: #1e3a5f; }
+        #shortcut_keys .sk-f8 { background: #00c92b; color: #fff; }
+        #shortcut_keys .sk-f9 { background: #ffe3a5; }
     </style>
 
         @if (Session::has('success'))
@@ -402,9 +574,33 @@
             </div>
         @endif
 
+    @php
+        $posCatalog = $generalItems->map(function ($i) {
+            return [
+                'id' => $i->id,
+                'item_name' => $i->item_name,
+                'item_code' => $i->item_code,
+                'sale_price' => (float) $i->sale_price,
+                'available_stock' => (float) ($i->available_stock ?? 0),
+                'item_type_id' => $i->item_type_id,
+                'item_type' => $i->itemType ? ['item_type' => $i->itemType->item_type] : null,
+            ];
+        })->values();
+    @endphp
+    <script>
+        window.__POS_ITEM_CATALOG = @json($posCatalog);
+        window.__POS_ITEM_BY_CODE = {};
+        (window.__POS_ITEM_CATALOG || []).forEach(function (it) {
+            if (it.item_code && String(it.item_code).trim() !== '') {
+                window.__POS_ITEM_BY_CODE[String(it.item_code).trim().toLowerCase()] = it;
+            }
+        });
+    </script>
+
     <form method="POST" action="{{ route('sale-invoices.update', $saleInvoice) }}" id="saleInvoiceForm">
             @csrf
         @method('PUT')
+        <input type="hidden" name="print_after_update" id="print_after_update" value="0">
 
             @if(session('error'))
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -413,86 +609,176 @@
                 </div>
             @endif
             
-            <!-- Main Content -->
-        <div class="bg-white shadow-lg rounded-lg border border-gray-200 p-6">
-                    <!-- Sale Invoice Header Information -->
-                     <div class="bg-gradient-to-r from-slate-50 to-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                         <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                             <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                             </svg>
-                             Sale Invoice Header Information
-                         </h2>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                            <div>
-                                <label for="party_search_input" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Party <span class="text-red-500">*</span>
-                                </label>
-                                <div class="searchable-select-container relative">
-                                    <input type="text" 
-                                           id="party_search_input" 
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 searchable-input bg-white @error('party_id') border-red-500 @enderror" 
-                                           placeholder="Search parties..."
-                                           autocomplete="off"
-                                           value="{{ old('party_search_input', $saleInvoice->party->name ?? '') }}">
-                                    <input type="hidden" name="party_id" id="party_id" class="selected-item-id" value="{{ old('party_id', $saleInvoice->party_id) }}">
-                                    
-                                    <!-- Dropdown -->
-                                    <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
-                                        <div class="search-results-container max-h-40 overflow-y-auto">
-                                            <!-- Results will be populated here -->
+            <div class="invoice-fs-root min-h-full pos-sale-layout ci-invoice-page px-2 py-2 sm:px-3 sm:py-2">
+            <div class="ci-white-box max-w-[1600px] mx-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end mb-1">
+                        <div class="lg:col-span-3">
+                            <h1 class="text-base font-bold text-gray-900 mb-0.5 tracking-tight">Edit sale invoice</h1>
+                            <p class="text-xs text-gray-500 mb-0.5">#{{ $saleInvoice->invoice_number ?? ('SI-' . $saleInvoice->id) }} · {{ $saleInvoice->status }}</p>
+                            <a href="{{ route('sale-invoices.show', $saleInvoice) }}" class="text-sm text-blue-600 hover:underline block">View invoice</a>
+                            <a href="{{ route('sale-invoices.index') }}" class="text-sm text-blue-600 hover:underline">← Back to list</a>
                                         </div>
-                                        <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
-                                            <div class="flex justify-between items-center text-xs">
-                                                <button type="button" class="prev-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Previous</button>
-                                                <span class="page-info text-gray-500 text-xs"></span>
-                                                <button type="button" class="next-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Next</button>
+                        <div class="lg:col-span-9 pos-quick-add">
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+                                <div class="sm:col-span-3">
+                                    <label for="pos_barcode" class="block text-sm font-semibold text-gray-800 mb-1">Barcode</label>
+                                    <input type="text" id="pos_barcode" autocomplete="off" placeholder="Barcode" class="ci-form-control">
                                             </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Loading indicator -->
-                                    <div class="loading-indicator hidden absolute right-2 top-1/2 transform -translate-y-1/2">
-                                        <svg class="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    </div>
+                                <div class="sm:col-span-3">
+                                    <label for="pos_item_type_id" class="block text-sm font-semibold text-gray-800 mb-1">Item type</label>
+                                    <select id="pos_item_type_id" class="ci-form-control" autocomplete="off" title="Filter item search by type">
+                                        <option value="">All types</option>
+                                        @foreach($itemTypes as $type)
+                                            <option value="{{ $type->id }}">{{ $type->item_type }}</option>
+                                    @endforeach
+                                </select>
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500" id="party_help_text">Required for credit sales, optional for cash sales</p>
-                                <div id="party_balance" class="mt-1 text-sm hidden">
-                                    <span class="font-medium">Balance:</span>
-                                    <span id="party_balance_amount" class="ml-1"></span>
-                                </div>
-                                @error('party_id')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
+                                <div class="sm:col-span-6 relative" id="pos_item_search_wrap">
+                                    <label for="pos_item_search" class="block text-sm font-semibold text-gray-800 mb-1">Item</label>
+                                    <input type="text" id="pos_item_search" autocomplete="off" placeholder="Search by name or code (2+ chars), then Enter" class="ci-form-control">
+                                    <div id="pos_item_search_dropdown" class="searchable-dropdown hidden absolute z-[60] left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg max-h-56 overflow-hidden">
+                                        <div id="pos_item_search_results" class="max-h-44 overflow-y-auto"></div>
+                                        <div id="pos_item_search_pager" class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-50">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <button type="button" id="pos_item_prev" class="text-blue-600 hover:text-blue-800 px-2 py-1">Previous</button>
+                                                <span id="pos_item_page_info" class="text-gray-500"></span>
+                                                <button type="button" id="pos_item_next" class="text-blue-600 hover:text-blue-800 px-2 py-1">Next</button>
                             </div>
+                            </div>
+                            </div>
+                                    <div id="pos_item_search_loading" class="hidden absolute right-3 top-9">
+                                        <svg class="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </div>
+                    </div>
+                                </div>
+                            @error('general_lines')
+                            <div id="sale_invoice_general_lines_error" class="mt-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                </div>
+                                
+                    <hr class="ci-hr">
 
-                            <div>
-                                <label for="sale_type" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Sale Type <span class="text-red-500">*</span>
-                                </label>
-                                <select name="sale_type" id="sale_type" required 
-                                     class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('sale_type') border-red-500 @enderror">
-                                    <option value="credit" {{ old('sale_type', $saleInvoice->sale_type) == 'credit' ? 'selected' : '' }}>Credit (Party)</option>
-                                    <option value="cash" {{ old('sale_type', $saleInvoice->sale_type) == 'cash' ? 'selected' : '' }}>Cash</option>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
+                        <div class="lg:col-span-9 ci-main-col order-2 lg:order-1">
+                            <div class="overflow-x-auto">
+                                <table class="ci-item-table" id="general_items_table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:3%"><input type="checkbox" id="check_all_lines" class="rounded border-gray-400 align-middle" title="Select all"></th>
+                                            <th style="width:22%">Item</th>
+                                            <th style="width:20%">Details</th>
+                                            <th style="width:12%">Rate</th>
+                                            <th style="width:12%">Quantity</th>
+                                            <th style="width:15%">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="general_items_container">
+                                    @foreach($saleInvoice->generalLines as $index => $line)
+                                        @php
+                                            $gi = $line->generalItem;
+                                            $avail = $gi->available_stock ?? 0;
+                                            $dParts = [];
+                                            if ($gi->item_code) { $dParts[] = 'Code: ' . $gi->item_code; }
+                                            if ($gi->itemType) { $dParts[] = $gi->itemType->item_type; }
+                                            $dParts[] = 'Stock: ' . $avail;
+                                            $detailsText = implode(' · ', $dParts);
+                                        @endphp
+                                        <tr class="general-item-row">
+                                            <td class="p-2 text-center align-middle">
+                                                <input type="checkbox" class="line-check rounded border-gray-400" title="Select line">
+                                            </td>
+                                            <td class="p-2 align-top">
+                                                <div class="line-item-name-wrap relative">
+                                                    <input type="text" readonly class="item-display-name ci-form-control bg-gray-50 font-medium" placeholder="Item" value="{{ $gi->item_name }}" autocomplete="off">
+                                                    <input type="hidden" name="general_lines[{{ $index }}][general_item_id]" class="line-item-id" value="{{ $line->general_item_id }}">
+                                                    <div class="item-info absolute text-xs text-gray-500 left-0 mt-1 z-10 bg-white px-1 rounded" style="top:100%;">Stock: <span class="font-medium">{{ $avail }}</span></div>
+                                                    <div class="general-item-error mt-1 text-xs text-red-600 hidden"></div>
+                                </div>
+                                            </td>
+                                            <td class="p-2 general-details-cell align-middle text-sm text-gray-600">{{ $detailsText }}</td>
+                                            <td class="p-2 align-middle">
+                                                <input type="number" name="general_lines[{{ $index }}][sale_price]" required step="0.01" min="0" class="ci-form-control general-sale-price" placeholder="0" value="{{ $line->sale_price }}">
+                                            </td>
+                                            <td class="p-2 align-middle">
+                                                <input type="number" name="general_lines[{{ $index }}][qty]" required step="1" min="1" class="ci-form-control general-qty" placeholder="0" value="{{ (float) $line->quantity == floor($line->quantity) ? (int) $line->quantity : $line->quantity }}">
+                                            </td>
+                                            <td class="p-2 align-middle">
+                                                <span class="text-sm font-semibold general-line-total text-gray-900">{{ number_format($line->quantity * $line->sale_price, 2) }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                                </div>
+                                
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 mt-3 items-center">
+                                <div class="sm:col-span-3">
+                                    <button type="button" id="delete_selected_lines" class="ci-btn-danger w-full sm:w-auto">− Delete</button>
+                                </div>
+                                </div>
+                                
+                            <div class="mt-2 space-y-2">
+                                <div class="grid grid-cols-12 gap-2 items-center">
+                                    <div class="col-span-12 sm:col-span-4 text-sm font-semibold text-gray-800">Sub total</div>
+                                    <div class="hidden sm:block sm:col-span-4"></div>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <span id="subtotal" class="ci-total-readonly">0.00</span>
+                                </div>
+                                </div>
+                                <div class="grid grid-cols-12 gap-2 items-end">
+                                    <div class="col-span-12 sm:col-span-6 md:col-span-4">
+                                        <label for="shipping_charges" class="block text-sm font-semibold text-gray-800 mb-1">Shipping charges</label>
+                                        <input type="number" name="shipping_charges" id="shipping_charges" value="{{ old('shipping_charges', $saleInvoice->shipping_charges) }}" step="1" min="0" class="ci-form-control @error('shipping_charges') border-red-500 @enderror">
+                                        @error('shipping_charges')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                </div>
+                                <div class="grid grid-cols-12 gap-2 items-center pt-1 border-t border-gray-200">
+                                    <div class="col-span-12 sm:col-span-4 text-sm font-bold text-gray-900">Total</div>
+                                    <div class="hidden sm:block sm:col-span-4"></div>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <span id="total_amount" class="ci-total-readonly text-lg">0.00</span>
+                                        <p class="text-xs text-gray-500 mt-0.5">Shipping: <span id="shipping_display" class="font-medium">+ 0</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                            <div class="mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-1.5">
+                                <button type="submit" class="ci-btn-primary" id="btn_update_invoice">Update invoice</button>
+                                <a href="{{ route('sale-invoices.show', $saleInvoice) }}" id="btn_cancel_edit" class="ci-btn-outline inline-block text-center no-underline leading-normal">Cancel</a>
+                                </div>
+                                </div>
+                                
+                        <aside class="lg:col-span-3 ci-sidebar order-1 lg:order-2">
+                            <div class="form-group">
+                                <label>Sale type</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" id="pos_sale_credit" class="pos-sale-type-btn">Credit</button>
+                                    <button type="button" id="pos_sale_cash" class="pos-sale-type-btn">Cash</button>
+                                </div>
+                                <select name="sale_type" id="sale_type" required class="sr-only @error('sale_type') border-red-500 @enderror">
+                                    <option value="cash" {{ old('sale_type', $saleInvoice->sale_type) === 'cash' ? 'selected' : '' }}>Cash</option>
+                                    <option value="credit" {{ old('sale_type', $saleInvoice->sale_type) === 'credit' ? 'selected' : '' }}>Credit (Party)</option>
                                 </select>
                                 @error('sale_type')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div id="bank_field" style="display: none;">
-                                <label for="bank_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Bank <span class="text-red-500">*</span>
-                                </label>
-                                <select name="bank_id" id="bank_id" 
-                                     class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('bank_id') border-red-500 @enderror">
-                                    <option value="">Select Bank</option>
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            <div class="form-group">
+                                <label for="invoice_date">Date <span class="text-red-600">*</span></label>
+                                <input type="date" name="invoice_date" id="invoice_date" value="{{ old('invoice_date', $saleInvoice->invoice_date->format('Y-m-d')) }}" required class="ci-form-control @error('invoice_date') border-red-500 @enderror">
+                                @error('invoice_date')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            <div id="bank_field" class="form-group">
+                                <label for="bank_id">Bank <span class="text-red-600">*</span></label>
+                                <select name="bank_id" id="bank_id" class="ci-form-control @error('bank_id') border-red-500 @enderror">
+                                    <option value="">Select bank</option>
                                     @foreach($banks as $bank)
-                                        <option value="{{ $bank->id }}" {{ old('bank_id', $saleInvoice->bank_id) == $bank->id ? 'selected' : '' }}>
+                                        <option value="{{ $bank->id }}" {{ (string) old('bank_id', $saleInvoice->bank_id) === (string) $bank->id ? 'selected' : '' }}>
                                             {{ $bank->chartOfAccount->name ?? $bank->account_name }}
                                         </option>
                                     @endforeach
@@ -502,329 +788,88 @@
                                     <span id="bank_balance_amount" class="ml-1"></span>
                                 </div>
                                 @error('bank_id')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="invoice_date" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Invoice Date <span class="text-red-500">*</span>
-                                </label>
-                                                                 <input type="date" name="invoice_date" id="invoice_date" value="{{ old('invoice_date', $saleInvoice->invoice_date->format('Y-m-d')) }}" 
-                                    required class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('invoice_date') border-red-500 @enderror">
-                                @error('invoice_date')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="shipping_charges" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Shipping Charges
-                                </label>
-                                                                 <input type="number" name="shipping_charges" id="shipping_charges" value="{{ old('shipping_charges', $saleInvoice->shipping_charges) }}" 
-                                       step="0.01" min="0" 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-green-500 focus:ring-green-500 @error('shipping_charges') border-red-500 @enderror">
-                                @error('shipping_charges')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            <div id="credit_party_block" class="form-group credit_block">
+                                <label for="party_search_input"><span id="party_field_label">Party</span></label>
+                                <div class="searchable-select-container relative">
+                                    <input type="text" id="party_search_input" class="ci-form-control searchable-input bg-white @error('party_id') border-red-500 @enderror" placeholder="Search parties..." autocomplete="off" value="{{ old('party_search_input', $saleInvoice->party->name ?? '') }}">
+                                    <input type="hidden" name="party_id" id="party_id" class="selected-item-id" value="{{ old('party_id', $saleInvoice->party_id) }}">
+                                    <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
+                                        <div class="search-results-container max-h-40 overflow-y-auto"></div>
+                                        <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <button type="button" class="prev-page text-green-600 hover:text-green-800 disabled:opacity-40 px-2 py-1 rounded">Previous</button>
+                                                <span class="page-info text-gray-500 text-xs"></span>
+                                                <button type="button" class="next-page text-green-600 hover:text-green-800 disabled:opacity-40 px-2 py-1 rounded">Next</button>
+                                </div>
+                                </div>
+                                </div>
+                                    <div class="loading-indicator hidden absolute right-2 top-1/2 transform -translate-y-1/2">
+                                        <svg class="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
                             </div>
                         </div>
+                                <p class="mt-1 text-xs text-gray-600" id="party_help_text">Required for credit sales</p>
+                                <div id="party_balance" class="mt-1 text-sm hidden">
+                                    <span class="font-medium">Balance:</span>
+                                    <span id="party_balance_amount" class="ml-1"></span>
                     </div>
-
-                    <!-- Customer Details Section (for Cash sales) -->
-                    <div id="customer_details_field" style="display: {{ $saleInvoice->sale_type === 'cash' ? 'block' : 'none' }};" class="mb-4">
-                        <div class="bg-gray-50 border rounded-lg p-4">
-                            <h3 class="text-sm font-medium text-gray-700 mb-3">Customer Details</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                                <div>
-                                    <label for="name_of_customer" class="block text-xs font-medium text-gray-600 mb-1">Customer Name</label>
-                                    <input type="text" name="name_of_customer" id="name_of_customer" value="{{ old('name_of_customer', $saleInvoice->name_of_customer) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('name_of_customer') border-red-500 @enderror">
-                                    @error('name_of_customer')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
+                                @error('party_id')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                                 </div>
-                                
-                                <div>
-                                    <label for="father_name" class="block text-xs font-medium text-gray-600 mb-1">Father Name</label>
-                                    <input type="text" name="father_name" id="father_name" value="{{ old('father_name', $saleInvoice->father_name) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('father_name') border-red-500 @enderror">
-                                    @error('father_name')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div>
-                                    <label for="contact" class="block text-xs font-medium text-gray-600 mb-1">Contact</label>
-                                    <input type="text" name="contact" id="contact" value="{{ old('contact', $saleInvoice->contact) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('contact') border-red-500 @enderror"
-                                           placeholder="03XX-XXXXXXX">
-                                    @error('contact')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div>
-                                    <label for="cnic" class="block text-xs font-medium text-gray-600 mb-1">CNIC</label>
-                                    <input type="text" name="cnic" id="cnic" value="{{ old('cnic', $saleInvoice->cnic) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('cnic') border-red-500 @enderror"
-                                           placeholder="12345-1234567-1" data-mask="00000-0000000-0">
-                                    @error('cnic')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_no" class="block text-xs font-medium text-gray-600 mb-1">Licence No</label>
-                                    <input type="text" name="licence_no" id="licence_no" value="{{ old('licence_no', $saleInvoice->licence_no) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_no') border-red-500 @enderror">
-                                    @error('licence_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_issue_date" class="block text-xs font-medium text-gray-600 mb-1">Issue Date</label>
-                                    <input type="date" name="licence_issue_date" id="licence_issue_date" value="{{ old('licence_issue_date', $saleInvoice->licence_issue_date?->format('Y-m-d')) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_issue_date') border-red-500 @enderror">
-                                    @error('licence_issue_date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_valid_upto" class="block text-xs font-medium text-gray-600 mb-1">Valid Upto</label>
-                                    <input type="date" name="licence_valid_upto" id="licence_valid_upto" value="{{ old('licence_valid_upto', $saleInvoice->licence_valid_upto?->format('Y-m-d')) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_valid_upto') border-red-500 @enderror">
-                                    @error('licence_valid_upto')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="licence_issued_by" class="block text-xs font-medium text-gray-600 mb-1">Issued By</label>
-                                    <input type="text" name="licence_issued_by" id="licence_issued_by" value="{{ old('licence_issued_by', $saleInvoice->licence_issued_by) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('licence_issued_by') border-red-500 @enderror">
-                                    @error('licence_issued_by')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="re_reg_no" class="block text-xs font-medium text-gray-600 mb-1">Re-Reg No</label>
-                                    <input type="text" name="re_reg_no" id="re_reg_no" value="{{ old('re_reg_no', $saleInvoice->re_reg_no) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('re_reg_no') border-red-500 @enderror">
-                                    @error('re_reg_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="dc" class="block text-xs font-medium text-gray-600 mb-1">DC</label>
-                                    <input type="text" name="dc" id="dc" value="{{ old('dc', $saleInvoice->dc) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('dc') border-red-500 @enderror">
-                                    @error('dc')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="Date" class="block text-xs font-medium text-gray-600 mb-1">Date</label>
-                                    <input type="date" name="Date" id="Date" value="{{ old('Date', $saleInvoice->Date?->format('Y-m-d')) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('Date') border-red-500 @enderror">
-                                    @error('Date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div class="md:col-span-2 lg:col-span-3">
-                                    <label for="address" class="block text-xs font-medium text-gray-600 mb-1">Address</label>
-                                    <textarea name="address" id="address" rows="1" 
-                                              class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('address') border-red-500 @enderror"
-                                              placeholder="Enter customer address">{{ old('address', $saleInvoice->address) }}</textarea>
-                                    @error('address')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Party Details Section (for Credit sales when party is selected) -->
-                    <div id="party_details_field" style="display: {{ $saleInvoice->sale_type == 'credit' && $saleInvoice->party_id ? 'block' : 'none' }};" class="mb-4">
-                        <div class="bg-gray-50 border rounded-lg p-4">
-                            <h3 class="text-sm font-medium text-gray-700 mb-3">Party Details</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                                <div>
-                                    <label for="party_name" class="block text-xs font-medium text-gray-600 mb-1">Party Name</label>
-                                    <input type="text" id="party_name" readonly 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600"
-                                           value="{{ $saleInvoice->party ? $saleInvoice->party->name : '' }}">
-                                </div>
-                                
-                                <div>
-                                    <label for="party_cnic" class="block text-xs font-medium text-gray-600 mb-1">Party CNIC</label>
-                                    <input type="text" id="party_cnic" readonly 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600"
-                                           value="{{ $saleInvoice->party ? $saleInvoice->party->cnic : '' }}">
-                                </div>
-                                
-                                <div>
-                                    <label for="party_contact" class="block text-xs font-medium text-gray-600 mb-1">Party Contact</label>
-                                    <input type="text" id="party_contact" readonly 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600"
-                                           value="{{ $saleInvoice->party ? $saleInvoice->party->phone_no : '' }}">
-                                </div>
-                                
-                                <div>
-                                    <label for="party_address" class="block text-xs font-medium text-gray-600 mb-1">Party Address</label>
-                                    <textarea id="party_address" rows="1" readonly 
-                                              class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-600">{{ $saleInvoice->party ? $saleInvoice->party->address : '' }}</textarea>
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_no" class="block text-xs font-medium text-gray-600 mb-1">Licence No</label>
-                                    <input type="text" name="party_license_no" id="party_license_no" value="{{ old('party_license_no', $saleInvoice->party_license_no) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_no') border-red-500 @enderror">
-                                    @error('party_license_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_issue_date" class="block text-xs font-medium text-gray-600 mb-1">Issue Date</label>
-                                    <input type="date" name="party_license_issue_date" id="party_license_issue_date" value="{{ old('party_license_issue_date', $saleInvoice->party_license_issue_date?->format('Y-m-d')) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_issue_date') border-red-500 @enderror">
-                                    @error('party_license_issue_date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_valid_upto" class="block text-xs font-medium text-gray-600 mb-1">Valid Upto</label>
-                                    <input type="date" name="party_license_valid_upto" id="party_license_valid_upto" value="{{ old('party_license_valid_upto', $saleInvoice->party_license_valid_upto?->format('Y-m-d')) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_valid_upto') border-red-500 @enderror">
-                                    @error('party_license_valid_upto')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_license_issued_by" class="block text-xs font-medium text-gray-600 mb-1">Issued By</label>
-                                    <input type="text" name="party_license_issued_by" id="party_license_issued_by" value="{{ old('party_license_issued_by', $saleInvoice->party_license_issued_by) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_license_issued_by') border-red-500 @enderror">
-                                    @error('party_license_issued_by')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_re_reg_no" class="block text-xs font-medium text-gray-600 mb-1">Re-Reg No</label>
-                                    <input type="text" name="party_re_reg_no" id="party_re_reg_no" value="{{ old('party_re_reg_no', $saleInvoice->party_re_reg_no) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_re_reg_no') border-red-500 @enderror">
-                                    @error('party_re_reg_no')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_dc" class="block text-xs font-medium text-gray-600 mb-1">DC</label>
-                                    <input type="text" name="party_dc" id="party_dc" value="{{ old('party_dc', $saleInvoice->party_dc) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_dc') border-red-500 @enderror">
-                                    @error('party_dc')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                
-                                <div style="display: none;">
-                                    <label for="party_dc_date" class="block text-xs font-medium text-gray-600 mb-1">DC Date</label>
-                                    <input type="date" name="party_dc_date" id="party_dc_date" value="{{ old('party_dc_date', $saleInvoice->party_dc_date?->format('Y-m-d')) }}" 
-                                           class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 @error('party_dc_date') border-red-500 @enderror">
-                                    @error('party_dc_date')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- General Items Section -->
-                    <div class="mb-6">
-                        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-                            <h2 class="text-lg font-semibold text-gray-900">General Items (FIFO batches)</h2>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <div class="flex items-center gap-2">
-                                    <label for="item_type_filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Type:</label>
-                                    <select id="item_type_filter" class="chosen-select px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 bg-white min-w-[160px]">
-                                        <option value="">All Item Types</option>
-                                        @foreach($itemTypes as $itemType)
-                                            <option value="{{ $itemType->id }}">{{ $itemType->item_type }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <button type="button" id="add_general_item" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                    </svg>
-                                    Add Line
-                                </button>
-                            </div>
+                        </aside>
                         </div>
                         
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200" id="general_items_table">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Price</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Line Total</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <table id="shortcut_keys">
+                        <thead>
+                            <tr>
+                                <th class="sk-f2" scope="col">F2</th>
+                                <th class="sk-f4" scope="col">F4</th>
+                                <th class="sk-f8" scope="col">F8</th>
+                                <th class="sk-f9" scope="col">F9</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200" id="general_items_container">
-                                    @foreach($saleInvoice->generalLines as $index => $line)
-                                        <tr class="general-item-row">
-                                            <td class="px-4 py-4 whitespace-nowrap">
-                                                <div class="searchable-select-container relative">
-                                                    <input type="text" 
-                                                           class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-purple-400 focus:ring-1 focus:ring-purple-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
-                                                           placeholder="Search general items..." 
-                                                           value="{{ $line->generalItem->item_name }}"
-                                                           readonly>
-                                                    <input type="hidden" name="general_lines[{{ $index }}][general_item_id]" class="selected-item-id" value="{{ $line->general_item_id }}">
-                                                    <!-- Error display for general item selection -->
-                                                    <div class="general-item-error mt-1 text-xs text-red-600 hidden"></div>
-                                                </div>
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap">
-                                                <input type="number" name="general_lines[{{ $index }}][qty]" required step="1" min="1" 
-                                                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-qty focus:border-purple-500 focus:ring-purple-500"
-                                                       placeholder="0" value="{{ round($line->quantity) }}">
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap">
-                                                <input type="number" name="general_lines[{{ $index }}][sale_price]" required step="0.01" min="0" 
-                                                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-sale-price focus:border-purple-500 focus:ring-purple-500"
-                                                       placeholder="0" value="{{ $line->sale_price }}">
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap">
-                                                <span class="text-sm font-medium text-gray-900 general-line-total">{{ number_format($line->quantity * $line->sale_price, 2) }}</span>
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                                <button type="button" class="text-red-600 hover:text-red-900 remove-general-item">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                </button>
-                                            </td>
+                        <tbody>
+                            <tr>
+                                <td>Cancel</td>
+                                <td>Update &amp; print</td>
+                                <td>Focus barcode</td>
+                                <td>Update invoice</td>
                                         </tr>
-                                    @endforeach
                                 </tbody>
                             </table>
+
+                    {{-- Persist customer / party licence fields without showing forms (matches create: party search only) --}}
+                    <div class="sr-only" aria-hidden="true">
+                        <input type="hidden" name="name_of_customer" value="{{ old('name_of_customer', $saleInvoice->name_of_customer) }}">
+                        <input type="hidden" name="father_name" value="{{ old('father_name', $saleInvoice->father_name) }}">
+                        <input type="hidden" name="contact" value="{{ old('contact', $saleInvoice->contact) }}">
+                        <input type="hidden" name="cnic" value="{{ old('cnic', $saleInvoice->cnic) }}">
+                        <input type="hidden" name="licence_no" value="{{ old('licence_no', $saleInvoice->licence_no) }}">
+                        <input type="hidden" name="licence_issue_date" value="{{ old('licence_issue_date', $saleInvoice->licence_issue_date?->format('Y-m-d')) }}">
+                        <input type="hidden" name="licence_valid_upto" value="{{ old('licence_valid_upto', $saleInvoice->licence_valid_upto?->format('Y-m-d')) }}">
+                        <input type="hidden" name="licence_issued_by" value="{{ old('licence_issued_by', $saleInvoice->licence_issued_by) }}">
+                        <input type="hidden" name="re_reg_no" value="{{ old('re_reg_no', $saleInvoice->re_reg_no) }}">
+                        <input type="hidden" name="dc" value="{{ old('dc', $saleInvoice->dc) }}">
+                        <input type="hidden" name="Date" value="{{ old('Date', $saleInvoice->Date?->format('Y-m-d')) }}">
+                        <input type="hidden" name="address" value="{{ old('address', $saleInvoice->address) }}">
+                        <input type="hidden" name="party_license_no" value="{{ old('party_license_no', $saleInvoice->party_license_no) }}">
+                        <input type="hidden" name="party_license_issue_date" value="{{ old('party_license_issue_date', $saleInvoice->party_license_issue_date?->format('Y-m-d')) }}">
+                        <input type="hidden" name="party_license_valid_upto" value="{{ old('party_license_valid_upto', $saleInvoice->party_license_valid_upto?->format('Y-m-d')) }}">
+                        <input type="hidden" name="party_license_issued_by" value="{{ old('party_license_issued_by', $saleInvoice->party_license_issued_by) }}">
+                        <input type="hidden" name="party_re_reg_no" value="{{ old('party_re_reg_no', $saleInvoice->party_re_reg_no) }}">
+                        <input type="hidden" name="party_dc" value="{{ old('party_dc', $saleInvoice->party_dc) }}">
+                        <input type="hidden" name="party_dc_date" value="{{ old('party_dc_date', $saleInvoice->party_dc_date?->format('Y-m-d')) }}">
+                    </div>
                         </div>
                     </div>
 
-                    <!-- Arms Section - Hidden: StoreBook is items-only -->
+                    <!-- Arms Section - Hidden: StoreBook is items-only (outside white box, still in form) -->
                     <div class="form-section" style="display: none;">
                         <div class="flex justify-between items-center mb-3">
                             <div>
@@ -878,109 +923,32 @@
                                     @endforeach
                                  </tbody>
                              </table>
-                         </div>
-                    </div>
-
-                    <!-- Total Summary -->
-                    <div class="bg-gray-50 rounded-lg p-3 mb-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <p class="text-sm text-gray-600">Subtotal: <span id="subtotal" class="font-medium">0.00</span></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Shipping: <span id="shipping_display" class="font-medium">+ 0.00</span></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Total Amount: <span id="total_amount" class="font-medium text-lg">0.00</span></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
-                        <a href="{{ route('sale-invoices.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                            </svg>
-                            Cancel
-                        </a>
-                        <button type="submit" name="action" value="save" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-                            </svg>
-                            Save Draft
-                        </button>
-                        <button type="submit" name="action" value="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Post Sale Invoice
-                        </button>
-                    </div>
                 </div>
             </div>
         </form>
-    </div>
 
     <!-- Templates for dynamic content -->
     <template id="general_item_template">
         <tr class="general-item-row">
-            <td class="px-4 py-4 whitespace-nowrap">
-                <div class="relative">
-                    <div class="searchable-select-container relative">
-                        <input type="text" 
-                               class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:border-green-400 focus:ring-1 focus:ring-green-400 focus:outline-none transition-all duration-200 searchable-input bg-white" 
-                               placeholder="Search items..."
-                               autocomplete="off"
-                               data-index="INDEX">
-                        <input type="hidden" name="general_lines[INDEX][general_item_id]" class="selected-item-id">
-                        
-                        <!-- Error display for general item selection -->
+            <td class="p-2 text-center align-middle">
+                <input type="checkbox" class="line-check rounded border-gray-400" title="Select line">
+            </td>
+            <td class="p-2 align-top">
+                <div class="line-item-name-wrap relative">
+                    <input type="text" readonly class="item-display-name ci-form-control bg-gray-50 font-medium" placeholder="Item" value="" autocomplete="off">
+                    <input type="hidden" name="general_lines[INDEX][general_item_id]" class="line-item-id" value="">
                         <div class="general-item-error mt-1 text-xs text-red-600 hidden"></div>
-                        
-                        <!-- Dropdown -->
-                        <div class="searchable-dropdown hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-hidden">
-                            <div class="search-results-container max-h-40 overflow-y-auto">
-                                <!-- Results will be populated here -->
-                            </div>
-                            <div class="pagination-container hidden border-t border-gray-100 p-2 bg-gray-25">
-                                <div class="flex justify-between items-center text-xs">
-                                    <button type="button" class="prev-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Previous</button>
-                                    <span class="page-info text-gray-500 text-xs"></span>
-                                    <button type="button" class="next-page text-green-500 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-green-50 transition-colors">Next</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Loading indicator -->
-                        <div class="loading-indicator hidden absolute right-2 top-1/2 transform -translate-y-1/2">
-                            <svg class="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </div>
-                    </div>
                 </div>
             </td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
-                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-qty focus:border-green-500 focus:ring-green-500"
-                       placeholder="0" value="1">
+            <td class="p-2 general-details-cell align-middle text-sm text-gray-600">—</td>
+            <td class="p-2 align-middle">
+                <input type="number" name="general_lines[INDEX][sale_price]" required step="0.01" min="0" class="ci-form-control general-sale-price" placeholder="0">
             </td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <input type="number" name="general_lines[INDEX][sale_price]" required step="0.01" min="0" 
-                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-sale-price focus:border-green-500 focus:ring-green-500"
-                       placeholder="0">
+            <td class="p-2 align-middle">
+                <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" class="ci-form-control general-qty" placeholder="0" value="1">
             </td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium general-line-total text-gray-900">0.00</span>
-            </td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <button type="button" class="remove-general-item text-red-600 hover:text-red-800 text-sm p-1 rounded hover:bg-red-50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                </button>
+            <td class="p-2 align-middle">
+                <span class="text-sm font-semibold general-line-total text-gray-900">0.00</span>
             </td>
         </tr>
     </template>
@@ -1101,26 +1069,49 @@
         if (!window.selectedGeneralItemIds || !Array.isArray(window.selectedGeneralItemIds)) {
             window.selectedGeneralItemIds = [];
         }
-        document.querySelectorAll('.general-item-row .selected-item-id').forEach(hiddenInput => {
-            if (hiddenInput.value && !window.selectedGeneralItemIds.includes(hiddenInput.value)) {
-                window.selectedGeneralItemIds.push(hiddenInput.value);
+        document.querySelectorAll('.general-item-row .line-item-id').forEach(hiddenInput => {
+            if (hiddenInput.value && !window.selectedGeneralItemIds.includes(String(hiddenInput.value))) {
+                window.selectedGeneralItemIds.push(String(hiddenInput.value));
             }
         });
         
         let generalItemIndex = {{ $saleInvoice->generalLines->count() }};
         let armIndex = {{ $saleInvoice->armLines->count() }};
 
-        // Sale type change handler
-        document.getElementById('sale_type').addEventListener('change', function() {
+        function updatePosSaleTypeButtons() {
+            const v = document.getElementById('sale_type').value;
+            const creditBtn = document.getElementById('pos_sale_credit');
+            const cashBtn = document.getElementById('pos_sale_cash');
+            if (!creditBtn || !cashBtn) return;
+            creditBtn.classList.toggle('is-active-credit', v === 'credit');
+            creditBtn.classList.remove('is-active-cash');
+            cashBtn.classList.toggle('is-active-cash', v === 'cash');
+            cashBtn.classList.remove('is-active-credit');
+        }
+
+        document.getElementById('pos_sale_credit')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const st = document.getElementById('sale_type');
+            st.value = 'credit';
+            st.dispatchEvent(new Event('change'));
+        });
+        document.getElementById('pos_sale_cash')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const st = document.getElementById('sale_type');
+            st.value = 'cash';
+            st.dispatchEvent(new Event('change'));
+        });
+
+        // Sale type change handler (same behavior as create.blade sidebar)
+        document.getElementById('sale_type').addEventListener('change', function(e) {
+            const skipDestructiveUpdates = e && e.detail && e.detail.init === true;
             const bankField = document.getElementById('bank_field');
             const bankSelect = document.getElementById('bank_id');
             const customerField = document.getElementById('party_id');
-            const customerLabel = document.querySelector('label[for="party_id"]');
+            const partyFieldLabel = document.getElementById('party_field_label');
             const customerHelpText = document.getElementById('party_help_text');
-            const customerDetailsField = document.getElementById('customer_details_field');
-            const partyDetailsField = document.getElementById('party_details_field');
+            const creditPartyBlock = document.getElementById('credit_party_block');
 
-            // Clear any existing party error when sale type changes
             const partyError = document.getElementById('party_error');
             if (partyError) {
                 partyError.remove();
@@ -1129,44 +1120,39 @@
             if (this.value === 'cash') {
                 bankField.style.display = 'block';
                 bankSelect.required = true;
-                customerDetailsField.style.display = 'block';
-                partyDetailsField.style.display = 'none';
-                
                 customerField.required = false;
-                customerLabel.innerHTML = 'Party';
-                customerHelpText.textContent = 'Optional for cash sales - you can leave this blank';
-                
-                // Clear party selection when switching to cash
-                customerField.value = '';
-                const partySearchInput = document.getElementById('party_search_input');
-                if (partySearchInput) {
-                    partySearchInput.value = '';
+                if (partyFieldLabel) {
+                    partyFieldLabel.textContent = 'Party';
                 }
-                // Hide party details section
-                partyDetailsField.style.display = 'none';
+                if (customerHelpText) {
+                    customerHelpText.textContent = 'Party is only used for credit sales.';
+                }
+                if (creditPartyBlock) {
+                    creditPartyBlock.style.display = 'none';
+                }
             } else {
                 bankField.style.display = 'none';
                 bankSelect.required = false;
+                if (!skipDestructiveUpdates) {
                 bankSelect.value = '';
-                customerDetailsField.style.display = 'none';
-                
+                    hideBankBalance();
+                }
                 customerField.required = true;
-                customerLabel.innerHTML = 'Party <span class="text-red-500">*</span>';
+                if (partyFieldLabel) {
+                    partyFieldLabel.textContent = 'Party *';
+                }
+                if (customerHelpText) {
                 customerHelpText.textContent = 'Required for credit sales';
-                
-                // Show party details if party is selected
-                if (customerField.value) {
-                    loadPartyDetails(customerField.value);
-                    partyDetailsField.style.display = 'block';
-                } else {
-                    partyDetailsField.style.display = 'none';
+                }
+                if (creditPartyBlock) {
+                    creditPartyBlock.style.display = 'block';
                 }
             }
+            updatePosSaleTypeButtons();
         });
 
-        // Party selection change handler
+        // Party selection change handler (same as create: balance only)
         document.getElementById('party_id').addEventListener('change', function() {
-            // Clear any existing party error when party is selected
             const partyError = document.getElementById('party_error');
             if (partyError) {
                 partyError.remove();
@@ -1174,18 +1160,8 @@
             
             if (this.value) {
                 fetchCustomerBalance(this.value);
-                
-                // If sale type is credit, show party details
-                const saleType = document.getElementById('sale_type').value;
-                if (saleType === 'credit') {
-                    loadPartyDetails(this.value);
-                    document.getElementById('party_details_field').style.display = 'block';
-                }
             } else {
                 hideCustomerBalance();
-                
-                // Hide party details if no party selected
-                document.getElementById('party_details_field').style.display = 'none';
             }
         });
 
@@ -1298,66 +1274,6 @@
             balanceDiv.classList.add('hidden');
         }
 
-        // Function to load party details
-        function loadPartyDetails(partyId) {
-            console.log(`Loading details for party ${partyId}`);
-            
-            // Add CSRF token to the request
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            fetch(`/api/parties/${partyId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', response.headers);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Party details data received:', data);
-                    console.log('Data type:', typeof data);
-                    console.log('Data keys:', Object.keys(data));
-                    
-                    // Check if elements exist
-                    const nameField = document.getElementById('party_name');
-                    const cnicField = document.getElementById('party_cnic');
-                    const contactField = document.getElementById('party_contact');
-                    const addressField = document.getElementById('party_address');
-                    
-                    console.log('Form fields found:', {
-                        nameField: !!nameField,
-                        cnicField: !!cnicField,
-                        contactField: !!contactField,
-                        addressField: !!addressField
-                    });
-                    
-                    // Populate party form fields
-                    if (nameField) nameField.value = data.name || '';
-                    if (cnicField) cnicField.value = data.cnic || '';
-                    if (contactField) contactField.value = data.phone_no || '';
-                    if (addressField) addressField.value = data.address || '';
-                    
-                    console.log('Fields populated with values:', {
-                        name: data.name,
-                        cnic: data.cnic,
-                        phone_no: data.phone_no,
-                        address: data.address
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading party details:', error);
-                    console.error('Error details:', error.message);
-                });
-        }
-
         // Function to hide bank balance
         function hideBankBalance() {
             const balanceDiv = document.getElementById('bank_balance');
@@ -1385,32 +1301,32 @@
             let stockErrors = [];
             
             generalItemRows.forEach((row, index) => {
-                const itemInput = row.querySelector('.searchable-input');
-                const selectedItemId = row.querySelector('.selected-item-id').value;
+                const nameEl = row.querySelector('.item-display-name');
+                const selectedItemId = row.querySelector('.line-item-id')?.value;
                 const quantityInput = row.querySelector('input[name*="[qty]"]');
                 const quantity = parseFloat(quantityInput?.value || 0);
-                
-                if (selectedItemId && itemInput && quantity > 0) {
-                    // Get available stock from the item data
+                const detailsCell = row.querySelector('.general-details-cell');
                     const stockInfo = row.querySelector('.item-info');
-                    if (stockInfo) {
-                        const stockText = stockInfo.textContent;
+                let stockText = '';
+                if (detailsCell && detailsCell.textContent) {
+                    stockText = detailsCell.textContent;
+                } else if (stockInfo) {
+                    stockText = stockInfo.textContent;
+                }
+                
+                if (selectedItemId && quantity > 0) {
                         const stockMatch = stockText.match(/Stock:\s*(\d+(?:\.\d+)?)/);
                         if (stockMatch) {
                             const availableStock = parseFloat(stockMatch[1]);
                             if (quantity > availableStock) {
                                 hasInsufficientStock = true;
-                                const itemName = itemInput.value;
+                            const itemName = nameEl ? (nameEl.value || nameEl.textContent || 'Item') : 'Item';
                                 stockErrors.push(`Line ${index + 1}: Insufficient stock for '${itemName}'. Available: ${availableStock}, Required: ${quantity}`);
-                                
-                                // Highlight the quantity field
                                 quantityInput.style.borderColor = '#ef4444';
                                 quantityInput.style.backgroundColor = '#fef2f2';
                             } else {
-                                // Reset styling if stock is sufficient
                                 quantityInput.style.borderColor = '';
                                 quantityInput.style.backgroundColor = '';
-                            }
                         }
                     }
                 }
@@ -1427,14 +1343,18 @@
         // Validate quantity for a specific row
         function validateQuantityForRow(quantityInput) {
             const row = quantityInput.closest('.general-item-row');
-            const itemInput = row.querySelector('.searchable-input');
-            const selectedItemId = row.querySelector('.selected-item-id').value;
+            const selectedItemId = row.querySelector('.line-item-id')?.value;
             const quantity = parseFloat(quantityInput.value || 0);
-            
-            if (selectedItemId && itemInput && quantity > 0) {
+            const detailsCell = row.querySelector('.general-details-cell');
                 const stockInfo = row.querySelector('.item-info');
-                if (stockInfo) {
-                    const stockText = stockInfo.textContent;
+            let stockText = '';
+            if (detailsCell && detailsCell.textContent) {
+                stockText = detailsCell.textContent;
+            } else if (stockInfo) {
+                stockText = stockInfo.textContent;
+            }
+            
+            if (selectedItemId && quantity > 0) {
                     const stockMatch = stockText.match(/Stock:\s*(\d+(?:\.\d+)?)/);
                     if (stockMatch) {
                         const availableStock = parseFloat(stockMatch[1]);
@@ -1452,13 +1372,11 @@
                             }
                             errorDiv.textContent = `Insufficient stock. Available: ${availableStock}`;
                         } else {
-                            // Reset styling and remove error message
                             quantityInput.style.borderColor = '';
                             quantityInput.style.backgroundColor = '';
                             const errorDiv = row.querySelector('.quantity-error');
                             if (errorDiv) {
                                 errorDiv.remove();
-                            }
                         }
                     }
                 }
@@ -1472,64 +1390,6 @@
                 }
             }
         }
-
-        // Add general item
-        document.getElementById('add_general_item').addEventListener('click', function() {
-            const container = document.getElementById('general_items_container');
-            const template = document.getElementById('general_item_template');
-            const clone = template.content.cloneNode(true);
-            
-            // Replace INDEX placeholder
-            clone.querySelectorAll('[name*="INDEX"]').forEach(element => {
-                element.name = element.name.replace('INDEX', generalItemIndex);
-            });
-            
-            container.appendChild(clone);
-            
-            // Add event listeners for the new row
-            const newRow = container.lastElementChild;
-            const searchableContainer = newRow.querySelector('.searchable-select-container');
-            const qtyInput = newRow.querySelector('input[name*="[qty]"]');
-            const salePriceInput = newRow.querySelector('input[name*="[sale_price]"]');
-            
-            // Initialize searchable dropdown for general items
-            if (searchableContainer) {
-                new GeneralItemSearchableDropdown(searchableContainer, {
-                    itemsPerPage: 15,
-                    debounceDelay: 300,
-                    minSearchLength: 2
-                });
-                searchableContainer.dataset.initialized = 'true';
-            }
-            
-            // Add input event listeners for calculations
-            [qtyInput, salePriceInput].forEach(input => {
-                input.addEventListener('input', function() {
-                    calculateLineTotal(this);
-                    calculateTotals();
-                });
-            });
-            
-            // Add quantity validation for stock checking
-            if (qtyInput) {
-                qtyInput.addEventListener('input', function() {
-                    validateQuantityForRow(this);
-                });
-            }
-            
-            generalItemIndex++;
-        });
-
-        // Item type filter change - refresh any open general item dropdowns
-        document.getElementById('item_type_filter').addEventListener('change', function() {
-            document.querySelectorAll('.general-item-row').forEach(row => {
-                const input = row.querySelector('.searchable-input');
-                const dropdown = row.querySelector('.searchable-dropdown');
-                if (input && dropdown && !dropdown.classList.contains('hidden')) {
-                    input.dispatchEvent(new Event('focus'));
-                }
-            });
-        });
 
         // Add arm
         document.getElementById('add_arm').addEventListener('click', function() {
@@ -1567,21 +1427,8 @@
             armIndex++;
         });
 
-        // Remove buttons
+        // Remove arm rows (general lines use bulk delete + POS add)
         document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-general-item') || e.target.closest('.remove-general-item')) {
-                const generalItemRow = e.target.closest('.general-item-row');
-                const selectedGeneralItemId = generalItemRow.querySelector('.selected-item-id')?.value;
-                
-                // Remove general item ID from global array if it exists
-                if (selectedGeneralItemId && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds) && window.selectedGeneralItemIds.includes(selectedGeneralItemId)) {
-                    window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(id => id !== selectedGeneralItemId);
-                }
-                
-                generalItemRow.remove();
-                calculateTotals();
-            }
-            
             if (e.target.classList.contains('remove-arm') || e.target.closest('.remove-arm')) {
                 const armRow = e.target.closest('.arm-row');
                 const selectedArmId = armRow.querySelector('.selected-arm-id')?.value;
@@ -1598,6 +1445,13 @@
 
         // Form validation
         document.getElementById('saleInvoiceForm').addEventListener('submit', function(e) {
+            const printAfterEl = document.getElementById('print_after_update');
+            const wantPrintAfterUpdate = !!window.__saleInvoicePrintAfterUpdate;
+            window.__saleInvoicePrintAfterUpdate = false;
+            if (printAfterEl) {
+                printAfterEl.value = wantPrintAfterUpdate ? '1' : '0';
+            }
+
             // Validate party selection for credit sales
             const saleType = document.getElementById('sale_type').value;
             const partyId = document.getElementById('party_id').value;
@@ -1641,7 +1495,7 @@
             // Validate general items
             const generalItemRows = document.querySelectorAll('.general-item-row');
             generalItemRows.forEach((row, index) => {
-                const selectedItemId = row.querySelector('.selected-item-id').value;
+                const selectedItemId = row.querySelector('.line-item-id')?.value;
                 if (!selectedItemId || selectedItemId === '') {
                     showGeneralItemError(row, 'Please select a general item.');
                     hasErrors = true;
@@ -1675,8 +1529,10 @@
                 error.textContent = '';
             });
             
-            // Remove red borders
-            document.querySelectorAll('.searchable-input').forEach(input => {
+            document.querySelectorAll('.general-item-row .item-display-name').forEach(input => {
+                input.classList.remove('border-red-500');
+            });
+            document.querySelectorAll('.arm-row .searchable-input').forEach(input => {
                 input.classList.remove('border-red-500');
             });
         }
@@ -1684,7 +1540,7 @@
         // Function to show general item error
         function showGeneralItemError(row, message) {
             const errorDiv = row.querySelector('.general-item-error');
-            const input = row.querySelector('.searchable-input');
+            const input = row.querySelector('.item-display-name');
             
             if (errorDiv) {
                 errorDiv.textContent = message;
@@ -1710,6 +1566,10 @@
                 input.classList.add('border-red-500');
             }
         }
+
+        window.clearValidationErrors = clearValidationErrors;
+        window.showGeneralItemError = showGeneralItemError;
+        window.showArmError = showArmError;
 
         // Calculation functions
         function calculateLineTotal(element) {
@@ -1750,37 +1610,67 @@
             document.getElementById('total_amount').textContent = total.toFixed(2);
         }
 
-        // General Item Searchable Dropdown
-        class GeneralItemSearchableDropdown {
-            constructor(container, options = {}) {
-                this.container = container;
-                this.input = container.querySelector('.searchable-input');
-                this.hiddenInput = container.querySelector('.selected-item-id');
-                this.dropdown = container.querySelector('.searchable-dropdown');
-                this.resultsContainer = container.querySelector('.search-results-container');
-                this.paginationContainer = container.querySelector('.pagination-container');
-                this.loadingIndicator = container.querySelector('.loading-indicator');
-                
+        function setGeneralLineDetailsCell(row, item) {
+            const cell = row.querySelector('.general-details-cell');
+            if (!cell) return;
+            const parts = [];
+            if (item.item_code) {
+                parts.push('Code: ' + item.item_code);
+            }
+            const typeName = (item.item_type && item.item_type.item_type) ? item.item_type.item_type : (item.item_type_name || '');
+            if (typeName) {
+                parts.push(typeName);
+            }
+            const st = item.available_stock;
+            if (st !== undefined && st !== null && st !== '') {
+                parts.push('Stock: ' + st);
+            }
+            cell.textContent = parts.length ? parts.join(' · ') : '—';
+        }
+
+        class PosTopItemSearch {
+            constructor() {
+                this.wrap = document.getElementById('pos_item_search_wrap');
+                this.input = document.getElementById('pos_item_search');
+                this.itemTypeSelect = document.getElementById('pos_item_type_id');
+                this.dropdown = document.getElementById('pos_item_search_dropdown');
+                this.resultsContainer = document.getElementById('pos_item_search_results');
+                this.paginationContainer = document.getElementById('pos_item_search_pager');
+                this.loadingIndicator = document.getElementById('pos_item_search_loading');
+                this.pageInfo = document.getElementById('pos_item_page_info');
+                this.prevBtn = document.getElementById('pos_item_prev');
+                this.nextBtn = document.getElementById('pos_item_next');
                 this.searchTimeout = null;
                 this.currentPage = 1;
                 this.searchTerm = '';
-                this.selectedItem = null;
-                
-                this.itemsPerPage = options.itemsPerPage || 10;
-                this.debounceDelay = options.debounceDelay || 300;
-                this.minSearchLength = options.minSearchLength || 2;
-                
+                this.itemsPerPage = 15;
+                this.debounceDelay = 300;
+                this.minSearchLength = 2;
                 this.init();
             }
 
             getSelectedItemTypeId() {
-                const filter = document.getElementById('item_type_filter');
-                return filter ? filter.value : '';
+                if (!this.itemTypeSelect) {
+                    return null;
+                }
+                const v = (this.itemTypeSelect.value || '').trim();
+                return v !== '' ? v : null;
+            }
+
+            appendItemTypeToUrl(url) {
+                const tid = this.getSelectedItemTypeId();
+                if (tid) {
+                    url.searchParams.set('item_type_id', tid);
+                }
             }
             
             init() {
                 this.bindEvents();
-                this.setupGlobalClickHandler();
+                document.addEventListener('click', (e) => {
+                    if (this.wrap && !this.wrap.contains(e.target)) {
+                        this.hideDropdown();
+                    }
+                });
             }
             
             bindEvents() {
@@ -1788,24 +1678,16 @@
                     this.showDropdown();
                     this.performSearch();
                 });
-                
                 this.input.addEventListener('input', (e) => {
                     this.searchTerm = e.target.value;
                     this.currentPage = 1;
-                    this.showDropdown(); // Ensure dropdown is visible when typing
-                    
-                    // Clear selection if input becomes empty
-                    if (!this.searchTerm.trim() && this.selectedItem) {
-                        this.clearSelection();
-                    }
-                    
+                    this.showDropdown();
                     this.debounceSearch();
                 });
-                
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.selectHighlightedResult();
+                        this.commitSelection();
             } else if (e.key === 'Escape') {
                 this.hideDropdown();
             } else if (e.key === 'ArrowDown') {
@@ -1816,41 +1698,38 @@
                 this.navigateResults('up');
             }
         });
-            }
-            
-            setupGlobalClickHandler() {
-                document.addEventListener('click', (e) => {
-                    if (!this.container.contains(e.target)) {
-                        this.hideDropdown();
-                    }
-                });
+                if (this.itemTypeSelect) {
+                    this.itemTypeSelect.addEventListener('change', () => {
+                        this.currentPage = 1;
+                        if (this.dropdown.classList.contains('hidden')) {
+                            return;
+                        }
+                        if (this.searchTerm.length >= this.minSearchLength) {
+                            this.performSearch();
+                        } else {
+                            this.showInitialResults();
+                        }
+                    });
+                }
             }
             
             debounceSearch() {
                 clearTimeout(this.searchTimeout);
-                this.searchTimeout = setTimeout(() => {
-                    this.performSearch();
-                }, this.debounceDelay);
+                this.searchTimeout = setTimeout(() => this.performSearch(), this.debounceDelay);
             }
             
             async performSearch() {
                 if (this.searchTerm.length < this.minSearchLength) {
-                    this.showInitialResults();
+                    await this.showInitialResults();
                     return;
                 }
-                
                 this.showLoading();
-                
                 try {
                     const url = new URL('/api/general-items/search', window.location.origin);
                     url.searchParams.set('q', this.searchTerm);
                     url.searchParams.set('page', this.currentPage);
                     url.searchParams.set('limit', this.itemsPerPage);
-                    const itemTypeId = this.getSelectedItemTypeId();
-                    if (itemTypeId) {
-                        url.searchParams.set('item_type_id', itemTypeId);
-                    }
-                    
+                    this.appendItemTypeToUrl(url);
                     const response = await fetch(url.toString(), {
                         method: 'GET',
                         headers: {
@@ -1860,25 +1739,21 @@
                         },
                         credentials: 'same-origin'
                     });
-                    
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
                     const data = await response.json();
-                    
                     if (data.error) {
                         throw new Error(data.message || data.error);
                     }
-                    
                     if (!Array.isArray(data.data)) {
-                        throw new Error('Invalid data format received from search API');
+                        throw new Error('Invalid search response');
                     }
-                    
                     this.displayResults(data.data || [], data.meta || {});
-                } catch (error) {
-                    console.error('Search error:', error);
-                    this.showError(`Search failed: ${error.message}`);
+                } catch (err) {
+                    console.error(err);
+                    this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-red-500 text-center">' + err.message + '</div>';
+                    this.paginationContainer.classList.add('hidden');
                 } finally {
                     this.hideLoading();
                 }
@@ -1886,16 +1761,11 @@
             
             async showInitialResults() {
                 this.showLoading();
-                
                 try {
                     const url = new URL('/api/general-items', window.location.origin);
                     url.searchParams.set('page', this.currentPage);
                     url.searchParams.set('limit', this.itemsPerPage);
-                    const itemTypeId = this.getSelectedItemTypeId();
-                    if (itemTypeId) {
-                        url.searchParams.set('item_type_id', itemTypeId);
-                    }
-                    
+                    this.appendItemTypeToUrl(url);
                     const response = await fetch(url.toString(), {
                         method: 'GET',
                         headers: {
@@ -1905,25 +1775,18 @@
                         },
                         credentials: 'same-origin'
                     });
-                    
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
                     const data = await response.json();
-                    
-                    if (data.error) {
-                        throw new Error(data.message || data.error);
-                    }
-                    
                     if (!Array.isArray(data.data)) {
-                        throw new Error('Invalid data format received from API');
+                        throw new Error('Invalid list response');
                     }
-                    
                     this.displayResults(data.data || [], data.meta || {});
-                } catch (error) {
-                    console.error('Initial load error:', error);
-                    this.showError(`Failed to load items: ${error.message}`);
+                } catch (err) {
+                    console.error(err);
+                    this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-red-500 text-center">' + err.message + '</div>';
+                    this.paginationContainer.classList.add('hidden');
                 } finally {
                     this.hideLoading();
                 }
@@ -1931,185 +1794,98 @@
             
             displayResults(items, meta) {
                 this.resultsContainer.innerHTML = '';
-                
-                if (!items || !Array.isArray(items) || items.length === 0) {
-                    this.resultsContainer.innerHTML = `
-                        <div class="px-4 py-3 text-sm text-gray-500 text-center">
-                            ${this.searchTerm ? 'No items found matching your search.' : 'No items available.'}
-                        </div>
-                    `;
+                if (!items || !items.length) {
+                    this.resultsContainer.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">No items found.</div>';
                     this.paginationContainer.classList.add('hidden');
                     return;
                 }
-                
-                items.forEach((item, index) => {
-                    if (!item || !item.id || !item.item_name) {
+                items.forEach((item) => {
+                    if (!item || !item.id) {
                         return;
                     }
-                    
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
-                    resultItem.dataset.itemId = item.id;
-                    resultItem.dataset.itemName = item.item_name;
-                    resultItem.dataset.salePrice = this.safeNumber(item.sale_price);
-                    resultItem.dataset.availableStock = this.safeNumber(item.available_stock);
-                    resultItem.dataset.itemCode = item.item_code || '';
-                    
-                    resultItem.innerHTML = `
-                        <div class="font-medium text-gray-900">${item.item_name}</div>
-                        ${item.item_code ? `<div class="text-xs text-gray-400">${item.item_code}</div>` : ''}
-                    `;
-                    
-                    resultItem.addEventListener('click', () => {
-                        this.selectItem(item);
+                    const el = document.createElement('div');
+                    el.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer pos-top-result';
+                    el.dataset.itemId = item.id;
+                    el.dataset.itemName = item.item_name || '';
+                    el.dataset.salePrice = this.safeNumber(item.sale_price);
+                    el.dataset.availableStock = this.safeNumber(item.available_stock);
+                    el.dataset.itemCode = item.item_code || '';
+                    const tn = (item.item_type && item.item_type.item_type) ? item.item_type.item_type : '';
+                    el.dataset.itemTypeName = tn;
+                    el.innerHTML = '<div class="font-medium text-gray-900">' + item.item_name + '</div>' +
+                        (item.item_code ? '<div class="text-xs text-gray-400">' + item.item_code + '</div>' : '') +
+                        (tn ? '<div class="text-xs text-gray-500">' + tn + '</div>' : '');
+                    el.addEventListener('mousedown', (ev) => {
+                        ev.preventDefault();
+                        this.pickItemFromDataset(el);
                     });
-                    
-                    this.resultsContainer.appendChild(resultItem);
+                    this.resultsContainer.appendChild(el);
                 });
-                
                 if (meta && meta.last_page > 1) {
-                    this.showPagination(meta);
-                } else {
-                    this.paginationContainer.classList.add('hidden');
-                }
-            }
-            
-            showPagination(meta) {
                 this.paginationContainer.classList.remove('hidden');
-                
-                const pageInfo = this.paginationContainer.querySelector('.page-info');
-                const prevBtn = this.paginationContainer.querySelector('.prev-page');
-                const nextBtn = this.paginationContainer.querySelector('.next-page');
-                
-                pageInfo.textContent = `Page ${meta.current_page} of ${meta.last_page}`;
-                
-                prevBtn.disabled = meta.current_page <= 1;
-                nextBtn.disabled = meta.current_page >= meta.last_page;
-                
-                prevBtn.onclick = () => {
+                    this.pageInfo.textContent = 'Page ' + meta.current_page + ' of ' + meta.last_page;
+                    this.prevBtn.disabled = meta.current_page <= 1;
+                    this.nextBtn.disabled = meta.current_page >= meta.last_page;
+                    this.prevBtn.onclick = () => {
                     if (meta.current_page > 1) {
                         this.currentPage = meta.current_page - 1;
                         this.performSearch();
                     }
                 };
-                
-                nextBtn.onclick = () => {
+                    this.nextBtn.onclick = () => {
                     if (meta.current_page < meta.last_page) {
                         this.currentPage = meta.current_page + 1;
                         this.performSearch();
                     }
                 };
+                } else {
+                    this.paginationContainer.classList.add('hidden');
+                }
             }
-            
-            selectItem(item) {
-                this.selectedItem = item;
-                this.input.value = item.item_name;
-                this.hiddenInput.value = item.id;
-                
-                // Add selected general item ID to global array to exclude from other dropdowns
-                if (!window.selectedGeneralItemIds || !Array.isArray(window.selectedGeneralItemIds)) {
-                    window.selectedGeneralItemIds = [];
-                }
-                if (!window.selectedGeneralItemIds.includes(item.id)) {
-                    window.selectedGeneralItemIds.push(item.id);
-                }
-                
-                // Show available stock and stock warning if needed
-                const availableStock = item.available_stock || 0;
-                const row = this.container.closest('.general-item-row');
-                
-                // Remove any existing stock warning and info
-                const existingWarning = row.querySelector('.stock-warning');
-                const existingInfo = row.querySelector('.item-info');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-                if (existingInfo) {
-                    existingInfo.remove();
-                }
-                
-                // Add item info (available stock) - positioned absolutely to not affect layout
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'item-info absolute text-xs text-gray-500 top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                infoDiv.innerHTML = `
-                    <span>Stock: <span class="font-medium">${availableStock}</span></span>
-                `;
-                this.container.style.position = 'relative';
-                this.container.appendChild(infoDiv);
-                
-                // Add stock warning if stock is low or zero - positioned absolutely
-                if (availableStock <= 0) {
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'stock-warning absolute text-red-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                    warningDiv.textContent = '⚠️ No stock!';
-                    this.container.appendChild(warningDiv);
-                } else if (availableStock <= 5) {
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'stock-warning absolute text-orange-600 text-xs font-medium top-full left-0 mt-1 z-10 bg-white px-1 rounded';
-                    warningDiv.textContent = `⚠️ Low: ${availableStock}`;
-                    this.container.appendChild(warningDiv);
-                }
-                
-                // Populate sale price
-                const salePriceInput = row.querySelector('.general-sale-price');
-                
-                if (salePriceInput) {
-                    salePriceInput.value = item.sale_price ? item.sale_price : '';
-                }
-                
-                // Trigger calculation
-                if (salePriceInput) {
-                    calculateLineTotal(salePriceInput);
-                    calculateTotals();
-                }
-                
+
+            pickItemFromDataset(el) {
+                    const item = {
+                    id: el.dataset.itemId,
+                    item_name: el.dataset.itemName,
+                    item_code: el.dataset.itemCode,
+                    sale_price: this.safeNumber(el.dataset.salePrice),
+                    available_stock: this.safeNumber(el.dataset.availableStock),
+                    item_type: el.dataset.itemTypeName ? { item_type: el.dataset.itemTypeName } : null
+                };
+                window.addOrBumpItemLine(item);
+                this.input.value = '';
                 this.hideDropdown();
             }
-            
-            selectFirstResult() {
-                const firstResult = this.resultsContainer.querySelector('.result-item');
-                if (firstResult) {
-                    const item = {
-                        id: firstResult.dataset.itemId,
-                        item_name: firstResult.dataset.itemName,
-                        sale_price: this.safeNumber(firstResult.dataset.salePrice),
-                        available_stock: this.safeNumber(firstResult.dataset.availableStock)
-                    };
-                    this.selectItem(item);
+
+            commitSelection() {
+                const hi = this.resultsContainer.querySelector('.pos-top-result.selected');
+                if (hi) {
+                    this.pickItemFromDataset(hi);
+                    return;
                 }
-            }
-            
-            selectHighlightedResult() {
-                const highlightedResult = this.resultsContainer.querySelector('.result-item.selected');
-                if (highlightedResult) {
-                    const item = {
-                        id: highlightedResult.dataset.itemId,
-                        item_name: highlightedResult.dataset.itemName,
-                        sale_price: this.safeNumber(highlightedResult.dataset.salePrice),
-                        available_stock: this.safeNumber(highlightedResult.dataset.availableStock)
-                    };
-                    this.selectItem(item);
-                } else {
-                    // Fallback to first result if no item is highlighted
-                    this.selectFirstResult();
+                const first = this.resultsContainer.querySelector('.pos-top-result');
+                if (first) {
+                    this.pickItemFromDataset(first);
+                    return;
                 }
+                alert('No item to add. Type at least 2 characters and choose from the list.');
             }
             
             navigateResults(direction) {
-                const results = this.resultsContainer.querySelectorAll('.result-item');
-                const currentIndex = Array.from(results).findIndex(item => item.classList.contains('selected'));
-                
+                const results = this.resultsContainer.querySelectorAll('.pos-top-result');
+                if (!results.length) {
+                    return;
+                }
+                const currentIndex = Array.from(results).findIndex((item) => item.classList.contains('selected'));
                 let newIndex;
                 if (direction === 'down') {
                     newIndex = currentIndex < results.length - 1 ? currentIndex + 1 : 0;
                 } else {
                     newIndex = currentIndex > 0 ? currentIndex - 1 : results.length - 1;
                 }
-                
-                results.forEach(item => item.classList.remove('selected', 'bg-green-100'));
-                
+                results.forEach((item) => item.classList.remove('selected', 'bg-emerald-50'));
                 if (results[newIndex]) {
-                    results[newIndex].classList.add('selected', 'bg-green-100');
+                    results[newIndex].classList.add('selected', 'bg-emerald-50');
                     results[newIndex].scrollIntoView({ block: 'nearest' });
                 }
             }
@@ -2123,77 +1899,233 @@
             }
             
             showLoading() {
+                if (this.loadingIndicator) {
                 this.loadingIndicator.classList.remove('hidden');
+                }
             }
             
             hideLoading() {
+                if (this.loadingIndicator) {
                 this.loadingIndicator.classList.add('hidden');
+                }
             }
             
             safeNumber(value) {
                 if (value === null || value === undefined || value === '') {
                     return 0;
                 }
-                
-                const num = parseFloat(value);
-                return isNaN(num) ? 0 : num;
-            }
-            
-            showError(message) {
-                this.resultsContainer.innerHTML = `
-                    <div class="px-4 py-3 text-sm text-red-500 text-center">
-                        <div class="font-medium">Error Loading Items</div>
-                        <div class="mt-1">${message}</div>
-                        <div class="mt-2 text-xs text-gray-500">
-                            Please check your browser console for more details.
-                        </div>
-                    </div>
-                `;
-            }
-            
-            clearSelection() {
-                // Remove the previously selected general item ID from global array
-                if (this.selectedItem && this.selectedItem.id && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds)) {
-                    window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(id => id !== this.selectedItem.id);
-                }
-                
-                // Clear the current selection
-                this.selectedItem = null;
-                this.input.value = '';
-                this.hiddenInput.value = '';
-                
-                // Clear sale price and qty
-                const row = this.container.closest('.general-item-row');
-                const salePriceInput = row.querySelector('.general-sale-price');
-                const qtyInput = row.querySelector('.general-qty');
-                
-                if (salePriceInput) {
-                    salePriceInput.value = '';
-                }
-                if (qtyInput) {
-                    qtyInput.value = '1';
-                }
-                
-                // Remove any stock warnings and item info
-                const existingWarning = row.querySelector('.stock-warning');
-                const existingInfo = row.querySelector('.item-info');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-                if (existingInfo) {
-                    existingInfo.remove();
-                }
-                
-                // Trigger calculation
-                calculateTotals();
+                const n = parseFloat(value);
+                return isNaN(n) ? 0 : n;
             }
         }
 
-        // Global array to track selected arm IDs
-        window.selectedArmIds = window.selectedArmIds || [];
+        function findGeneralRowByItemId(itemId) {
+            const sid = String(itemId);
+            const rows = document.querySelectorAll('.general-item-row');
+            for (let i = 0; i < rows.length; i++) {
+                const hid = rows[i].querySelector('.line-item-id');
+                if (hid && String(hid.value) === sid) {
+                    return rows[i];
+                }
+            }
+            return null;
+        }
 
-        // Global array to track selected general item IDs
-        window.selectedGeneralItemIds = window.selectedGeneralItemIds || [];
+        function attachGeneralRowListeners(row) {
+            const qtyInput = row.querySelector('.general-qty');
+            const salePriceInput = row.querySelector('.general-sale-price');
+            [qtyInput, salePriceInput].forEach((input) => {
+                if (!input) {
+                    return;
+                }
+                input.addEventListener('input', function() {
+                    calculateLineTotal(this);
+                    calculateTotals();
+                });
+            });
+            if (qtyInput) {
+                qtyInput.addEventListener('input', function() {
+                    validateQuantityForRow(this);
+                });
+            }
+        }
+
+        function appendStaticGeneralRow() {
+            const container = document.getElementById('general_items_container');
+            const template = document.getElementById('general_item_template');
+            const clone = template.content.cloneNode(true);
+            clone.querySelectorAll('[name*="INDEX"]').forEach((element) => {
+                element.name = element.name.replace('INDEX', generalItemIndex);
+            });
+            container.appendChild(clone);
+            const newRow = container.lastElementChild;
+            attachGeneralRowListeners(newRow);
+            generalItemIndex++;
+            return newRow;
+        }
+
+        function fillStaticGeneralRow(row, item) {
+            if (!row || !item || !item.id) {
+                return;
+            }
+            const hidden = row.querySelector('.line-item-id');
+            const nameEl = row.querySelector('.item-display-name');
+            if (hidden) {
+                hidden.value = item.id;
+            }
+            if (nameEl) {
+                nameEl.value = item.item_name || '';
+            }
+                const salePriceInput = row.querySelector('.general-sale-price');
+                if (salePriceInput) {
+                salePriceInput.value = item.sale_price != null && item.sale_price !== '' ? item.sale_price : '';
+            }
+            setGeneralLineDetailsCell(row, item);
+            const availableStock = item.available_stock ?? 0;
+            row.querySelectorAll('.stock-warning, .item-info').forEach((n) => n.remove());
+            const wrap = row.querySelector('.line-item-name-wrap');
+            if (wrap) {
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'item-info mt-1 text-xs leading-snug';
+                if (availableStock <= 0) {
+                    infoDiv.className += ' text-red-600 font-medium';
+                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — No stock</span>';
+                } else if (availableStock <= 5) {
+                    infoDiv.className += ' text-orange-700 font-medium';
+                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — Low stock</span>';
+                } else {
+                    infoDiv.className += ' text-gray-600';
+                    infoDiv.innerHTML = '<span>Stock: <span class="font-medium">' + availableStock + '</span></span>';
+                }
+                wrap.appendChild(infoDiv);
+            }
+            if (salePriceInput) {
+                calculateLineTotal(salePriceInput);
+                calculateTotals();
+            }
+            const qtyInput = row.querySelector('.general-qty');
+                if (qtyInput) {
+                validateQuantityForRow(qtyInput);
+            }
+        }
+
+        window.addOrBumpItemLine = function(item) {
+            if (!item || !item.id) {
+                return;
+            }
+            const existing = findGeneralRowByItemId(item.id);
+            if (existing) {
+                const qtyInput = existing.querySelector('.general-qty');
+                const q = (parseFloat(qtyInput.value) || 0) + 1;
+                qtyInput.value = q;
+                calculateLineTotal(qtyInput);
+                calculateTotals();
+                validateQuantityForRow(qtyInput);
+                document.getElementById('pos_barcode')?.focus();
+                return;
+            }
+            const row = appendStaticGeneralRow();
+            fillStaticGeneralRow(row, item);
+            const rate = row.querySelector('.general-sale-price');
+            if (rate) {
+                rate.focus();
+                rate.select();
+            }
+        };
+
+        window._saleInvoiceAppendStaticRow = appendStaticGeneralRow;
+        window._saleInvoiceFillStaticRow = fillStaticGeneralRow;
+        window._saleInvoiceResetGeneralItemIndexForRestore = function() {
+            generalItemIndex = 0;
+        };
+
+        document.getElementById('pos_barcode')?.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') {
+                return;
+            }
+            e.preventDefault();
+            const raw = (this.value || '').trim();
+            if (!raw) {
+                return;
+            }
+            const map = window.__POS_ITEM_BY_CODE || {};
+            const item = map[raw.toLowerCase()];
+            if (!item) {
+                alert('No item matches this code.');
+                return;
+            }
+            const typeSel = document.getElementById('pos_item_type_id');
+            const selectedType = typeSel && typeSel.value ? String(typeSel.value) : '';
+            if (selectedType && String(item.item_type_id ?? '') !== selectedType) {
+                alert('This code does not match the selected item type. Change item type to "All types" or pick another item.');
+                return;
+            }
+            window.addOrBumpItemLine(item);
+            this.value = '';
+            this.focus();
+        });
+
+        document.getElementById('check_all_lines')?.addEventListener('change', function() {
+            document.querySelectorAll('.general-item-row .line-check').forEach(cb => {
+                cb.checked = this.checked;
+            });
+        });
+
+        document.getElementById('delete_selected_lines')?.addEventListener('click', function() {
+            let removed = 0;
+            document.querySelectorAll('.general-item-row').forEach(row => {
+                const cb = row.querySelector('.line-check');
+                if (cb && cb.checked) {
+                    const sid = row.querySelector('.line-item-id')?.value;
+                    if (sid && window.selectedGeneralItemIds && Array.isArray(window.selectedGeneralItemIds)) {
+                        window.selectedGeneralItemIds = window.selectedGeneralItemIds.filter(x => String(x) !== String(sid));
+                    }
+                    row.remove();
+                    removed++;
+                }
+            });
+            const hall = document.getElementById('check_all_lines');
+            if (hall) {
+                hall.checked = false;
+            }
+                calculateTotals();
+            if (!removed) {
+                alert('Tick the boxes on the lines you want to remove.');
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey || e.ctrlKey || e.metaKey) {
+                return;
+            }
+            const t = e.target;
+            const tag = t && t.tagName;
+            const isLineQtyPrice = t && t.classList && (t.classList.contains('general-qty') || t.classList.contains('general-sale-price'));
+            if (tag && ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) && !isLineQtyPrice && t.id !== 'pos_barcode' && t.id !== 'pos_item_search' && t.id !== 'pos_item_type_id') {
+                if (e.key === 'F2' || e.key === 'F4' || e.key === 'F8' || e.key === 'F9') {
+                    return;
+                }
+            }
+            if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('btn_cancel_edit')?.click();
+            } else if (e.key === 'F4') {
+                e.preventDefault();
+                window.__saleInvoicePrintAfterUpdate = true;
+                document.getElementById('btn_update_invoice')?.click();
+            } else if (e.key === 'F8') {
+                e.preventDefault();
+                document.getElementById('pos_barcode')?.focus();
+            } else if (e.key === 'F9') {
+                e.preventDefault();
+                window.__saleInvoicePrintAfterUpdate = false;
+                document.getElementById('btn_update_invoice')?.click();
+            }
+        });
+
+        new PosTopItemSearch();
+
+        document.querySelectorAll('#general_items_container .general-item-row').forEach(attachGeneralRowListeners);
 
         // Arm Searchable Dropdown
         class ArmSearchableDropdown {
@@ -2585,26 +2517,6 @@
         // Initialize calculation listeners
         document.getElementById('shipping_charges').addEventListener('input', function() {
             calculateTotals();
-        });
-
-        // Initialize existing line items
-        document.querySelectorAll('.general-item-row').forEach(row => {
-            const qtyInput = row.querySelector('input[name*="[qty]"]');
-            const salePriceInput = row.querySelector('input[name*="[sale_price]"]');
-            
-            if (qtyInput && salePriceInput) {
-                [qtyInput, salePriceInput].forEach(input => {
-                    input.addEventListener('input', function() {
-                        calculateLineTotal(this);
-                        calculateTotals();
-                    });
-                });
-                
-                // Add quantity validation for existing rows
-                qtyInput.addEventListener('input', function() {
-                    validateQuantityForRow(this);
-                });
-            }
         });
 
         document.querySelectorAll('.arm-row').forEach(row => {
@@ -3001,58 +2913,10 @@
                 });
         }
 
-        // Input mask functions
-        function applyInputMasks() {
-            const cnicInput = document.getElementById('cnic');
-            if (cnicInput) {
-                cnicInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length > 0) {
-                        if (value.length <= 5) {
-                            value = value;
-                        } else if (value.length <= 12) {
-                            value = value.substring(0, 5) + '-' + value.substring(5);
-                        } else {
-                            value = value.substring(0, 5) + '-' + value.substring(5, 12) + '-' + value.substring(12, 13);
-                        }
-                    }
-                    e.target.value = value;
-                });
-            }
-
-            const contactInput = document.getElementById('contact');
-            if (contactInput) {
-                contactInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length > 0) {
-                        if (!value.startsWith('03')) {
-                            if (value.startsWith('3')) {
-                                value = '0' + value;
-                            } else if (!value.startsWith('0')) {
-                                value = '03' + value;
-                            }
-                        }
-                        
-                        if (value.length > 4) {
-                            value = value.substring(0, 4) + '-' + value.substring(4);
-                        }
-                        
-                        if (value.length > 12) {
-                            value = value.substring(0, 12);
-                        }
-                    }
-                    e.target.value = value;
-                });
-            }
-        }
-
-        // Initialize input masks on page load
-        applyInputMasks();
-
-        // Initialize sale type state
+        // Initialize sale type UI without clearing persisted values (e.g. bank on credit invoices)
         const saleTypeSelect = document.getElementById('sale_type');
-        if (saleTypeSelect.value === 'cash') {
-            saleTypeSelect.dispatchEvent(new Event('change'));
+        if (saleTypeSelect) {
+            saleTypeSelect.dispatchEvent(new CustomEvent('change', { detail: { init: true }, bubbles: true }));
         }
 
         // Calculate initial totals
@@ -3124,8 +2988,9 @@
                 return;
             }
             
-            // Clear any existing error displays first
-            clearValidationErrors();
+            if (window.clearValidationErrors) {
+                window.clearValidationErrors();
+            }
             
             // Display general item selection errors
             errorKeys.forEach((key, index) => {
@@ -3137,8 +3002,8 @@
                         
                         // Find the corresponding row
                         const generalItemRows = document.querySelectorAll('.general-item-row');
-                        if (generalItemRows[rowIndex]) {
-                            showGeneralItemError(generalItemRows[rowIndex], errorMessage);
+                        if (generalItemRows[rowIndex] && window.showGeneralItemError) {
+                            window.showGeneralItemError(generalItemRows[rowIndex], errorMessage);
                         }
                     }
                 }
@@ -3151,8 +3016,8 @@
                         
                         // Find the corresponding row
                         const armRows = document.querySelectorAll('.arm-row');
-                        if (armRows[rowIndex]) {
-                            showArmError(armRows[rowIndex], errorMessage);
+                        if (armRows[rowIndex] && window.showArmError) {
+                            window.showArmError(armRows[rowIndex], errorMessage);
                         }
                     }
                 }
@@ -3179,4 +3044,4 @@
             displayValidationErrors();
         }, 2000);
     </script>
-</x-app-layout>
+</x-invoice-fullscreen-layout>

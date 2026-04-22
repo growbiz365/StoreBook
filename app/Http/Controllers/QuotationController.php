@@ -98,6 +98,7 @@ class QuotationController extends Controller
             ->get();
 
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->active()
             ->orderBy('item_name')
             ->get();
 
@@ -149,6 +150,12 @@ class QuotationController extends Controller
                 'arm_lines.*.sale_price' => 'required_with:arm_lines|numeric|min:0',
                 'arm_lines.*.arm_id' => 'required_with:arm_lines|exists:arms,id',
             ]);
+
+            $validator->after(function ($validator) use ($request, $businessId) {
+                foreach (GeneralItem::validateGeneralLinesAreSaleable($businessId, $request->input('general_lines', [])) as $field => $message) {
+                    $validator->errors()->add($field, $message);
+                }
+            });
 
             if ($validator->fails()) {
                 Log::warning('Quotation create: validation failed', [
@@ -277,7 +284,16 @@ class QuotationController extends Controller
             ->orderBy('account_name')
             ->get();
 
+        $quotation->load(['generalLines.generalItem', 'armLines.arm']);
+
+        $lineItemIds = $quotation->generalLines->pluck('general_item_id')->filter()->unique()->values()->all();
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->where(function ($q) use ($lineItemIds) {
+                $q->where('is_active', true);
+                if ($lineItemIds !== []) {
+                    $q->orWhereIn('id', $lineItemIds);
+                }
+            })
             ->orderBy('item_name')
             ->get();
 
@@ -288,8 +304,6 @@ class QuotationController extends Controller
 
         // Arms data loading disabled - StoreBook is items-only
         $arms = collect();
-
-        $quotation->load(['generalLines.generalItem', 'armLines.arm']);
 
         return view('quotations.edit', compact('quotation', 'customers', 'banks', 'generalItems', 'arms', 'itemTypes'));
     }
@@ -344,6 +358,15 @@ class QuotationController extends Controller
                 'arm_lines.*.sale_price' => 'required_with:arm_lines|numeric|min:0',
                 'arm_lines.*.arm_id' => 'required_with:arm_lines|exists:arms,id',
             ]);
+
+            $quotation->loadMissing('generalLines');
+            $previouslyUsedItemIds = $quotation->generalLines->pluck('general_item_id')->unique()->map(fn ($id) => (int) $id)->values()->all();
+            $quotationBusinessId = (int) $quotation->business_id;
+            $validator->after(function ($validator) use ($request, $quotationBusinessId, $previouslyUsedItemIds) {
+                foreach (GeneralItem::validateGeneralLinesAreSaleable($quotationBusinessId, $request->input('general_lines', []), $previouslyUsedItemIds) as $field => $message) {
+                    $validator->errors()->add($field, $message);
+                }
+            });
 
             if ($validator->fails()) {
                 Log::warning('Quotation update: validation failed', [

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GeneralItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class GeneralItemController extends Controller
 {
@@ -15,20 +16,24 @@ class GeneralItemController extends Controller
     public function search(Request $request): JsonResponse
     {
         try {
-            $request->validate([
-                'q' => 'required|string|min:2',
-                'page' => 'integer|min:1',
-                'limit' => 'integer|min:1|max:100'
-            ]);
-
             $businessId = session('active_business');
-            
             if (!$businessId) {
                 return response()->json([
                     'error' => 'No active business found',
                     'message' => 'Please select an active business'
                 ], 400);
             }
+
+            $request->validate([
+                'q' => 'required|string|min:2',
+                'page' => 'integer|min:1',
+                'limit' => 'integer|min:1|max:100',
+                'item_type_id' => [
+                    'nullable',
+                    'integer',
+                    Rule::exists('item_types', 'id')->where('business_id', $businessId),
+                ],
+            ]);
 
             $searchTerm = $request->get('q');
             $page = $request->get('page', 1);
@@ -39,6 +44,13 @@ class GeneralItemController extends Controller
                     $q->where('item_name', 'like', "%{$searchTerm}%")
                       ->orWhere('item_code', 'like', "%{$searchTerm}%");
                 });
+
+            $forSaleReturn = $request->boolean('for_sale_return');
+            if ($forSaleReturn) {
+                $query->activeOrHistoricallySold((int) $businessId);
+            } else {
+                $query->active();
+            }
 
             // Filter by item type if provided
             if ($request->filled('item_type_id')) {
@@ -70,7 +82,7 @@ class GeneralItemController extends Controller
                 $searchTerm . '%',
             ]);
 
-            $items = $query->with(['batches' => function($q) {
+            $items = $query->with(['itemType', 'batches' => function($q) {
                 $q->where('status', 'active');
             }])->paginate($limit, ['*'], 'page', $page);
 
@@ -112,13 +124,7 @@ class GeneralItemController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $request->validate([
-                'page' => 'integer|min:1',
-                'limit' => 'integer|min:1|max:100'
-            ]);
-
             $businessId = session('active_business');
-            
             if (!$businessId) {
                 return response()->json([
                     'error' => 'No active business found',
@@ -126,10 +132,27 @@ class GeneralItemController extends Controller
                 ], 400);
             }
 
+            $request->validate([
+                'page' => 'integer|min:1',
+                'limit' => 'integer|min:1|max:100',
+                'item_type_id' => [
+                    'nullable',
+                    'integer',
+                    Rule::exists('item_types', 'id')->where('business_id', $businessId),
+                ],
+            ]);
+
             $page = $request->get('page', 1);
             $limit = $request->get('limit', 20);
 
             $query = GeneralItem::where('business_id', $businessId);
+
+            $forSaleReturn = $request->boolean('for_sale_return');
+            if ($forSaleReturn) {
+                $query->activeOrHistoricallySold((int) $businessId);
+            } else {
+                $query->active();
+            }
 
             // Filter by item type if provided
             if ($request->filled('item_type_id')) {
@@ -147,7 +170,7 @@ class GeneralItemController extends Controller
 
             $query->orderBy('item_name');
 
-            $items = $query->with(['batches' => function($q) {
+            $items = $query->with(['itemType', 'batches' => function($q) {
                 $q->where('status', 'active');
             }])->paginate($limit, ['*'], 'page', $page);
 

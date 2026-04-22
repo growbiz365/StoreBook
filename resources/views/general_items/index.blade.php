@@ -9,7 +9,7 @@
             <div class="p-4 border-b border-gray-200 bg-white">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <form method="GET" action="{{ route('general-items.index') }}" class="w-full">
-                        @foreach(request()->except(['item_name', 'item_type_id', 'item_code', 'page']) as $key => $value)
+                        @foreach(request()->except(['item_name', 'item_type_id', 'item_code', 'page', 'status']) as $key => $value)
                             @if(is_array($value))
                                 @foreach($value as $v)
                                     <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
@@ -19,7 +19,7 @@
                             @endif
                         @endforeach
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
                             <div class="w-full">
                                 <input
                                     type="text"
@@ -28,6 +28,14 @@
                                     placeholder="Filter by item name..."
                                     class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 />
+                            </div>
+
+                            <div class="w-full">
+                                <select name="status" class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                    <option value="" @selected(request('status') === null || request('status') === '')>All statuses</option>
+                                    <option value="active" @selected(request('status') === 'active')>Active only</option>
+                                    <option value="inactive" @selected(request('status') === 'inactive')>Inactive only</option>
+                                </select>
                             </div>
 
                             <div class="w-full">
@@ -118,6 +126,7 @@
                                 @endif
                             </a>
                         </th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Catalog</th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-40">Item Type</th>
                         <th class="px-3 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Available stock</th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">
@@ -155,12 +164,19 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($generalItems as $item)
-                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location.href='{{ route('general-items.show', $item->id) }}'">
+                        <tr class="hover:bg-gray-50 cursor-pointer {{ $item->is_active ? '' : 'bg-gray-50/80' }}" onclick="window.location.href='{{ route('general-items.show', $item->id) }}'">
                             <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $item->item_code }}</div>
                             </td>
                             <td class="px-3 py-3">
                                 <div class="text-sm font-medium text-gray-900 break-words">{{ $item->item_name }}</div>
+                            </td>
+                            <td class="px-3 py-3 whitespace-nowrap">
+                                @if($item->is_active)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-700">Inactive</span>
+                                @endif
                             </td>
                             <td class="px-3 py-3">
                                 <div class="text-sm text-gray-900 break-words">{{ $item->itemType->item_type }}</div>
@@ -187,16 +203,23 @@
                                         </svg>
                                     </a>
                                     @endcan
-                                    @can('delete items')
-                                    <form action="{{ route('general-items.destroy', $item->id) }}" method="POST" class="inline">
+                                    @can('edit items')
+                                    <form action="{{ route('general-items.update-status', $item) }}" method="POST" class="inline">
                                         @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="text-red-600 hover:text-red-900"
-                                                onclick="return confirm('Are you sure you want to delete this item?')">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                        @method('PATCH')
+                                        <input type="hidden" name="is_active" value="{{ $item->is_active ? '0' : '1' }}">
+                                        <button type="submit"
+                                                class="{{ $item->is_active ? 'text-amber-600 hover:text-amber-800' : 'text-emerald-600 hover:text-emerald-800' }}"
+                                                title="{{ $item->is_active ? 'Deactivate item' : 'Activate item' }}">
+                                            @if($item->is_active)
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                </svg>
+                                            @else
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            @endif
                                         </button>
                                     </form>
                                     @endcan

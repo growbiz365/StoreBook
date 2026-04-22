@@ -42,7 +42,7 @@ class PurchaseController extends Controller
             ->whereHas('chartOfAccount', function($query) { $query->where('is_active', true); })
             ->orderBy('account_name')
             ->get();
-        $generalItems = GeneralItem::where('business_id', $businessId)->orderBy('item_name')->get();
+        $generalItems = GeneralItem::where('business_id', $businessId)->active()->orderBy('item_name')->get();
 
         $itemTypes = ItemType::where('business_id', $businessId)
             ->where('status', true)
@@ -90,7 +90,6 @@ class PurchaseController extends Controller
             ->whereHas('chartOfAccount', function($query) { $query->where('is_active', true); })
             ->orderBy('account_name')
             ->get();
-        $generalItems = GeneralItem::where('business_id', $businessId)->orderBy('item_name')->get();
 
         $itemTypes = ItemType::where('business_id', $businessId)
             ->where('status', true)
@@ -108,6 +107,17 @@ class PurchaseController extends Controller
             'armLines.armSerials.caliber',
             'armLines.armSerials.category'
         ]);
+
+        $lineItemIds = $purchase->generalLines->pluck('general_item_id')->filter()->unique()->values()->all();
+        $generalItems = GeneralItem::where('business_id', $businessId)
+            ->where(function ($q) use ($lineItemIds) {
+                $q->where('is_active', true);
+                if ($lineItemIds !== []) {
+                    $q->orWhereIn('id', $lineItemIds);
+                }
+            })
+            ->orderBy('item_name')
+            ->get();
 
         $request->flash();
 
@@ -188,6 +198,7 @@ class PurchaseController extends Controller
             ->get();
 
         $generalItems = GeneralItem::where('business_id', $businessId)
+            ->active()
             ->orderBy('item_name')
             ->get();
 
@@ -643,10 +654,6 @@ class PurchaseController extends Controller
             ->orderBy('account_name')
             ->get();
 
-        $generalItems = GeneralItem::where('business_id', $businessId)
-            ->orderBy('item_name')
-            ->get();
-
         $itemTypes = ItemType::where('business_id', $businessId)
             ->where('status', true)
             ->orderBy('item_type')
@@ -672,6 +679,17 @@ class PurchaseController extends Controller
             'armLines.armSerials.caliber',
             'armLines.armSerials.category'
         ]);
+
+        $lineItemIds = $purchase->generalLines->pluck('general_item_id')->filter()->unique()->values()->all();
+        $generalItems = GeneralItem::where('business_id', $businessId)
+            ->where(function ($q) use ($lineItemIds) {
+                $q->where('is_active', true);
+                if ($lineItemIds !== []) {
+                    $q->orWhereIn('id', $lineItemIds);
+                }
+            })
+            ->orderBy('item_name')
+            ->get();
 
         return view('purchases.edit', compact(
             'purchase',

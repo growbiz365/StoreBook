@@ -92,6 +92,39 @@ class Party extends Model
     }
 
     /**
+     * Ledger balance (credit − debit) as of a date, aligned with PartyLedger / ledger-report opening logic.
+     * Optionally exclude one voucher row — e.g. exclude this sale invoice's posting when showing "balance before this invoice".
+     */
+    public function ledgerBalanceAsOf(
+        $asOfDate,
+        int $businessId,
+        ?string $excludeVoucherType = null,
+        ?int $excludeVoucherId = null
+    ): float {
+        $asOf = $asOfDate instanceof \DateTimeInterface
+            ? $asOfDate->format('Y-m-d')
+            : (string) $asOfDate;
+
+        $query = $this->ledgerEntries()
+            ->where('business_id', $businessId)
+            ->where('date_added', '<=', $asOf);
+
+        if ($excludeVoucherType !== null && $excludeVoucherId !== null) {
+            $query->whereNot(function ($q) use ($excludeVoucherType, $excludeVoucherId) {
+                $q->where('voucher_type', $excludeVoucherType)
+                    ->where('voucher_id', $excludeVoucherId);
+            });
+        }
+
+        return (float) $query->get()->reduce(
+            static function (float $carry, PartyLedger $entry): float {
+                return $carry + (float) $entry->credit_amount - (float) $entry->debit_amount;
+            },
+            0.0
+        );
+    }
+
+    /**
      * Get formatted balance with sign
      */
     public function getFormattedBalance($asOfDate = null): string
