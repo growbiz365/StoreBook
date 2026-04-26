@@ -64,7 +64,7 @@
                 </div>
                 <div class="ml-3">
                     <p class="text-sm font-medium text-gray-500">Total Value</p>
-                    <p class="text-lg font-semibold text-gray-900">PKR {{ number_format($batches->sum('total_cost'), 2) }}</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ formatBusinessCurrency($batches->sum('total_cost'), true, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -200,11 +200,11 @@
                                 <div class="space-y-1">
                                     <div class="text-sm">
                                         <span class="text-gray-500">Unit Cost:</span>
-                                        <span class="font-medium text-gray-900 ml-2">PKR {{ number_format($batch->unit_cost, 2) }}</span>
+                                        <span class="font-medium text-gray-900 ml-2">{{ formatBusinessCurrency($batch->unit_cost, true, 2) }}</span>
                                     </div>
                                     <div class="text-sm">
                                         <span class="text-gray-500">Total Cost:</span>
-                                        <span class="font-medium text-gray-900 ml-2">PKR {{ number_format($batch->total_cost, 2) }}</span>
+                                        <span class="font-medium text-gray-900 ml-2">{{ formatBusinessCurrency($batch->total_cost, true, 2) }}</span>
                                     </div>
                                 </div>
                             </td>

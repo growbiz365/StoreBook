@@ -188,10 +188,10 @@
                                 <div class="text-sm text-gray-900">{{ number_format($availableStock, 0) }}</div>
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">PKR {{ number_format($item->cost_price, 2) }}</div>
+                                <div class="text-sm text-gray-900">{{ formatBusinessCurrency($item->cost_price, true, 2) }}</div>
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">PKR {{ number_format($item->sale_price, 2) }}</div>
+                                <div class="text-sm text-gray-900">{{ formatBusinessCurrency($item->sale_price, true, 2) }}</div>
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-3" onclick="event.stopPropagation()">

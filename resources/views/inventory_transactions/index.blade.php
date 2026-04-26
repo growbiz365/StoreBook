@@ -63,7 +63,7 @@
                 </div>
                 <div class="ml-3">
                     <p class="text-sm font-medium text-gray-500">Total Value</p>
-                    <p class="text-lg font-semibold text-gray-900">PKR {{ number_format($transactions->sum('total_cost'), 2) }}</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ formatBusinessCurrency($transactions->sum('total_cost'), true, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -224,11 +224,11 @@
                                     </div>
                                     <div class="flex justify-between text-sm">
                                         <span class="text-gray-500">Unit Cost:</span>
-                                        <span class="font-medium text-gray-900">PKR {{ number_format($tx->unit_cost, 2) }}</span>
+                                        <span class="font-medium text-gray-900">{{ formatBusinessCurrency($tx->unit_cost, true, 2) }}</span>
                                     </div>
                                     <div class="flex justify-between text-sm">
                                         <span class="text-gray-500">Total:</span>
-                                        <span class="font-semibold text-gray-900">PKR {{ number_format($tx->total_cost, 2) }}</span>
+                                        <span class="font-semibold text-gray-900">{{ formatBusinessCurrency($tx->total_cost, true, 2) }}</span>
                                     </div>
                                 </div>
                             </td>

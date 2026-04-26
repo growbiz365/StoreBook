@@ -199,6 +199,33 @@ if (!function_exists('getBusinessCurrencySymbol')) {
     }
 }
 
+if (!function_exists('businessCurrencyLabelFromModel')) {
+    /**
+     * Human-facing currency label: symbol when set, otherwise ISO code. Default PKR.
+     */
+    function businessCurrencyLabelFromModel(?\App\Models\Currency $currency): string
+    {
+        if (!$currency) {
+            return 'PKR';
+        }
+        if (filled($currency->symbol)) {
+            return $currency->symbol;
+        }
+
+        return $currency->currency_code ?: 'PKR';
+    }
+}
+
+if (!function_exists('getBusinessCurrencyLabel')) {
+    /**
+     * Currency label for the active business (matches business settings; default PKR).
+     */
+    function getBusinessCurrencyLabel(): string
+    {
+        return businessCurrencyLabelFromModel(getBusinessCurrency());
+    }
+}
+
 if (!function_exists('formatBusinessCurrency')) {
     /**
      * Format an amount according to business currency settings
@@ -215,13 +242,10 @@ if (!function_exists('formatBusinessCurrency')) {
         }
         
         try {
-            $currencyCode = getBusinessCurrencyCode();
-            $currencySymbol = getBusinessCurrencySymbol();
-            
             $formatted = number_format((float)$amount, $decimals);
             
             if ($showSymbol) {
-                return $currencyCode . ' ' . $formatted;
+                return getBusinessCurrencyLabel() . ' ' . $formatted;
             }
             
             return $formatted;

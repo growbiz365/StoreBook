@@ -217,10 +217,10 @@
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
                                         <div class="text-sm font-medium text-gray-900">
-                                            <span class="text-xs text-gray-500">Initial:</span> PKR {{ number_format($arm->purchase_price, 2) }}
+                                            <span class="text-xs text-gray-500">Initial:</span> {{ formatBusinessCurrency($arm->purchase_price, true, 2) }}
                                         </div>
                                         <div class="text-sm font-medium text-green-600">
-                                            <span class="text-xs text-green-500">Sale:</span> PKR {{ number_format($arm->sale_price, 2) }}
+                                            <span class="text-xs text-green-500">Sale:</span> {{ formatBusinessCurrency($arm->sale_price, true, 2) }}
                                         </div>
                                         <div class="text-xs text-gray-500">{{ $arm->armCondition->arm_condition }}</div>
                                     </div>

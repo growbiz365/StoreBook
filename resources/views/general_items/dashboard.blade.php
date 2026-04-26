@@ -161,7 +161,7 @@
                             <div class="w-1 h-1 bg-emerald-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-xl font-bold text-emerald-900 mt-0.5">PKR {{ number_format($stockStats['current_stock_value'], 0) }}</p>
+                    <p class="text-xl font-bold text-emerald-900 mt-0.5">{{ formatBusinessCurrency($stockStats['current_stock_value'], true, 0) }}</p>
                     <div class="flex items-center mt-2">
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
                             Current stock value
@@ -472,7 +472,7 @@
                             <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
                             <span class="text-xs font-medium text-gray-700">Total Batch Value</span>
                         </div>
-                        <span class="text-xs font-semibold text-gray-900">PKR {{ number_format($batchStats['total_batch_value'], 0) }}</span>
+                        <span class="text-xs font-semibold text-gray-900">{{ formatBusinessCurrency($batchStats['total_batch_value'], true, 0) }}</span>
                     </div>
                 </div>
             </div>

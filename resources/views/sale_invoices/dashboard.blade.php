@@ -241,10 +241,10 @@
                             <div class="w-1 h-1 bg-blue-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-xl font-bold text-blue-900 mt-0.5">PKR {{ number_format($valueStats['total_value'], 0) }}</p>
+                    <p class="text-xl font-bold text-blue-900 mt-0.5">{{ formatBusinessCurrency($valueStats['total_value'], true, 0) }}</p>
                     <div class="flex items-center mt-2">
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
-                            PKR {{ number_format($valueStats['this_month_value'], 0) }} this month
+                            {{ formatBusinessCurrency($valueStats['this_month_value'], true, 0) }} this month
                         </span>
                     </div>
                 </div>
@@ -520,14 +520,14 @@
                             <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
                             <span class="text-xs font-medium text-gray-700">Highest Sale</span>
                         </div>
-                        <span class="text-xs font-semibold text-gray-900">PKR {{ number_format($valueStats['highest_value'], 0) }}</span>
+                        <span class="text-xs font-semibold text-gray-900">{{ formatBusinessCurrency($valueStats['highest_value'], true, 0) }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-3 h-3 bg-pink-500 rounded-full"></div>
                             <span class="text-xs font-medium text-gray-700">Average Sale</span>
                         </div>
-                        <span class="text-xs font-semibold text-gray-900">PKR {{ $saleStats['total_sales'] > 0 ? number_format($valueStats['total_value'] / $saleStats['total_sales'], 0) : 0 }}</span>
+                        <span class="text-xs font-semibold text-gray-900">{{ $saleStats['total_sales'] > 0 ? formatBusinessCurrency($valueStats['total_value'] / $saleStats['total_sales'], true, 0) : formatBusinessCurrency(0, true, 0) }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
@@ -581,7 +581,7 @@
                             </div>
                             <div>
                                 <span class="text-xs font-medium text-gray-900 group-hover:text-green-700 transition-colors duration-200">Sale #{{ $sale->invoice_number }}</span>
-                                <div class="text-xs text-gray-500">{{ $sale->party->name ?? 'Cash Sale' }} • PKR {{ number_format($sale->total_amount) }}</div>
+                                <div class="text-xs text-gray-500">{{ $sale->party->name ?? 'Cash Sale' }} • {{ formatBusinessCurrency($sale->total_amount, true, 0) }}</div>
                                 <div class="text-xs text-gray-400">{{ ucfirst($sale->status) }} • {{ ucfirst($sale->sale_type) }}</div>
                             </div>
                         </div>

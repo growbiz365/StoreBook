@@ -554,7 +554,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Unit Cost <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                             </div>
                             <input type="number" name="items[${idx}][unit_cost]" step="1" min="0" required
                                    placeholder="0"
@@ -566,7 +566,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                             </div>
                             <input type="text" readonly
                                    class="adjustment-line-total mt-1 text-sm border-gray-300 rounded-md shadow-sm w-full pl-12 bg-gray-50 text-gray-600">
@@ -668,7 +668,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                             </div>
                             <input type="number" name="arm_items[${armCount}][price]" step="1" min="0" placeholder="0"
                                    class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12">

@@ -112,7 +112,7 @@
             <div class="p-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-emerald-600 mb-1">{{ $armsStats['purchased'] }}</div>
-                    <div class="text-xs text-gray-500">PKR {{ number_format($armsStats['purchased_value'], 0) }}</div>
+                    <div class="text-xs text-gray-500">{{ formatBusinessCurrency($armsStats['purchased_value'], true, 0) }}</div>
                 </div>
             </div>
         </div>
@@ -138,7 +138,7 @@
             </div>
             <div class="p-4">
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-orange-600 mb-1">PKR {{ number_format($armsStats['total_value'], 0) }}</div>
+                    <div class="text-2xl font-bold text-orange-600 mb-1">{{ formatBusinessCurrency($armsStats['total_value'], true, 0) }}</div>
                     <div class="text-xs text-gray-500">Total inventory value</div>
                 </div>
             </div>
@@ -487,7 +487,7 @@
                             <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
                             <span class="text-sm font-medium text-gray-700">Available Value</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900">PKR {{ number_format($armsStats['total_value'], 0) }}</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ formatBusinessCurrency($armsStats['total_value'], true, 0) }}</span>
                     </div>
                     
                     
@@ -497,7 +497,7 @@
                             <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
                             <span class="text-sm font-medium text-gray-700">Sold Value</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900">PKR {{ number_format($armsStats['sold_value'], 0) }}</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ formatBusinessCurrency($armsStats['sold_value'], true, 0) }}</span>
                     </div>
                     
                     <!-- Purchase Value -->
@@ -506,7 +506,7 @@
                             <div class="w-4 h-4 bg-emerald-500 rounded-full"></div>
                             <span class="text-sm font-medium text-gray-700">Purchase Value</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900">PKR {{ number_format($armsStats['purchased_value'], 0) }}</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ formatBusinessCurrency($armsStats['purchased_value'], true, 0) }}</span>
                     </div>
                 </div>
             </div>

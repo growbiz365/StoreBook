@@ -204,10 +204,10 @@
                             <div class="w-1 h-1 bg-blue-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-xl font-bold text-blue-900 mt-0.5">PKR {{ number_format($valueStats['total_value'], 0) }}</p>
+                    <p class="text-xl font-bold text-blue-900 mt-0.5">{{ formatBusinessCurrency($valueStats['total_value'], true, 0) }}</p>
                     <div class="flex items-center mt-2">
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
-                            PKR {{ number_format($valueStats['this_month_value'], 0) }} this month
+                            {{ formatBusinessCurrency($valueStats['this_month_value'], true, 0) }} this month
                         </span>
                     </div>
                 </div>
@@ -407,7 +407,7 @@
                             <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
                             <span class="text-xs font-medium text-gray-700">Average Value</span>
                         </div>
-                        <span class="text-xs font-semibold text-gray-900">PKR {{ number_format($valueStats['average_value'], 0) }}</span>
+                        <span class="text-xs font-semibold text-gray-900">{{ formatBusinessCurrency($valueStats['average_value'], true, 0) }}</span>
                     </div>
                 </div>
             </div>
@@ -442,7 +442,7 @@
                             <span class="text-xs font-medium text-gray-700">{{ $party->party->name ?? 'Unknown Party' }}</span>
                         </div>
                         <div class="text-right">
-                            <div class="text-xs font-semibold text-gray-900">PKR {{ number_format($party->total_value, 0) }}</div>
+                            <div class="text-xs font-semibold text-gray-900">{{ formatBusinessCurrency($party->total_value, true, 0) }}</div>
                             <div class="text-xs text-gray-500">{{ $party->purchase_count }} purchases</div>
                         </div>
                     </div>
@@ -499,7 +499,7 @@
                             <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
                             <span class="text-xs font-medium text-gray-700">Highest Value</span>
                         </div>
-                        <span class="text-xs font-semibold text-gray-900">PKR {{ number_format($valueStats['highest_value'], 0) }}</span>
+                        <span class="text-xs font-semibold text-gray-900">{{ formatBusinessCurrency($valueStats['highest_value'], true, 0) }}</span>
                     </div>
                 </div>
             </div>
@@ -546,7 +546,7 @@
                             </div>
                             <div>
                                 <span class="text-xs font-medium text-gray-900 group-hover:text-green-700 transition-colors duration-200">Purchase #{{ $purchase->id }}</span>
-                                <div class="text-xs text-gray-500">{{ $purchase->party->name ?? 'Cash Purchase' }} • PKR {{ number_format($purchase->total_amount) }}</div>
+                                <div class="text-xs text-gray-500">{{ $purchase->party->name ?? 'Cash Purchase' }} • {{ formatBusinessCurrency($purchase->total_amount, true, 0) }}</div>
                                 <div class="text-xs text-gray-400">{{ ucfirst($purchase->status) }} • {{ ucfirst($purchase->payment_type) }}</div>
                             </div>
                         </div>

@@ -179,7 +179,7 @@
                         <x-input-label for="purchase_price">Cost Price <span class="text-red-500">*</span></x-input-label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                                 </div>
                                 <input type="number" name="purchase_price" id="purchase_price" value="{{ old('purchase_price') }}" required step="1" min="0"
                                    class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12 @error('purchase_price') border-red-500 @enderror"
@@ -194,7 +194,7 @@
                         <x-input-label for="sale_price">Sale Price <span class="text-red-500">*</span></x-input-label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                             </div>
                             <input type="number" name="sale_price" id="sale_price" value="{{ old('sale_price') }}" required step="1" min="0"
                                    class="mt-1 text-sm border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm w-full pl-12 @error('sale_price') border-red-500 @enderror"
@@ -286,6 +286,7 @@
     </style>
 
     <script>
+        const businessCurrencyLabel = @json($businessCurrencyLabel);
         // Single form with data storage functionality
         let armCount = 1;
         let armData = [];
@@ -622,7 +623,7 @@
                 armDiv.innerHTML = `
                     <div class="flex-1">
                         <div class="font-medium text-gray-900">${arm.make_display} ${arm.arm_caliber_display} ${arm.arm_type_display}</div>
-                        <div class="text-sm text-gray-600">Serial: ${arm.serial_no} | Price: PKR ${arm.purchase_price} | Sale: PKR ${arm.sale_price}</div>
+                        <div class="text-sm text-gray-600">Serial: ${arm.serial_no} | Price: ${businessCurrencyLabel} ${arm.purchase_price} | Sale: ${businessCurrencyLabel} ${arm.sale_price}</div>
                     </div>
                     <div class="flex gap-2">
                         <button type="button" onclick="editArm(${index})" class="text-blue-600 hover:text-blue-800 text-sm font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">

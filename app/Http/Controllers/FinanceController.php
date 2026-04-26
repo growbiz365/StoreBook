@@ -34,7 +34,7 @@ class FinanceController extends Controller
             if (!$currency) {
                 // Create a fallback currency object with default values
                 $currency = (object) [
-                    'symbol' => 'PKR',
+                    'symbol' => 'Rs',
                     'currency_code' => 'PKR',
                     'currency_name' => 'Pakistani Rupee'
                 ];

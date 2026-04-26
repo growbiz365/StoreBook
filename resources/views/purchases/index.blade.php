@@ -220,9 +220,9 @@
                                     <div class="text-sm font-medium text-gray-900">@businessDate($purchase->invoice_date)</div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900">PKR {{ number_format($purchase->total_amount, 2) }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ formatBusinessCurrency($purchase->total_amount, true, 2) }}</div>
                                     <div class="text-sm text-gray-500">
-                                        Subtotal: PKR {{ number_format($purchase->subtotal, 2) }}
+                                        Subtotal: {{ formatBusinessCurrency($purchase->subtotal, true, 2) }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">

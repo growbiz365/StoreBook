@@ -417,8 +417,8 @@ class PurchaseController extends Controller
                     ]);
                     session()->flash('store_debug', 'insufficient_balance');
                     return $this->renderCreateWithErrors($request, $businessId, [
-                        'bank_id' => 'Insufficient bank balance. Available: PKR ' . number_format($bankBalance, 2) . ', Required: PKR ' . number_format($calculatedTotal, 2)
-                    ], 'Insufficient bank balance. Available: PKR ' . number_format($bankBalance, 2) . ', Required: PKR ' . number_format($calculatedTotal, 2));
+                        'bank_id' => 'Insufficient bank balance. Available: ' . getBusinessCurrencyLabel() . ' ' . number_format($bankBalance, 2) . ', Required: ' . getBusinessCurrencyLabel() . ' ' . number_format($calculatedTotal, 2)
+                    ], 'Insufficient bank balance. Available: ' . getBusinessCurrencyLabel() . ' ' . number_format($bankBalance, 2) . ', Required: ' . getBusinessCurrencyLabel() . ' ' . number_format($calculatedTotal, 2));
                 }
             }
 
@@ -823,8 +823,8 @@ class PurchaseController extends Controller
                 // Check if balance is insufficient (with small tolerance for floating point)
                 if (round($bankBalance, 2) < round($calculatedTotal, 2)) {
                     return $this->renderEditWithErrors($request, $purchase, [
-                        'bank_id' => 'Insufficient bank balance. Available: PKR ' . number_format($bankBalance, 2) . ', Required: PKR ' . number_format($calculatedTotal, 2)
-                    ], 'Insufficient bank balance. Available: PKR ' . number_format($bankBalance, 2) . ', Required: PKR ' . number_format($calculatedTotal, 2));
+                        'bank_id' => 'Insufficient bank balance. Available: ' . getBusinessCurrencyLabel() . ' ' . number_format($bankBalance, 2) . ', Required: ' . getBusinessCurrencyLabel() . ' ' . number_format($calculatedTotal, 2)
+                    ], 'Insufficient bank balance. Available: ' . getBusinessCurrencyLabel() . ' ' . number_format($bankBalance, 2) . ', Required: ' . getBusinessCurrencyLabel() . ' ' . number_format($calculatedTotal, 2));
                 }
             }
 

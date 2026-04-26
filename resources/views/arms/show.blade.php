@@ -74,11 +74,11 @@
                 <div class="flex items-center space-x-4">
                         <div class="text-right">
                             <p class="text-sm text-gray-500">Cost Price</p>
-                        <p class="text-lg font-bold text-gray-900">PKR {{ number_format($arm->purchase_price, 2) }}</p>
+                        <p class="text-lg font-bold text-gray-900">{{ formatBusinessCurrency($arm->purchase_price, true, 2) }}</p>
                     </div>
                     <div class="text-right">
                         <p class="text-sm text-gray-500">Sale Price</p>
-                        <p class="text-lg font-bold text-green-600">PKR {{ number_format($arm->sale_price, 2) }}</p>
+                        <p class="text-lg font-bold text-green-600">{{ formatBusinessCurrency($arm->sale_price, true, 2) }}</p>
                         </div>
                     </div>
                 </div>
@@ -148,15 +148,15 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="text-center p-4 bg-blue-50 rounded-lg">
                             <label class="block text-sm font-medium text-blue-600 mb-2">Cost Price</label>
-                            <p class="text-2xl font-bold text-blue-900">PKR {{ number_format($arm->purchase_price, 2) }}</p>
+                            <p class="text-2xl font-bold text-blue-900">{{ formatBusinessCurrency($arm->purchase_price, true, 2) }}</p>
                         </div>
                         <div class="text-center p-4 bg-green-50 rounded-lg">
                             <label class="block text-sm font-medium text-green-600 mb-2">Sale Price</label>
-                            <p class="text-2xl font-bold text-green-900">PKR {{ number_format($arm->sale_price, 2) }}</p>
+                            <p class="text-2xl font-bold text-green-900">{{ formatBusinessCurrency($arm->sale_price, true, 2) }}</p>
                         </div>
                         <div class="text-center p-4 bg-purple-50 rounded-lg">
                             <label class="block text-sm font-medium text-purple-600 mb-2">Profit Margin</label>
-                            <p class="text-2xl font-bold text-purple-900">PKR {{ number_format($arm->sale_price - $arm->purchase_price, 2) }}</p>
+                            <p class="text-2xl font-bold text-purple-900">{{ formatBusinessCurrency($arm->sale_price - $arm->purchase_price, true, 2) }}</p>
                         </div>
                     </div>
                     
@@ -188,7 +188,7 @@
                                 <div class="space-y-4">
                             <div class="flex justify-between items-center py-3 border-b border-gray-100">
                                         <span class="text-sm font-medium text-gray-600">Cost Price</span>
-                                        <span class="text-sm font-bold text-gray-900">PKR {{ number_format($arm->purchase_price, 2) }}</span>
+                                        <span class="text-sm font-bold text-gray-900">{{ formatBusinessCurrency($arm->purchase_price, true, 2) }}</span>
                                     </div>
                             <div class="flex justify-between items-center py-3 border-b border-gray-100">
                                         <span class="text-sm font-medium text-gray-600">Opening Date</span>
@@ -376,18 +376,18 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <div class="text-center p-3 bg-green-50 rounded-lg">
-                            <div class="text-lg font-bold text-green-900">PKR {{ number_format($arm->sale_price - $arm->purchase_price, 2) }}</div>
+                            <div class="text-lg font-bold text-green-900">{{ formatBusinessCurrency($arm->sale_price - $arm->purchase_price, true, 2) }}</div>
                             <div class="text-sm text-green-600">Profit Margin</div>
         </div>
         
                         <div class="space-y-3">
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Cost:</span>
-                                <span class="text-gray-900">PKR {{ number_format($arm->purchase_price, 2) }}</span>
+                                <span class="text-gray-900">{{ formatBusinessCurrency($arm->purchase_price, true, 2) }}</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Sale:</span>
-                                <span class="text-green-600 font-medium">PKR {{ number_format($arm->sale_price, 2) }}</span>
+                                <span class="text-green-600 font-medium">{{ formatBusinessCurrency($arm->sale_price, true, 2) }}</span>
                             </div>
                             <div class="border-t pt-2">
                                 <div class="flex justify-between text-sm font-medium">

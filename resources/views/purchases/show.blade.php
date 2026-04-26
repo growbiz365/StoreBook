@@ -373,16 +373,16 @@
                     @endif
                     <div class="flex justify-between text-base font-bold border-t border-gray-200 pt-2 mt-2">
                         <span>Total</span>
-                        <span>PKR {{ number_format($purchase->total_amount, 2) }}</span>
+                        <span>{{ formatBusinessCurrency($purchase->total_amount, true, 2) }}</span>
                     </div>
                     @if($purchase->amount_paid > 0)
                     <div class="flex justify-between text-xs mt-2">
                         <span class="text-gray-600">Amount Paid</span>
-                        <span class="font-medium text-green-700">PKR {{ number_format($purchase->amount_paid, 2) }}</span>
+                        <span class="font-medium text-green-700">{{ formatBusinessCurrency($purchase->amount_paid, true, 2) }}</span>
                     </div>
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-600">Balance</span>
-                        <span class="font-medium text-red-700">PKR {{ number_format($purchase->total_amount - $purchase->amount_paid, 2) }}</span>
+                        <span class="font-medium text-red-700">{{ formatBusinessCurrency($purchase->total_amount - $purchase->amount_paid, true, 2) }}</span>
                     </div>
                     @endif
                 </div>

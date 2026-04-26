@@ -53,7 +53,7 @@
                         <x-input-label for="cost_price">Cost Price <span class="text-red-500">*</span></x-input-label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                             </div>
                             <input type="number" name="cost_price" id="cost_price" step="1" min="0" value="{{ old('cost_price', $generalItem->cost_price) }}" 
                                    class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12" required />
@@ -67,7 +67,7 @@
                         <x-input-label for="sale_price">Sale Price <span class="text-red-500">*</span></x-input-label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                             </div>
                             <input type="number" name="sale_price" id="sale_price" step="1" min="0" value="{{ old('sale_price', $generalItem->sale_price) }}" 
                                    class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12" required />
@@ -81,7 +81,7 @@
                         <x-input-label for="opening_total">Opening Total</x-input-label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">PKR</span>
+                                <span class="text-gray-500 text-sm">{{ $businessCurrencyLabel }}</span>
                             </div>
                             <input type="text" id="opening_total" value="{{ number_format($generalItem->opening_total, 2) }}" 
                                    class="mt-1 text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full pl-12 bg-gray-50" readonly />

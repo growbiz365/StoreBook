@@ -414,15 +414,15 @@
                 </div>
                 <div class="summary-card">
                     <h4>Total Approved Value</h4>
-                    <div class="summary-value">{{ number_format($totalApprovedValue, 2) }}</div>
+                    <div class="summary-value">{{ formatBusinessCurrency($totalApprovedValue, true, 2) }}</div>
                 </div>
                 <div class="summary-card sold">
                     <h4>Total Sold Value</h4>
-                    <div class="summary-value">PKR {{ number_format($totalSoldValue, 2) }}</div>
+                    <div class="summary-value">{{ formatBusinessCurrency($totalSoldValue, true, 2) }}</div>
                 </div>
                 <div class="summary-card returned">
                     <h4>Total Returned Value</h4>
-                    <div class="summary-value">PKR {{ number_format($totalReturnedValue, 2) }}</div>
+                    <div class="summary-value">{{ formatBusinessCurrency($totalReturnedValue, true, 2) }}</div>
                 </div>
                 <div class="summary-card open">
                     <h4>Open Approvals</h4>
@@ -438,7 +438,7 @@
                 </div>
                 <div class="summary-card">
                     <h4>Remaining Value</h4>
-                    <div class="summary-value">PKR {{ number_format($totalRemainingValue, 2) }}</div>
+                    <div class="summary-value">{{ formatBusinessCurrency($totalRemainingValue, true, 2) }}</div>
                 </div>
                 
             </div>
@@ -594,9 +594,9 @@
                                     <span style="color: #9ca3af; font-size: 10px;">No arms</span>
                                 @endif
                             </td>
-                            <td class="text-right">PKR {{ number_format($approval->total_approved_value, 2) }}</td>
-                            <td class="text-right" style="color: #059669; font-weight: 600;">PKR {{ number_format($approval->total_sold_value, 2) }}</td>
-                            <td class="text-right">PKR {{ number_format($approval->remaining_value, 2) }}</td>
+                            <td class="text-right">{{ formatBusinessCurrency($approval->total_approved_value, true, 2) }}</td>
+                            <td class="text-right" style="color: #059669; font-weight: 600;">{{ formatBusinessCurrency($approval->total_sold_value, true, 2) }}</td>
+                            <td class="text-right">{{ formatBusinessCurrency($approval->remaining_value, true, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -610,9 +610,9 @@
                 <tfoot>
                     <tr>
                         <td colspan="6" class="text-right">TOTALS:</td>
-                        <td class="text-right">PKR {{ number_format($totalApprovedValue, 2) }}</td>
-                        <td class="text-right" style="color: #059669;">PKR {{ number_format($totalSoldValue, 2) }}</td>
-                        <td class="text-right">PKR {{ number_format($totalRemainingValue, 2) }}</td>
+                        <td class="text-right">{{ formatBusinessCurrency($totalApprovedValue, true, 2) }}</td>
+                        <td class="text-right" style="color: #059669;">{{ formatBusinessCurrency($totalSoldValue, true, 2) }}</td>
+                        <td class="text-right">{{ formatBusinessCurrency($totalRemainingValue, true, 2) }}</td>
                     </tr>
                 </tfoot>
                 @endif

@@ -133,7 +133,7 @@ class ExpenseController extends Controller
                 return redirect()
                     ->back()
                     ->withInput()
-                    ->with('error', 'Insufficient bank balance. Available: PKR ' . number_format($bankBalance, 2) . ', Required: PKR ' . number_format($requestedAmount, 2));
+                    ->with('error', 'Insufficient bank balance. Available: ' . getBusinessCurrencyLabel() . ' ' . number_format($bankBalance, 2) . ', Required: ' . getBusinessCurrencyLabel() . ' ' . number_format($requestedAmount, 2));
             }
 
             DB::beginTransaction();
@@ -342,7 +342,7 @@ class ExpenseController extends Controller
                 return redirect()
                     ->back()
                     ->withInput()
-                    ->with('error', 'Insufficient bank balance. Available: PKR ' . number_format($bankBalance, 2) . ', Required: PKR ' . number_format($requestedAmount, 2));
+                    ->with('error', 'Insufficient bank balance. Available: ' . getBusinessCurrencyLabel() . ' ' . number_format($bankBalance, 2) . ', Required: ' . getBusinessCurrencyLabel() . ' ' . number_format($requestedAmount, 2));
             }
 
             DB::beginTransaction();

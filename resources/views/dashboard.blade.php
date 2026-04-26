@@ -280,10 +280,10 @@
                             <div class="w-1 h-1 bg-teal-300 rounded-full"></div>
                         </div>
                     </div>
-                    <p class="text-xl font-bold text-teal-900 mt-0.5">PKR {{ number_format($financialStats['total_sales_revenue'] ?? 0, 0) }}</p>
+                    <p class="text-xl font-bold text-teal-900 mt-0.5">{{ formatBusinessCurrency($financialStats['total_sales_revenue'] ?? 0, true, 0) }}</p>
                     <div class="flex items-center mt-2">
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-700">
-                            PKR {{ number_format($todayStats['today_sales_amount'] ?? 0, 0) }} today
+                            {{ formatBusinessCurrency($todayStats['today_sales_amount'] ?? 0, true, 0) }} today
                         </span>
                     </div>
                 </div>
@@ -722,7 +722,7 @@
                                     </span>
                                     <span class="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">{{ ucfirst($sale->sale_type) }}</span>
                                 </div>
-                                <span class="text-xs font-bold text-gray-900">PKR {{ number_format($sale->total_amount) }}</span>
+                                <span class="text-xs font-bold text-gray-900">{{ formatBusinessCurrency($sale->total_amount, true, 0) }}</span>
                             </div>
                         </div>
                     </div>
@@ -802,7 +802,7 @@
                                     </span>
                                     <span class="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">{{ ucfirst($purchase->payment_type) }}</span>
                                 </div>
-                                <span class="text-xs font-bold text-gray-900">PKR {{ number_format($purchase->total_amount) }}</span>
+                                <span class="text-xs font-bold text-gray-900">{{ formatBusinessCurrency($purchase->total_amount, true, 0) }}</span>
                             </div>
                         </div>
                     </div>

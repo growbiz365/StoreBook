@@ -542,7 +542,8 @@ public function edit($id)
 
         if ($oldValues['purchase_price'] !== $newValues['purchase_price']) {
             $hasChanges = true;
-            $remarks[] = "Price adjusted from PKR " . number_format($oldValues['purchase_price'], 2) . " to PKR " . number_format($newValues['purchase_price'], 2);
+            $cur = getBusinessCurrencyLabel();
+            $remarks[] = "Price adjusted from {$cur} " . number_format($oldValues['purchase_price'], 2) . " to {$cur} " . number_format($newValues['purchase_price'], 2);
         }
 
         if ($oldValues['serial_no'] !== $newValues['serial_no']) {
@@ -799,8 +800,8 @@ public function edit($id)
                 'Make',
                 'Caliber',
                 'Condition',
-                'Purchase Price (PKR)',
-                'Sale Price (PKR)',
+                'Purchase Price (' . getBusinessCurrencyCode() . ')',
+                'Sale Price (' . getBusinessCurrencyCode() . ')',
                 'Purchase Date',
                 'Status',
                 'Notes'

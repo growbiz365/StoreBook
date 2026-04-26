@@ -34,6 +34,7 @@ class BusinessComposer
                         'businessCurrency' => $business->currency,
                         'businessCurrencyCode' => $business->currency->currency_code ?? 'PKR',
                         'businessCurrencySymbol' => $business->currency->symbol ?? 'Rs',
+                        'businessCurrencyLabel' => businessCurrencyLabelFromModel($business->currency),
                         'activeBusiness' => $business,
                     ]);
                     return;
@@ -50,6 +51,7 @@ class BusinessComposer
             'businessCurrency' => null,
             'businessCurrencyCode' => 'PKR',
             'businessCurrencySymbol' => 'Rs',
+            'businessCurrencyLabel' => 'PKR',
             'activeBusiness' => null,
         ]);
     }

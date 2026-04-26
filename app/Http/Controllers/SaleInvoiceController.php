@@ -381,9 +381,7 @@ class SaleInvoiceController extends Controller
             'quotation',
         ]);
 
-        $currencyLabel = $saleInvoice->business?->currency?->symbol
-            ?? $saleInvoice->business?->currency?->currency_code
-            ?? 'PKR';
+        $currencyLabel = businessCurrencyLabelFromModel($saleInvoice->business?->currency);
 
         $balances = $this->partyLedgerBalancesForCreditInvoice($saleInvoice);
         $partyPreviousBalance = $balances['previous'];
@@ -437,8 +435,7 @@ class SaleInvoiceController extends Controller
             'armLines.arm',
         ]);
 
-        $currency = $saleInvoice->business?->currency?->symbol
-            ?: ($saleInvoice->business?->currency?->currency_code ?? 'PKR');
+        $currency = businessCurrencyLabelFromModel($saleInvoice->business?->currency);
 
         $grouped = [];
         foreach ($saleInvoice->generalLines as $line) {
