@@ -24,13 +24,24 @@
                         :class="{ 'ring-2 ring-purple-500 border-purple-300 bg-purple-50': branchMenuOpen }">
 
                         <div class="flex items-center min-w-0">
-                            <!-- Business Icon with live indicator -->
+                            <!-- Business logo/icon with live indicator -->
                             <div class="flex-shrink-0 mr-3 relative">
-                                <div class="h-8 w-8 bg-gradient-to-br from-purple-600 via-purple-700 to-teal-600 rounded-lg flex items-center justify-center shadow-md">
-                                    <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                    </svg>
-                                </div>
+                                @if (session('active_business'))
+                                    @php
+                                        $activeBusiness = \App\Models\Business::find(session('active_business'));
+                                    @endphp
+                                @endif
+                                @if (!empty($activeBusiness?->logo))
+                                    <div class="h-8 w-8 rounded-lg bg-white border border-gray-200 overflow-hidden shadow-md">
+                                        <img src="{{ asset('storage/' . $activeBusiness->logo) }}" alt="Logo" class="h-full w-full object-contain">
+                                    </div>
+                                @else
+                                    <div class="h-8 w-8 bg-gradient-to-br from-purple-600 via-purple-700 to-teal-600 rounded-lg flex items-center justify-center shadow-md">
+                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                    </div>
+                                @endif
                                 <!-- Live indicator with animation -->
                                 <div class="absolute -top-1 -right-1">
                                     <div class="relative">
@@ -44,8 +55,8 @@
                             <div class="min-w-0 flex-1">
                                 @if (session('active_business'))
                                     @php
-                                        $activeBusiness = \App\Models\Business::find(session('active_business'));
-                @endphp
+                                        $activeBusiness = $activeBusiness ?? \App\Models\Business::find(session('active_business'));
+                                    @endphp
                                     <div class="text-sm font-semibold text-gray-900 truncate max-w-40 group-hover:text-purple-700 transition-colors duration-200">
                                         {{ $activeBusiness->business_name }}
                                     </div>
@@ -108,13 +119,19 @@
                             <a href="{{ route('businesses.activate', $business->id) }}"
                                     class="group flex items-center px-4 py-3 hover:bg-gradient-to-r hover:from-purple-50 hover:to-teal-50 transition-all duration-200 border-l-4 border-transparent hover:border-purple-400 {{ session('active_business') == $business->id ? 'bg-gradient-to-r from-purple-50 to-teal-50 border-purple-500' : '' }}">
 
-                                    <!-- Enhanced Business Icon -->
+                                    <!-- Enhanced Business Logo/Icon -->
                                     <div class="flex-shrink-0 mr-4 relative">
-                                        <div class="h-10 w-10 bg-gradient-to-br {{ session('active_business') == $business->id ? 'from-purple-600 via-purple-700 to-teal-600' : 'from-gray-400 to-gray-500 group-hover:from-purple-500 group-hover:to-teal-500' }} rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg group-hover:shadow-xl transform group-hover:scale-105">
-                                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                            </svg>
-                                        </div>
+                                        @if(!empty($business->logo))
+                                            <div class="h-10 w-10 rounded-xl bg-white border border-gray-200 overflow-hidden transition-all duration-300 shadow-lg group-hover:shadow-xl transform group-hover:scale-105">
+                                                <img src="{{ asset('storage/' . $business->logo) }}" alt="Logo" class="h-full w-full object-contain">
+                                            </div>
+                                        @else
+                                            <div class="h-10 w-10 bg-gradient-to-br {{ session('active_business') == $business->id ? 'from-purple-600 via-purple-700 to-teal-600' : 'from-gray-400 to-gray-500 group-hover:from-purple-500 group-hover:to-teal-500' }} rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg group-hover:shadow-xl transform group-hover:scale-105">
+                                                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                                </svg>
+                                            </div>
+                                        @endif
                                         @if(session('active_business') == $business->id)
                                             <!-- Active indicator with animation -->
                                             <div class="absolute -top-1 -right-1">

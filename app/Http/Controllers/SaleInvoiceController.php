@@ -197,6 +197,10 @@ class SaleInvoiceController extends Controller
                 'bank_id' => 'nullable|required_if:sale_type,cash|exists:banks,id',
                 'invoice_date' => 'required|date',
                 'shipping_charges' => 'nullable|numeric|min:0',
+                'adjustment' => 'nullable|numeric',
+                'discount' => 'nullable|numeric|min:0',
+                'adjustment' => 'nullable|numeric',
+                'discount' => 'nullable|numeric|min:0',
                 'action' => 'required|in:save,post,post_print',
 
                 // Customer details validation (for cash sales)
@@ -276,6 +280,8 @@ class SaleInvoiceController extends Controller
                 'bank_id' => $request->bank_id,
                 'invoice_date' => $request->invoice_date,
                 'shipping_charges' => $request->shipping_charges ?? 0,
+                'adjustment' => $request->adjustment ?? 0,
+                'discount' => $request->discount ?? 0,
                 'status' => 'draft',
                 'created_by' => $userId,
                 'name_of_customer' => $request->name_of_customer,
@@ -622,6 +628,8 @@ class SaleInvoiceController extends Controller
                 'bank_id' => $request->bank_id,
                 'invoice_date' => $request->invoice_date,
                 'shipping_charges' => $request->shipping_charges ?? 0,
+                'adjustment' => $request->adjustment ?? 0,
+                'discount' => $request->discount ?? 0,
                 'name_of_customer' => $request->name_of_customer,
                 'father_name' => $request->father_name,
                 'contact' => $request->contact,

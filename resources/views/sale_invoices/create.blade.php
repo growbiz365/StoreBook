@@ -590,7 +590,7 @@
                                             </div>
                                 <div class="sm:col-span-3">
                                     <label for="pos_item_type_id" class="block text-sm font-semibold text-gray-800 mb-1">Item type</label>
-                                    <select id="pos_item_type_id" class="ci-form-control" autocomplete="off" title="Filter item search by type">
+                                    <select id="pos_item_type_id" class="ci-form-control chosen-select" autocomplete="off" title="Filter item search by type" data-placeholder="All types">
                                         <option value="">All types</option>
                                         @foreach($itemTypes as $type)
                                             <option value="{{ $type->id }}">{{ $type->item_type }}</option>
@@ -659,22 +659,46 @@
                                 </div>
                                 </div>
                                 <div class="grid grid-cols-12 gap-2 items-end">
-                                    <div class="col-span-12 sm:col-span-6 md:col-span-4">
-                                        <label for="shipping_charges" class="block text-sm font-semibold text-gray-800 mb-1">Shipping charges</label>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <label for="shipping_charges" class="block text-sm font-semibold text-gray-800 mb-1">Shipping</label>
                                         <input type="number" name="shipping_charges" id="shipping_charges" value="{{ old('shipping_charges', 0) }}"
-                                            step="1" min="0"
+                                            step="0.01" min="0"
                                             class="ci-form-control @error('shipping_charges') border-red-500 @enderror">
                                         @error('shipping_charges')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <label for="adjustment" class="block text-sm font-semibold text-gray-800 mb-1">Adjustment (+/-)</label>
+                                        <input type="number" name="adjustment" id="adjustment" value="{{ old('adjustment', 0) }}"
+                                            step="0.01"
+                                            class="ci-form-control @error('adjustment') border-red-500 @enderror">
+                                        @error('adjustment')
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <label for="discount" class="block text-sm font-semibold text-gray-800 mb-1">Discount</label>
+                                        <input type="number" name="discount" id="discount" value="{{ old('discount', 0) }}"
+                                            step="0.01" min="0"
+                                            class="ci-form-control @error('discount') border-red-500 @enderror">
+                                        @error('discount')
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
                                 <div class="grid grid-cols-12 gap-2 items-center pt-1 border-t border-gray-200">
                                     <div class="col-span-12 sm:col-span-4 text-sm font-bold text-gray-900">Total</div>
                                     <div class="hidden sm:block sm:col-span-4"></div>
                                     <div class="col-span-12 sm:col-span-4">
                                         <span id="total_amount" class="ci-total-readonly text-lg">0.00</span>
-                                        <p class="text-xs text-gray-500 mt-0.5">Shipping: <span id="shipping_display" class="font-medium">+ 0</span></p>
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            Shipping: <span id="shipping_display" class="font-medium">+ 0</span>
+                                            <span class="mx-1.5 text-gray-300">|</span>
+                                            Adj: <span id="adjustment_display" class="font-medium">+ 0</span>
+                                            <span class="mx-1.5 text-gray-300">|</span>
+                                            Disc: <span id="discount_display" class="font-medium">- 0</span>
+                                        </p>
                             </div>
                         </div>
                     </div>
@@ -728,6 +752,37 @@
                                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
+                            <div id="cash_customer_block" class="form-group">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div class="sm:col-span-1">
+                                        <label for="name_of_customer" class="block text-sm font-semibold text-gray-800 mb-1">Customer name</label>
+                                        <input type="text" name="name_of_customer" id="name_of_customer" value="{{ old('name_of_customer') }}"
+                                            class="ci-form-control @error('name_of_customer') border-red-500 @enderror"
+                                            placeholder="Name">
+                                        @error('name_of_customer')
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <label for="contact" class="block text-sm font-semibold text-gray-800 mb-1">Phone</label>
+                                        <input type="text" name="contact" id="contact" value="{{ old('contact') }}"
+                                            class="ci-form-control @error('contact') border-red-500 @enderror"
+                                            placeholder="Phone">
+                                        @error('contact')
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label for="address" class="block text-sm font-semibold text-gray-800 mb-1">Address</label>
+                                        <textarea name="address" id="address" rows="2"
+                                            class="ci-form-control @error('address') border-red-500 @enderror"
+                                            placeholder="Address">{{ old('address') }}</textarea>
+                                        @error('address')
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
                             <div id="credit_party_block" class="form-group credit_block">
                                 <label for="party_search_input">
                                     <span id="party_field_label">Party</span>
@@ -814,7 +869,7 @@
                        placeholder="0">
             </td>
             <td class="p-2 align-middle">
-                <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
+                <input type="number" name="general_lines[INDEX][qty]" required step="0.01" min="0.01"
                        class="ci-form-control general-qty"
                        placeholder="0" value="1">
             </td>
@@ -922,6 +977,7 @@
             const partyFieldLabel = document.getElementById('party_field_label');
             const customerHelpText = document.getElementById('party_help_text');
             const creditPartyBlock = document.getElementById('credit_party_block');
+            const cashCustomerBlock = document.getElementById('cash_customer_block');
 
             // Clear any existing party error when sale type changes
             const partyError = document.getElementById('party_error');
@@ -942,6 +998,9 @@
                 if (creditPartyBlock) {
                     creditPartyBlock.style.display = 'none';
                 }
+                if (cashCustomerBlock) {
+                    cashCustomerBlock.style.display = 'block';
+                }
             } else {
                 bankField.style.display = 'none';
                 bankSelect.required = false;
@@ -956,6 +1015,9 @@
                 }
                 if (creditPartyBlock) {
                     creditPartyBlock.style.display = 'block';
+                }
+                if (cashCustomerBlock) {
+                    cashCustomerBlock.style.display = 'none';
                 }
             }
             updatePosSaleTypeButtons();
@@ -1215,7 +1277,7 @@
                 this.searchTimeout = null;
                 this.currentPage = 1;
                 this.searchTerm = '';
-                this.itemsPerPage = 15;
+                this.itemsPerPage = 25;
                 this.debounceDelay = 300;
                 this.minSearchLength = 2;
                 this.init();
@@ -1854,14 +1916,18 @@
             });
             
             // Get charges
-            const shipping = parseFloat(document.getElementById('shipping_charges').value) || 0;
+            const shipping = parseFloat(document.getElementById('shipping_charges')?.value) || 0;
+            const adjustment = parseFloat(document.getElementById('adjustment')?.value) || 0;
+            const discount = parseFloat(document.getElementById('discount')?.value) || 0;
             
             // Calculate total
-            const total = subtotal + shipping;
+            const total = subtotal + shipping + adjustment - discount;
             
             // Update display
             document.getElementById('subtotal').textContent = subtotal.toFixed(2);
             document.getElementById('shipping_display').textContent = `+ ${shipping.toFixed(2)}`;
+            document.getElementById('adjustment_display').textContent = `${adjustment >= 0 ? '+' : '-'} ${Math.abs(adjustment).toFixed(2)}`;
+            document.getElementById('discount_display').textContent = `- ${Math.abs(discount).toFixed(2)}`;
             document.getElementById('total_amount').textContent = total.toFixed(2);
         }
 
@@ -2236,7 +2302,7 @@
                 // Check if this is the party dropdown
                 if (container.querySelector('#party_search_input')) {
                     new PartySearchableDropdown(container, {
-                        itemsPerPage: 15,
+                        itemsPerPage: 25,
                         debounceDelay: 300,
                         minSearchLength: 2
                     });
@@ -2273,6 +2339,12 @@
 
         // Initialize calculation listeners
         document.getElementById('shipping_charges').addEventListener('input', function() {
+            calculateTotals();
+        });
+        document.getElementById('adjustment')?.addEventListener('input', function() {
+            calculateTotals();
+        });
+        document.getElementById('discount')?.addEventListener('input', function() {
             calculateTotals();
         });
 
@@ -2390,6 +2462,12 @@
                 party_display: document.getElementById('party_search_input')?.value || '',
                 bank_id: document.getElementById('bank_id').value,
                 invoice_date: document.getElementById('invoice_date').value,
+                shipping_charges: document.getElementById('shipping_charges')?.value || '',
+                adjustment: document.getElementById('adjustment')?.value || '',
+                discount: document.getElementById('discount')?.value || '',
+                name_of_customer: document.getElementById('name_of_customer')?.value || '',
+                contact: document.getElementById('contact')?.value || '',
+                address: document.getElementById('address')?.value || '',
                 // Party license details
                 party_license_no: document.getElementById('party_license_no')?.value || '',
                 party_license_issue_date: document.getElementById('party_license_issue_date')?.value || '',
@@ -2438,7 +2516,9 @@
             });
 
             // Only save if there's meaningful data
-            if (formData.sale_type || formData.party_id || formData.bank_id || 
+            if (formData.sale_type || formData.party_id || formData.bank_id ||
+                formData.shipping_charges || formData.adjustment || formData.discount ||
+                formData.name_of_customer || formData.contact || formData.address ||
                 formData.party_license_no || formData.party_license_issue_date || formData.party_license_valid_upto ||
                 formData.party_license_issued_by || formData.party_re_reg_no || formData.party_dc || formData.party_dc_date ||
                 formData.general_items.length > 0 || formData.arms.length > 0) {
@@ -2506,6 +2586,21 @@
                 document.getElementById('invoice_date').value = formData.invoice_date;
                 console.log('Restored invoice_date:', formData.invoice_date);
             }
+
+            // Restore charges and cash-customer details
+            const simpleFields = [
+                'shipping_charges',
+                'adjustment',
+                'discount',
+                'name_of_customer',
+                'contact',
+                'address'
+            ];
+            simpleFields.forEach(field => {
+                if (formData[field] !== undefined && document.getElementById(field)) {
+                    document.getElementById(field).value = formData[field];
+                }
+            });
 
             // Restore party license details
             const partyLicenseFields = ['party_license_no', 'party_license_issue_date', 'party_license_valid_upto', 
@@ -2620,7 +2715,16 @@
     function addSaleInvoiceDataPersistenceListeners() {
         // Add listeners to form fields
         const formFields = [
-            'sale_type', 'party_id', 'bank_id', 'invoice_date'
+            'sale_type',
+            'party_id',
+            'bank_id',
+            'invoice_date',
+            'shipping_charges',
+            'adjustment',
+            'discount',
+            'name_of_customer',
+            'contact',
+            'address'
         ];
         
         formFields.forEach(fieldId => {
@@ -2892,6 +2996,52 @@
         setTimeout(function() {
             displayValidationErrors();
         }, 2000);
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    <style>
+        /* Make Chosen match Tailwind input styles used in filters */
+        .chosen-container { width: 100% !important; }
+        .chosen-container-single .chosen-single {
+            height: 40px;
+            line-height: 38px;
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0 2.25rem 0 0.75rem;
+            background: #fff;
+            font-size: 0.875rem; /* text-sm */
+            color: #111827; /* text-gray-900 */
+            box-shadow: none;
+        }
+        .chosen-container-single .chosen-single div { right: 0.5rem; }
+        .chosen-container-active .chosen-single {
+            border-color: #a855f7; /* purple-500 */
+            box-shadow: 0 0 0 1px rgba(168,85,247,0.2);
+        }
+        .chosen-container .chosen-drop {
+            border-color: #e5e7eb; /* gray-200 */
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .chosen-container .chosen-search input {
+            height: 38px;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0 0.75rem;
+            box-shadow: none;
+        }
+    </style>
+    <script>
+        $(function () {
+            $('.chosen-select').chosen({
+                width: '100%',
+                search_contains: true,
+                allow_single_deselect: true,
+                placeholder_text_single: 'All Item Types'
+            });
+        });
     </script>
 </x-invoice-fullscreen-layout>
 

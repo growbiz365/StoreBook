@@ -32,6 +32,8 @@ class SaleInvoice extends Model
         'invoice_date',
         'subtotal',
         'shipping_charges',
+        'adjustment',
+        'discount',
         'total_amount',
         'status',
         'created_by',
@@ -64,6 +66,8 @@ class SaleInvoice extends Model
         'invoice_date' => 'date',
         'subtotal' => 'decimal:2',
         'shipping_charges' => 'decimal:2',
+        'adjustment' => 'decimal:2',
+        'discount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'licence_issue_date' => 'date',
         'licence_valid_upto' => 'date',
@@ -215,7 +219,7 @@ class SaleInvoice extends Model
         }
 
         $this->subtotal = $subtotal;
-        $this->total_amount = $subtotal + $this->shipping_charges;
+        $this->total_amount = $subtotal + (float) $this->shipping_charges + (float) $this->adjustment - (float) $this->discount;
     }
 
     public function getInvoiceNumberAttribute(): string

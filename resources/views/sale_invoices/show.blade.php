@@ -139,6 +139,11 @@
 
             <div class="header grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 text-sm border-b border-gray-200 pb-4 mb-4">
                 <div class="pl-5 min-w-0 sm:pl-6">
+                    @if(($biz->logo ?? '') !== '')
+                        <div class="mb-2">
+                            <img src="{{ asset('storage/' . $biz->logo) }}" alt="Logo" class="h-12 w-auto max-w-[180px] object-contain">
+                        </div>
+                    @endif
                     <h6 class="text-base font-bold text-gray-900 tracking-tight leading-tight">{{ $biz->store_name ?? $biz->business_name ?? 'Business' }}</h6>
                     @if($bizAddr !== '')
                         <p class="text-gray-600 mt-0.5 leading-snug text-xs">{{ $bizAddr }}</p>
@@ -264,6 +269,20 @@
                             <tr>
                                 <td colspan="4" class="text-right">Shipping charges</td>
                                 <td class="text-right">{{ number_format((float) $saleInvoice->shipping_charges, 2) }}</td>
+                            </tr>
+                        @endif
+                        @if((float) ($saleInvoice->adjustment ?? 0) != 0.0)
+                            <tr>
+                                <td colspan="4" class="text-right">Adjustment</td>
+                                <td class="text-right">
+                                    {{ ((float) ($saleInvoice->adjustment ?? 0) >= 0 ? '+ ' : '- ') . number_format(abs((float) ($saleInvoice->adjustment ?? 0)), 2) }}
+                                </td>
+                            </tr>
+                        @endif
+                        @if((float) ($saleInvoice->discount ?? 0) > 0)
+                            <tr>
+                                <td colspan="4" class="text-right">Discount</td>
+                                <td class="text-right">- {{ number_format((float) ($saleInvoice->discount ?? 0), 2) }}</td>
                             </tr>
                         @endif
                         <tr>

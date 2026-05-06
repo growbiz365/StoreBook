@@ -37,6 +37,7 @@ class Business extends Model
         'store_city_id',
         'store_country_id',
         'store_postal_code',
+        'logo',
 
         // Suspension fields
         'is_suspended',

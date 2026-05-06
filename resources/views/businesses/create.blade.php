@@ -2,7 +2,7 @@
     @section('title', 'Create Business - Settings - StoreBook')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => '/settings', 'label' => 'Settings'], ['url' => route('businesses.index'), 'label' => 'Businesses'], ['url' => '#', 'label' => 'Add Business']]" />
     <x-dynamic-heading title="Add Business" />
-    <form action="{{ route('businesses.store') }}" method="POST">
+    <form action="{{ route('businesses.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @if ($errors->any())
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -122,6 +122,17 @@
                                 <option value="d-m-Y" @selected(old('date_format')=='d-m-Y')>DD-MM-YYYY (13-07-2024)</option>
                             </select>
                             @error('date_format')
+                                <span class="text-red-600 text-sm mt-1 block">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="sm:col-span-1 mb-4 ml-4">
+                        <x-input-label for="logo">Logo</x-input-label>
+                        <div class="mt-2">
+                            <input type="file" name="logo" id="logo" accept="image/*"
+                                   class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 border border-gray-300 rounded-md p-2 @error('logo') border-red-500 @enderror">
+                            <p class="text-xs text-gray-500 mt-1">PNG/JPG/WEBP up to 2MB.</p>
+                            @error('logo')
                                 <span class="text-red-600 text-sm mt-1 block">{{ $message }}</span>
                             @enderror
                         </div>

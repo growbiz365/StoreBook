@@ -54,7 +54,9 @@
 <div class="container">
     <div class="margin-bottom-10">
         <div class="align-center">
-            @if(file_exists(public_path('img/logo.png')))
+            @if(($saleInvoice->business?->logo ?? '') !== '')
+                <img src="{{ asset('storage/' . $saleInvoice->business->logo) }}" alt="" class="logo" width="150">
+            @elseif(file_exists(public_path('img/logo.png')))
                 <img src="{{ asset('img/logo.png') }}" alt="" class="logo" width="150">
             @endif
             <h1 class="margin-bottom-15">{{ $bizName }}</h1>
@@ -70,6 +72,21 @@
                 <strong>{{ __('SALE INVOICE') }}</strong># {{ $invoiceNo }}
                 — {{ $customerLabel }}
             </h3>
+            @if($saleInvoice->sale_type === 'cash')
+                @if(($saleInvoice->contact ?? '') !== '')
+                    <h4 class="margin-bottom-10">{{ __('Phone') }}: {{ $saleInvoice->contact }}</h4>
+                @endif
+                @if(($saleInvoice->address ?? '') !== '')
+                    <h4 class="margin-bottom-10">{{ __('Address') }}: {{ $saleInvoice->address }}</h4>
+                @endif
+            @else
+                @if(($saleInvoice->party?->phone_no ?? '') !== '')
+                    <h4 class="margin-bottom-10">{{ __('Phone') }}: {{ $saleInvoice->party->phone_no }}</h4>
+                @endif
+                @if(($saleInvoice->party?->address ?? '') !== '')
+                    <h4 class="margin-bottom-10">{{ __('Address') }}: {{ $saleInvoice->party->address }}</h4>
+                @endif
+            @endif
         </div>
     </div>
 
@@ -116,6 +133,18 @@
             <tr>
                 <td>{{ __('Shipping Charges') }}</td>
                 <td>{{ number_format((float) $saleInvoice->shipping_charges, 2) }}</td>
+            </tr>
+        @endif
+        @if((float) ($saleInvoice->adjustment ?? 0) != 0.0)
+            <tr>
+                <td>{{ __('Adjustment') }}</td>
+                <td>{{ ((float) ($saleInvoice->adjustment ?? 0) >= 0 ? '+ ' : '- ') . number_format(abs((float) ($saleInvoice->adjustment ?? 0)), 2) }}</td>
+            </tr>
+        @endif
+        @if((float) ($saleInvoice->discount ?? 0) > 0)
+            <tr>
+                <td>{{ __('Discount') }}</td>
+                <td>{{ '- ' . number_format((float) ($saleInvoice->discount ?? 0), 2) }}</td>
             </tr>
         @endif
         <tr>

@@ -25,9 +25,13 @@
                     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                         <div class="flex items-center gap-6">
                             <div class="flex-shrink-0">
-                                <div class="h-20 w-20 rounded-xl bg-indigo-100 flex items-center justify-center">
-                                    <span class="text-indigo-700 text-2xl font-bold">{{ Str::substr($business->business_name, 0, 2) }}</span>
-                                </div>
+                                @if($business->logo)
+                                    <img src="{{ asset('storage/' . $business->logo) }}" alt="Business logo" class="h-20 w-20 rounded-xl object-contain border border-gray-200 bg-white">
+                                @else
+                                    <div class="h-20 w-20 rounded-xl bg-indigo-100 flex items-center justify-center">
+                                        <span class="text-indigo-700 text-2xl font-bold">{{ Str::substr($business->business_name, 0, 2) }}</span>
+                                    </div>
+                                @endif
                             </div>
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900">{{ $business->business_name }}</h1>

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class BusinessController extends Controller
 {
@@ -100,6 +101,8 @@ class BusinessController extends Controller
                 'store_city_id' => 'nullable|exists:cities,id',
                 'store_country_id' => 'nullable|exists:countries,id',
                 'store_postal_code' => 'nullable|string|max:20',
+                'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'remove_logo' => 'nullable|boolean',
             ]);
         } else {
             // Non-admin: validate only store info, but still require business_name, owner_name, and package_id
@@ -120,7 +123,12 @@ class BusinessController extends Controller
                 'store_city_id' => 'nullable|exists:cities,id',
                 'store_country_id' => 'nullable|exists:countries,id',
                 'store_postal_code' => 'nullable|string|max:20',
+                'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             ]);
+        }
+
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $request->file('logo')->store('business-logos', 'public');
         }
 
         $business = Business::create($validated);
@@ -230,6 +238,7 @@ class BusinessController extends Controller
                 'store_city_id' => 'nullable|exists:cities,id',
                 'store_country_id' => 'nullable|exists:countries,id',
                 'store_postal_code' => 'nullable|string|max:20',
+                'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             ]);
         } else {
             // Non-admin: validate only store info, but still require business_name, owner_name, and package_id
@@ -250,8 +259,25 @@ class BusinessController extends Controller
                 'store_city_id' => 'nullable|exists:cities,id',
                 'store_country_id' => 'nullable|exists:countries,id',
                 'store_postal_code' => 'nullable|string|max:20',
+                'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'remove_logo' => 'nullable|boolean',
             ]);
         }
+
+        if ($request->boolean('remove_logo')) {
+            if ($business->logo) {
+                Storage::disk('public')->delete($business->logo);
+            }
+            $validated['logo'] = null;
+        }
+
+        if ($request->hasFile('logo')) {
+            if ($business->logo) {
+                Storage::disk('public')->delete($business->logo);
+            }
+            $validated['logo'] = $request->file('logo')->store('business-logos', 'public');
+        }
+
         $business->update($validated);
         return redirect()->route('businesses.index')->with('success', 'Business updated successfully.');
     }
