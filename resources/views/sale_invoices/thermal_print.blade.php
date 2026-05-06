@@ -94,9 +94,8 @@
         <thead>
             <tr>
                 <th style="width:10%">#</th>
-                <th style="width:50%">{{ __('Items') }}</th>
+                <th style="width:63%">{{ __('Items') }}</th>
                 <th style="width:12%">{{ __('QTY') }}</th>
-                <th style="width:13%">{{ __('Rate') }}</th>
                 <th style="width:15%">{{ __('Amount') }}</th>
             </tr>
         </thead>
@@ -104,14 +103,13 @@
             @php $no = 1; @endphp
             @forelse($groupedLines as $groupTitle => $rows)
                 <tr class="group-row">
-                    <td colspan="5">{{ $groupTitle }}</td>
+                    <td colspan="4">{{ $groupTitle }}</td>
                 </tr>
                 @foreach($rows as $value)
                     <tr>
                         <td>{{ $no }}</td>
                         <td>{{ $value['item_name'] }}</td>
                         <td>{{ number_format((float) $value['quantity'], (float) $value['quantity'] == floor((float) $value['quantity']) ? 0 : 2) }}</td>
-                        <td>{{ number_format((float) $value['price'], 2) }}</td>
                         <td>{{ number_format((float) $value['total'], 2) }}</td>
                     </tr>
                     @php $no++; @endphp
