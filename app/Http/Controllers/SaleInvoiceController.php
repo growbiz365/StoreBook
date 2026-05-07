@@ -513,13 +513,11 @@ class SaleInvoiceController extends Controller
 
         $saleInvoice->load(['generalLines.generalItem', 'armLines.arm']);
 
-        // Calculate correct available stock for edit form
-        // For edit: available stock = current stock + previously sold quantity from this invoice
-        foreach ($saleInvoice->generalLines as $line) {
-            $currentStock = GeneralItemStockLedger::getCurrentBalance($line->general_item_id);
-            $previouslySoldQty = $line->quantity; // Quantity that was sold in this invoice
-            $line->generalItem->available_stock = $currentStock + $previouslySoldQty;
-        }
+        // For edit: available stock = current stock + quantity already sold on this invoice (per item)
+        $previouslySoldByItemId = $saleInvoice->generalLines
+            ->groupBy('general_item_id')
+            ->map(fn ($lines) => (float) $lines->sum('quantity'))
+            ->toArray();
 
         $lineItemIds = $saleInvoice->generalLines->pluck('general_item_id')->filter()->unique()->values()->all();
         $generalItems = GeneralItem::where('business_id', $businessId)
@@ -534,7 +532,9 @@ class SaleInvoiceController extends Controller
             ->get();
 
         foreach ($generalItems as $item) {
-            $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
+            $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
+            $current = (float) ($stockBal['balance'] ?? 0);
+            $item->available_stock = $current + (float) ($previouslySoldByItemId[$item->id] ?? 0);
         }
 
         $itemTypes = ItemType::where('business_id', $businessId)
@@ -1938,9 +1938,10 @@ class SaleInvoiceController extends Controller
             $stockBalance = GeneralItemStockLedger::getStockBalance($itemId);
             $currentStock = $stockBalance['balance'];
 
-            // Find the original quantity sold in this invoice
-            $originalLine = $saleInvoice->generalLines->where('general_item_id', $itemId)->first();
-            $previouslySoldQty = $originalLine ? $originalLine->quantity : 0;
+            // Find the original quantity sold in this invoice (sum, in case the item appears more than once)
+            $previouslySoldQty = (float) $saleInvoice->generalLines
+                ->where('general_item_id', $itemId)
+                ->sum('quantity');
 
             // Calculate available stock for edit: current stock + previously sold quantity
             $availableQty = $currentStock + $previouslySoldQty;

@@ -677,7 +677,11 @@
                                     @foreach($saleInvoice->generalLines as $index => $line)
                                         @php
                                             $gi = $line->generalItem;
-                                            $avail = $gi->available_stock ?? 0;
+                                            // For edit: show available stock = current stock + quantity already sold on this invoice (for this item)
+                                            $stockBal = \App\Models\GeneralItemStockLedger::getStockBalance($line->general_item_id);
+                                            $currentStock = (float) ($stockBal['balance'] ?? 0);
+                                            $prevSoldQty = (float) $saleInvoice->generalLines->where('general_item_id', $line->general_item_id)->sum('quantity');
+                                            $avail = (float) $currentStock + (float) $prevSoldQty;
                                             $dParts = [];
                                             if ($gi->item_code) { $dParts[] = 'Code: ' . $gi->item_code; }
                                             if ($gi->itemType) { $dParts[] = $gi->itemType->item_type; }
@@ -1361,29 +1365,18 @@
                 const selectedItemId = row.querySelector('.line-item-id')?.value;
                 const quantityInput = row.querySelector('input[name*="[qty]"]');
                 const quantity = parseFloat(quantityInput?.value || 0);
-                const detailsCell = row.querySelector('.general-details-cell');
-                    const stockInfo = row.querySelector('.item-info');
-                let stockText = '';
-                if (detailsCell && detailsCell.textContent) {
-                    stockText = detailsCell.textContent;
-                } else if (stockInfo) {
-                    stockText = stockInfo.textContent;
-                }
-                
                 if (selectedItemId && quantity > 0) {
-                        const stockMatch = stockText.match(/Stock:\s*(\d+(?:\.\d+)?)/);
-                        if (stockMatch) {
-                            const availableStock = parseFloat(stockMatch[1]);
-                            if (quantity > availableStock) {
-                                hasInsufficientStock = true;
-                            const itemName = nameEl ? (nameEl.value || nameEl.textContent || 'Item') : 'Item';
-                                stockErrors.push(`Line ${index + 1}: Insufficient stock for '${itemName}'. Available: ${availableStock}, Required: ${quantity}`);
-                                quantityInput.style.borderColor = '#ef4444';
-                                quantityInput.style.backgroundColor = '#fef2f2';
-                            } else {
-                                quantityInput.style.borderColor = '';
-                                quantityInput.style.backgroundColor = '';
-                        }
+                    const cat = getCatalogItemById(selectedItemId);
+                    const availableStock = parseFloat(cat?.available_stock || 0);
+                    if (quantity > availableStock) {
+                        hasInsufficientStock = true;
+                        const itemName = nameEl ? (nameEl.value || nameEl.textContent || 'Item') : 'Item';
+                        stockErrors.push(`Line ${index + 1}: Insufficient stock for '${itemName}'. Available: ${availableStock}, Required: ${quantity}`);
+                        quantityInput.style.borderColor = '#ef4444';
+                        quantityInput.style.backgroundColor = '#fef2f2';
+                    } else {
+                        quantityInput.style.borderColor = '';
+                        quantityInput.style.backgroundColor = '';
                     }
                 }
             });
@@ -1401,39 +1394,29 @@
             const row = quantityInput.closest('.general-item-row');
             const selectedItemId = row.querySelector('.line-item-id')?.value;
             const quantity = parseFloat(quantityInput.value || 0);
-            const detailsCell = row.querySelector('.general-details-cell');
-                const stockInfo = row.querySelector('.item-info');
-            let stockText = '';
-            if (detailsCell && detailsCell.textContent) {
-                stockText = detailsCell.textContent;
-            } else if (stockInfo) {
-                stockText = stockInfo.textContent;
-            }
             
             if (selectedItemId && quantity > 0) {
-                    const stockMatch = stockText.match(/Stock:\s*(\d+(?:\.\d+)?)/);
-                    if (stockMatch) {
-                        const availableStock = parseFloat(stockMatch[1]);
-                        if (quantity > availableStock) {
-                            // Show error styling
-                            quantityInput.style.borderColor = '#ef4444';
-                            quantityInput.style.backgroundColor = '#fef2f2';
-                            
-                            // Show error message
-                            let errorDiv = row.querySelector('.quantity-error');
-                            if (!errorDiv) {
-                                errorDiv = document.createElement('div');
-                                errorDiv.className = 'quantity-error text-xs text-red-600 mt-1';
-                                quantityInput.parentNode.appendChild(errorDiv);
-                            }
-                            errorDiv.textContent = `Insufficient stock. Available: ${availableStock}`;
-                        } else {
-                            quantityInput.style.borderColor = '';
-                            quantityInput.style.backgroundColor = '';
-                            const errorDiv = row.querySelector('.quantity-error');
-                            if (errorDiv) {
-                                errorDiv.remove();
-                        }
+                const cat = getCatalogItemById(selectedItemId);
+                const availableStock = parseFloat(cat?.available_stock || 0);
+                if (quantity > availableStock) {
+                    // Show error styling
+                    quantityInput.style.borderColor = '#ef4444';
+                    quantityInput.style.backgroundColor = '#fef2f2';
+                    
+                    // Show error message
+                    let errorDiv = row.querySelector('.quantity-error');
+                    if (!errorDiv) {
+                        errorDiv = document.createElement('div');
+                        errorDiv.className = 'quantity-error text-xs text-red-600 mt-1';
+                        quantityInput.parentNode.appendChild(errorDiv);
+                    }
+                    errorDiv.textContent = `Insufficient stock. Available: ${availableStock}`;
+                } else {
+                    quantityInput.style.borderColor = '';
+                    quantityInput.style.backgroundColor = '';
+                    const errorDiv = row.querySelector('.quantity-error');
+                    if (errorDiv) {
+                        errorDiv.remove();
                     }
                 }
             } else {
@@ -2098,6 +2081,15 @@
         window._saleInvoiceResetGeneralItemIndexForRestore = function() {
             generalItemIndex = 0;
         };
+
+        // Match create.blade: attach listeners + validate for all existing rows
+        document.querySelectorAll('.general-item-row').forEach((row) => {
+            attachGeneralRowListeners(row);
+            const qtyInput = row.querySelector('.general-qty');
+            if (qtyInput) {
+                validateQuantityForRow(qtyInput);
+            }
+        });
 
         document.getElementById('pos_barcode')?.addEventListener('keydown', function(e) {
             if (e.key !== 'Enter') {
