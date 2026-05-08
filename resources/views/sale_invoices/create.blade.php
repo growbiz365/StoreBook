@@ -561,10 +561,14 @@
                 window.__POS_ITEM_BY_CODE[String(it.item_code).trim().toLowerCase()] = it;
             }
         });
+        window.__SALE_INVOICE_PREFILL = @json($prefill ?? null);
     </script>
 
     <form method="POST" action="{{ route('sale-invoices.store') }}" id="saleInvoiceForm">
         @csrf
+        @if(!empty($prefill['quotation_id']))
+            <input type="hidden" name="quotation_id" id="quotation_id" value="{{ $prefill['quotation_id'] }}">
+        @endif
 
         @if(session('error'))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -880,8 +884,22 @@
      </template>
 
     <script>
+    // Silence noisy debug logs when opening from quotation convert
+    (function() {
+        try {
+            const qp = new URLSearchParams(window.location.search).get('quotation_id');
+            if (!qp) return;
+            ['log', 'info', 'warn', 'debug'].forEach((k) => {
+                if (console && typeof console[k] === 'function') {
+                    console[k] = function() {};
+                }
+            });
+        } catch (e) {}
+    })();
+
     // Clear data immediately if this is a fresh page load (no flags set)
     (function() {
+        const quotationPrefillId = (window.__SALE_INVOICE_PREFILL && window.__SALE_INVOICE_PREFILL.quotation_id) ? String(window.__SALE_INVOICE_PREFILL.quotation_id) : '';
         const wasSubmitting = sessionStorage.getItem('sale_invoice_form_submitting');
         const hasFailedSubmissionFlag = localStorage.getItem('sale_invoice_form_failed_submission');
         
@@ -912,6 +930,16 @@
             referrer: document.referrer
         });
         
+        // If we are opening from a quotation, always start clean and skip restoring localStorage draft.
+        if (quotationPrefillId) {
+            console.log('Quotation prefill detected; clearing saved sale invoice form data', { quotation_id: quotationPrefillId });
+            localStorage.removeItem('sale_invoice_form_data');
+            localStorage.removeItem('sale_invoice_form_failed_submission');
+            sessionStorage.removeItem('sale_invoice_form_submitting');
+            sessionStorage.setItem('sale_invoice_skip_restore_once', '1');
+            return;
+        }
+
         // Clear data if:
         // 1. Fresh page load (no flags), OR
         // 2. Success message is visible (regardless of flags), OR
@@ -944,6 +972,121 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         let generalItemIndex = 0;
+
+        // ===== PREFILL FROM QUOTATION (opens sale invoice form with quotation lines) =====
+        (function applyQuotationPrefill() {
+            const prefill = window.__SALE_INVOICE_PREFILL;
+            if (!prefill || !prefill.quotation_id) {
+                return;
+            }
+
+            const hasAnyLine = document.querySelectorAll('.general-item-row').length > 0 || document.querySelectorAll('.arm-row').length > 0;
+            if (hasAnyLine) {
+                return;
+            }
+
+            // Wait until row helpers are ready (they are defined later in this script)
+            const appendRow = window._saleInvoiceAppendStaticRow;
+            const fillRow = window._saleInvoiceFillStaticRow;
+            if ((!appendRow || !fillRow) && Array.isArray(prefill.general_items) && prefill.general_items.length) {
+                requestAnimationFrame(applyQuotationPrefill);
+                return;
+            }
+
+            const st = document.getElementById('sale_type');
+            if (st && prefill.sale_type) {
+                st.value = prefill.sale_type;
+                st.dispatchEvent(new Event('change'));
+            }
+
+            const invDate = document.getElementById('invoice_date');
+            if (invDate && prefill.invoice_date) {
+                invDate.value = prefill.invoice_date;
+            }
+
+            const ship = document.getElementById('shipping_charges');
+            if (ship && prefill.shipping_charges !== undefined) {
+                ship.value = prefill.shipping_charges;
+            }
+            const adj = document.getElementById('adjustment');
+            if (adj && prefill.adjustment !== undefined) {
+                adj.value = prefill.adjustment;
+            }
+            const disc = document.getElementById('discount');
+            if (disc && prefill.discount !== undefined) {
+                disc.value = prefill.discount;
+            }
+
+            const bankSel = document.getElementById('bank_id');
+            const partyIdEl = document.getElementById('party_id');
+            const partySearchEl = document.getElementById('party_search_input');
+
+            if (prefill.sale_type === 'cash') {
+                // Cash: set bank, clear party
+                if (bankSel && prefill.bank_id) {
+                    bankSel.value = prefill.bank_id;
+                    bankSel.dispatchEvent(new Event('change'));
+                }
+                if (partyIdEl) {
+                    partyIdEl.value = '';
+                    partyIdEl.dispatchEvent(new Event('change'));
+                }
+                if (partySearchEl) {
+                    partySearchEl.value = '';
+                }
+            } else {
+                // Credit: set party, clear bank
+                if (bankSel) {
+                    bankSel.value = '';
+                    bankSel.dispatchEvent(new Event('change'));
+                }
+                if (partyIdEl && prefill.party_id) {
+                    partyIdEl.value = prefill.party_id;
+                    partyIdEl.dispatchEvent(new Event('change'));
+                    if (partySearchEl && prefill.party_display) {
+                        partySearchEl.value = prefill.party_display;
+                    }
+                    if (window.restorePartyDisplay) {
+                        window.restorePartyDisplay(prefill.party_id);
+                    }
+                }
+            }
+
+            // Cash customer details (optional, if quotation carried them)
+            const cn = document.getElementById('name_of_customer');
+            if (cn && prefill.name_of_customer) cn.value = prefill.name_of_customer;
+            const cph = document.getElementById('contact');
+            if (cph && prefill.contact) cph.value = prefill.contact;
+            const caddr = document.getElementById('address');
+            if (caddr && prefill.address) caddr.value = prefill.address;
+
+            // Add general item lines using existing row helpers
+            if (appendRow && fillRow && Array.isArray(prefill.general_items)) {
+                prefill.general_items.forEach((li) => {
+                    if (!li || !li.general_item_id) return;
+                    const row = appendRow();
+                    const cat = getCatalogItemById(li.general_item_id);
+                    if (cat) {
+                        fillRow(row, cat);
+                    } else {
+                        // Fallback: set hidden id only
+                        const hid = row.querySelector('.line-item-id');
+                        if (hid) hid.value = li.general_item_id;
+                    }
+                    const qtyInput = row.querySelector('.general-qty');
+                    const priceInput = row.querySelector('.general-sale-price');
+                    if (qtyInput && li.qty != null) qtyInput.value = li.qty;
+                    if (priceInput && li.unit_price != null) priceInput.value = li.unit_price;
+                    if (priceInput && window._saleInvoiceCalculateLineTotal) {
+                        window._saleInvoiceCalculateLineTotal(priceInput);
+                    }
+                });
+            }
+
+            if (window._saleInvoiceCalculateTotals) {
+                window._saleInvoiceCalculateTotals();
+            }
+        })();
 
         function updatePosSaleTypeButtons() {
             const v = document.getElementById('sale_type').value;
@@ -2450,9 +2593,21 @@
     };
 
     // ===== DATA PERSISTENCE FOR SALE INVOICE FORM =====
+    // Disabled: it interferes with quotation → sale prefill and causes stale restores.
+    const SALE_INVOICE_PERSISTENCE_ENABLED = false;
+    if (!SALE_INVOICE_PERSISTENCE_ENABLED) {
+        try {
+            localStorage.removeItem('sale_invoice_form_data');
+            localStorage.removeItem('sale_invoice_form_failed_submission');
+            sessionStorage.removeItem('sale_invoice_form_submitting');
+        } catch (e) {}
+    }
 
     // Function to save sale invoice form data to localStorage
     function saveSaleInvoiceFormData() {
+        if (!SALE_INVOICE_PERSISTENCE_ENABLED) {
+            return;
+        }
         try {
             const formData = {
                 business_id: '{{ session("active_business") }}', // Store business_id for validation
@@ -2533,6 +2688,14 @@
     // Function to load saved sale invoice form data from localStorage
     function loadSavedSaleInvoiceData() {
         try {
+            if (!SALE_INVOICE_PERSISTENCE_ENABLED) {
+                return;
+            }
+            if ((window.__SALE_INVOICE_PREFILL && window.__SALE_INVOICE_PREFILL.quotation_id) || sessionStorage.getItem('sale_invoice_skip_restore_once') === '1') {
+                sessionStorage.removeItem('sale_invoice_skip_restore_once');
+                console.log('Skipping localStorage restore due to quotation prefill.');
+                return;
+            }
             const savedData = localStorage.getItem('sale_invoice_form_data');
             if (!savedData) {
                 console.log('No saved sale invoice data found');
@@ -2631,6 +2794,9 @@
 
     // Function to clear saved sale invoice form data
     function clearSaleInvoiceFormData() {
+        if (!SALE_INVOICE_PERSISTENCE_ENABLED) {
+            return;
+        }
         localStorage.removeItem('sale_invoice_form_data');
         localStorage.removeItem('sale_invoice_form_failed_submission');
         sessionStorage.removeItem('sale_invoice_form_submitting');
@@ -2713,6 +2879,9 @@
 
     // Function to add data persistence listeners
     function addSaleInvoiceDataPersistenceListeners() {
+        if (!SALE_INVOICE_PERSISTENCE_ENABLED) {
+            return;
+        }
         // Add listeners to form fields
         const formFields = [
             'sale_type',
@@ -2769,14 +2938,16 @@
             clearSaleInvoiceFormData();
         }
         
-        // Add data persistence listeners
+        // Add data persistence listeners (no-op if disabled)
         addSaleInvoiceDataPersistenceListeners();
         
-        // Set up form submission tracking
-        document.getElementById('saleInvoiceForm').addEventListener('submit', function(e) {
-            sessionStorage.setItem('sale_invoice_form_submitting', 'true');
-            localStorage.setItem('sale_invoice_form_failed_submission', 'true');
-        });
+        // Set up form submission tracking only when persistence is enabled
+        if (SALE_INVOICE_PERSISTENCE_ENABLED) {
+            document.getElementById('saleInvoiceForm').addEventListener('submit', function(e) {
+                sessionStorage.setItem('sale_invoice_form_submitting', 'true');
+                localStorage.setItem('sale_invoice_form_failed_submission', 'true');
+            });
+        }
         
         // Clear flags when leaving the page (handles successful submissions)
         window.addEventListener('beforeunload', function(e) {

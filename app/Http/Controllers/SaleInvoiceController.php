@@ -7,6 +7,7 @@ use App\Models\Party;
 use App\Models\Bank;
 use App\Models\GeneralItem;
 use App\Models\Arm;
+use App\Models\Quotation;
 use App\Models\GeneralBatch;
 use App\Models\GeneralItemStockLedger;
 use App\Models\ArmsStockLedger;
@@ -136,7 +137,7 @@ class SaleInvoiceController extends Controller
     /**
      * Show the form for creating a new sale invoice.
      */
-    public function create()
+    public function create(Request $request)
     {
         $businessId = session('active_business');
 
@@ -157,7 +158,8 @@ class SaleInvoiceController extends Controller
 
         // Add available stock to each general item
         foreach ($generalItems as $item) {
-            $item->available_stock = GeneralItemStockLedger::getCurrentBalance($item->id);
+            $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
+            $item->available_stock = (float) ($stockBal['balance'] ?? 0);
         }
 
         $arms = Arm::where('business_id', $businessId)
@@ -170,7 +172,52 @@ class SaleInvoiceController extends Controller
             ->orderBy('item_type')
             ->get();
 
-        return view('sale_invoices.create', compact('customers', 'banks', 'generalItems', 'arms', 'itemTypes'));
+        $prefill = null;
+        $prefillQuotation = null;
+        if ($request->filled('quotation_id')) {
+            $prefillQuotation = Quotation::with([
+                'party',
+                'bank',
+                'generalLines.generalItem.itemType',
+                'armLines.arm',
+            ])->where('business_id', $businessId)->findOrFail($request->quotation_id);
+
+            // Prevent re-conversion if already converted
+            if ($prefillQuotation->converted_to_sale_id) {
+                return redirect()
+                    ->route('sale-invoices.show', $prefillQuotation->converted_to_sale_id)
+                    ->with('info', 'This quotation is already converted to a sale invoice.');
+            }
+
+            $prefill = [
+                'quotation_id' => $prefillQuotation->id,
+                'sale_type' => $prefillQuotation->payment_type,
+                // Only prefill the relevant side to avoid cash+credit fields both set
+                'party_id' => $prefillQuotation->payment_type === 'credit' ? $prefillQuotation->party_id : null,
+                'party_display' => $prefillQuotation->payment_type === 'credit' ? ($prefillQuotation->party?->name ?? '') : '',
+                'bank_id' => $prefillQuotation->payment_type === 'cash' ? $prefillQuotation->bank_id : null,
+                'invoice_date' => optional($prefillQuotation->quotation_date)->format('Y-m-d') ?? date('Y-m-d'),
+                'shipping_charges' => (float) ($prefillQuotation->shipping_charges ?? 0),
+                'adjustment' => 0,
+                'discount' => 0,
+                'notes' => $prefillQuotation->notes ?? '',
+                'general_items' => $prefillQuotation->generalLines->map(function ($l) {
+                    return [
+                        'general_item_id' => $l->general_item_id,
+                        'qty' => (float) $l->quantity,
+                        'unit_price' => (float) $l->sale_price,
+                    ];
+                })->values()->all(),
+                'arms' => $prefillQuotation->armLines->map(function ($l) {
+                    return [
+                        'arm_id' => $l->arm_id,
+                        'sale_price' => (float) $l->sale_price,
+                    ];
+                })->values()->all(),
+            ];
+        }
+
+        return view('sale_invoices.create', compact('customers', 'banks', 'generalItems', 'arms', 'itemTypes', 'prefill', 'prefillQuotation'));
     }
 
     /**
@@ -192,6 +239,7 @@ class SaleInvoiceController extends Controller
 
             // Validate main sale invoice data (before opening a DB transaction)
             $validator = Validator::make($request->all(), [
+                'quotation_id' => 'nullable|exists:quotations,id',
                 'party_id' => 'nullable|required_if:sale_type,credit|exists:parties,id',
                 'sale_type' => 'required|in:cash,credit',
                 'bank_id' => 'nullable|required_if:sale_type,cash|exists:banks,id',
@@ -272,10 +320,22 @@ class SaleInvoiceController extends Controller
 
             DB::beginTransaction();
 
+            $quotation = null;
+            if ($request->filled('quotation_id')) {
+                $quotation = Quotation::where('business_id', $businessId)->lockForUpdate()->findOrFail($request->quotation_id);
+                if ($quotation->converted_to_sale_id) {
+                    DB::rollBack();
+                    return redirect()
+                        ->route('sale-invoices.show', $quotation->converted_to_sale_id)
+                        ->with('info', 'This quotation is already converted to a sale invoice.');
+                }
+            }
+
             // Create sale invoice
             $saleInvoice = SaleInvoice::create([
                 'business_id' => $businessId,
                 'party_id' => $request->party_id ?: null, // Handle null for cash sales
+                'quotation_id' => $request->quotation_id ?: null,
                 'sale_type' => $request->sale_type,
                 'bank_id' => $request->bank_id,
                 'invoice_date' => $request->invoice_date,
@@ -330,6 +390,14 @@ class SaleInvoiceController extends Controller
             // Calculate totals
             $saleInvoice->calculateTotals();
             $saleInvoice->save();
+
+            // Mark quotation as converted once the sale invoice draft exists
+            if ($quotation) {
+                $quotation->update([
+                    'status' => 'converted',
+                    'converted_to_sale_id' => $saleInvoice->id,
+                ]);
+            }
 
             // Create audit log
             SaleInvoiceAuditLog::create([

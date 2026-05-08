@@ -508,91 +508,11 @@ class QuotationController extends Controller
                 ->with('error', 'This quotation cannot be converted. It may be expired, rejected, or already converted.');
         }
 
-        try {
-            DB::beginTransaction();
-
-            $businessId = $quotation->business_id;
-            $userId = auth()->id();
-
-            // Load quotation lines
-            $quotation->load(['generalLines.generalItem', 'armLines.arm', 'party', 'bank']);
-
-            // Validate stock availability for every general line before creating anything
-            $stockShortages = [];
-            foreach ($quotation->generalLines as $line) {
-                $available = GeneralBatch::where('item_id', $line->general_item_id)
-                    ->where('qty_remaining', '>', 0)
-                    ->sum('qty_remaining');
-
-                if ($available < $line->quantity) {
-                    $stockShortages[] = [
-                        'item_name' => $line->generalItem->item_name ?? 'Item #' . $line->general_item_id,
-                        'required'  => $line->quantity,
-                        'available' => $available,
-                        'short'     => $line->quantity - $available,
-                    ];
-                }
-            }
-
-            if (!empty($stockShortages)) {
-                DB::rollBack();
-                return back()
-                    ->with('stock_shortages', $stockShortages)
-                    ->with('error', 'Cannot convert quotation: insufficient stock for one or more items.');
-            }
-
-            // Create sale invoice with status 'posted'
-            $saleInvoice = SaleInvoice::create([
-                'business_id' => $businessId,
-                'party_id' => $quotation->party_id,
-                'quotation_id' => $quotation->id, // Link to quotation
-                'sale_type' => $quotation->payment_type,
-                'bank_id' => $quotation->bank_id,
-                'invoice_date' => today(), // Use today's date for invoice
-                'shipping_charges' => $quotation->shipping_charges,
-                'subtotal' => $quotation->subtotal,
-                'total_amount' => $quotation->total_amount,
-                'status' => 'posted', // Directly posted
-                'created_by' => $userId,
-                'posted_by' => $userId,
-            ]);
-
-            // Create general line items
-            foreach ($quotation->generalLines as $line) {
-                $saleInvoice->generalLines()->create([
-                    'general_item_id' => $line->general_item_id,
-                    'quantity' => $line->quantity,
-                    'sale_price' => $line->sale_price,
-                ]);
-            }
-
-            // Create arm line items
-            foreach ($quotation->armLines as $line) {
-                $saleInvoice->armLines()->create([
-                    'arm_id' => $line->arm_id,
-                    'sale_price' => $line->sale_price,
-                ]);
-            }
-
-            // Post the sale invoice (create stock ledger, journal entries, etc.)
-            $this->postSaleInvoice($saleInvoice);
-
-            // Update quotation status
-            $quotation->update([
-                'status' => 'converted',
-                'converted_to_sale_id' => $saleInvoice->id,
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('sale-invoices.show', $saleInvoice)
-                ->with('success', 'Quotation converted to sale invoice successfully and posted.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error converting quotation to sale: ' . $e->getMessage());
-            return back()->with('error', 'Failed to convert quotation to sale: ' . $e->getMessage());
-        }
+        // New flow: open sale invoice form prefilled from this quotation.
+        // This avoids duplicating sale-invoice logic inside quotations and lets the user save draft/post/print normally.
+        return redirect()
+            ->route('sale-invoices.create', ['quotation_id' => $quotation->id])
+            ->with('success', 'Quotation loaded into sale invoice form. Review and post when ready.');
     }
 
     /**

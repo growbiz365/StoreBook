@@ -123,15 +123,14 @@
         @endif
         
         @if($quotation->canBeConverted())
-            <form action="{{ route('quotations.convert-to-sale', $quotation) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to convert this quotation to a sale invoice? This action cannot be undone.')">
-                @csrf
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 shadow transition">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Convert to Sale
-                </button>
-            </form>
+            <a href="{{ route('sale-invoices.create', ['quotation_id' => $quotation->id]) }}"
+               class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 shadow transition"
+               onclick="return confirm('Open this quotation in the sale invoice form? You can save draft or post from there.');">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Convert to Sale
+            </a>
         @endif
         
         <button onclick="printInvoice()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow transition-colors duration-200">
