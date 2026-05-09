@@ -137,8 +137,9 @@
                 @endif
             </div>
 
-            <div class="header grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 text-sm border-b border-gray-200 pb-4 mb-4">
-                <div class="pl-5 min-w-0 sm:pl-6">
+            <div class="header text-sm border-b border-gray-200 pb-4 mb-4">
+                <div class="flex justify-between items-start gap-4">
+                <div class="flex-1 min-w-0 pl-5 sm:pl-6">
                     @if(($biz->logo ?? '') !== '')
                         <div class="mb-2">
                             <img src="{{ asset('storage/' . $biz->logo) }}" alt="Logo" class="h-12 w-auto max-w-[180px] object-contain">
@@ -172,7 +173,7 @@
                         @endif
                     @endif
                 </div>
-                <div class="text-left md:text-right">
+                <div class="shrink-0 text-right">
                     <h3 class="text-lg md:text-xl font-bold text-gray-900 leading-tight"><strong>SALE INVOICE</strong> # {{ $saleInvoice->invoice_number }}</h3>
                     <p class="text-gray-600 mt-1 text-xs">User: {{ $saleInvoice->createdBy?->name ?? 'System' }}</p>
                     <p class="text-gray-600 text-xs">Date: @businessDate($saleInvoice->invoice_date)</p>
@@ -180,6 +181,7 @@
                     @if($saleInvoice->bank)
                         <p class="text-gray-600 mt-1.5 text-xs">Bank: {{ $saleInvoice->bank->chartOfAccount->name ?? $saleInvoice->bank->account_name }}</p>
                     @endif
+                </div>
                 </div>
             </div>
 
@@ -216,16 +218,17 @@
                     <thead>
                         <tr>
                             <th class="w-[10%]">#</th>
-                            <th class="w-[58%]">Items</th>
+                            <th class="w-[50%]">Items</th>
                             <th class="w-[12%] text-right">QTY</th>
-                            <th class="w-[20%] text-right">Amount</th>
+                            <th class="w-[13%] text-right">Rate</th>
+                            <th class="w-[15%] text-right">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
                         @php $rowNo = 1; @endphp
                         @forelse($invoiceSections as $section)
                             <tr class="sale-invoice-group-row">
-                                <th colspan="4">{{ $section['title'] }}</th>
+                                <th colspan="5">{{ $section['title'] }}</th>
                             </tr>
                             @foreach($section['lines'] as $line)
                                 @if($section['kind'] === 'general')
@@ -233,6 +236,7 @@
                                         <td>{{ $rowNo }}</td>
                                         <td>{{ $line->generalItem->item_name }}</td>
                                         <td class="text-right">{{ (float) $line->quantity == floor((float) $line->quantity) ? number_format((float) $line->quantity, 0) : number_format((float) $line->quantity, 2) }}</td>
+                                        <td class="text-right">{{ number_format((float) $line->sale_price, 2) }}</td>
                                         <td class="text-right font-medium">{{ number_format((float) $line->line_total, 2) }}</td>
                                     </tr>
                                     @php $rowNo++; @endphp
@@ -246,31 +250,32 @@
                                             @endif
                                         </td>
                                         <td class="text-right">1</td>
+                                        <td class="text-right">{{ number_format((float) $line->sale_price, 2) }}</td>
                                         <td class="text-right font-medium">{{ number_format((float) ($line->line_total ?? $line->sale_price), 2) }}</td>
                                     </tr>
                                     @php $rowNo++; @endphp
                                 @endif
                             @endforeach
                         @empty
-                            <tr><td colspan="4" class="text-center text-gray-500 py-3">No line items.</td></tr>
+                            <tr><td colspan="5" class="text-center text-gray-500 py-3">No line items.</td></tr>
                         @endforelse
                     </tbody>
                     <tfoot>
                         @if((float) $saleInvoice->subtotal !== (float) $saleInvoice->total_amount)
                             <tr>
-                                <td colspan="3" class="text-right font-medium">Sub total</td>
+                                <td colspan="4" class="text-right font-medium">Sub total</td>
                                 <td class="text-right font-medium">{{ number_format((float) $saleInvoice->subtotal, 2) }}</td>
                             </tr>
                         @endif
                         @if((float) $saleInvoice->shipping_charges > 0)
                             <tr>
-                                <td colspan="3" class="text-right">Shipping charges</td>
+                                <td colspan="4" class="text-right">Shipping charges</td>
                                 <td class="text-right">{{ number_format((float) $saleInvoice->shipping_charges, 2) }}</td>
                             </tr>
                         @endif
                         @if((float) ($saleInvoice->adjustment ?? 0) != 0.0)
                             <tr>
-                                <td colspan="3" class="text-right">Adjustment</td>
+                                <td colspan="4" class="text-right">Adjustment</td>
                                 <td class="text-right">
                                     {{ ((float) ($saleInvoice->adjustment ?? 0) >= 0 ? '+ ' : '- ') . number_format(abs((float) ($saleInvoice->adjustment ?? 0)), 2) }}
                                 </td>
@@ -278,12 +283,12 @@
                         @endif
                         @if((float) ($saleInvoice->discount ?? 0) > 0)
                             <tr>
-                                <td colspan="3" class="text-right">Discount</td>
+                                <td colspan="4" class="text-right">Discount</td>
                                 <td class="text-right">- {{ number_format((float) ($saleInvoice->discount ?? 0), 2) }}</td>
                             </tr>
                         @endif
                         <tr>
-                            <td colspan="3" class="text-right"><strong>Invoice total</strong></td>
+                            <td colspan="4" class="text-right"><strong>Invoice total</strong></td>
                             <td class="text-right"><strong>{{ number_format((float) $saleInvoice->total_amount, 2) }}</strong></td>
                         </tr>
                         @if($saleInvoice->sale_type === 'credit' && $partyPreviousBalance !== null && $partyTotalBalance !== null)
@@ -299,14 +304,14 @@
                                 };
                             @endphp
                             <tr>
-                                <td colspan="3" class="text-right">
+                                <td colspan="4" class="text-right">
                                     <strong>Previous balance</strong>
                                     
                                 </td>
                                 <td class="text-right sale-invoice-balance-cell whitespace-nowrap"><strong>{{ $currencyLabel }} {{ $fmtPartyLedgerBal($partyPreviousBalance) }}</strong></td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="text-right"><strong>Total balance</strong></td>
+                                <td colspan="4" class="text-right"><strong>Total balance</strong></td>
                                 <td class="text-right sale-invoice-balance-cell whitespace-nowrap"><strong>{{ $currencyLabel }} {{ $fmtPartyLedgerBal($partyTotalBalance) }}</strong></td>
                             </tr>
                         @endif
@@ -403,7 +408,6 @@
             body * { visibility: hidden; }
             #printable-invoice, #printable-invoice * { visibility: visible; }
             .no-print { display: none !important; }
-            #printable-invoice .header.grid > div:first-child { padding-left: 0 !important; }
             body, html { margin: 0; padding: 0; background: white; font-family: 'Arial', sans-serif; }
             #printable-invoice {
                 position: absolute; left: 0; top: 0; width: 100%; max-width: none; margin: 0; padding: 0;
@@ -496,35 +500,6 @@
             #printable-invoice .mb-1 { margin-bottom: 3px !important; }
             #printable-invoice .items .grid { display: block !important; }
             #printable-invoice .items .md\:grid-cols-2 > div { display: block !important; margin-bottom: 15px !important; }
-            #printable-invoice .header .grid {
-                display: grid !important; 
-                grid-template-columns: 1fr 1fr 1fr !important; 
-                grid-template-rows: auto !important;
-                gap: 20px !important;
-            }
-            #printable-invoice .header .md\:grid-cols-3 { 
-                grid-template-columns: 1fr 1fr 1fr !important; 
-            }
-            #printable-invoice .header .grid > div {
-                display: block !important; 
-                margin-bottom: 0 !important; 
-                page-break-inside: avoid !important;
-            }
-            #printable-invoice .header .grid > div:first-child {
-                grid-column: 1 !important; 
-                text-align: left !important; 
-                justify-self: start !important;
-            }
-            #printable-invoice .header .grid > div:nth-child(2) {
-                grid-column: 2 !important; 
-                text-align: left !important; 
-                justify-self: start !important;
-            }
-            #printable-invoice .header .grid > div:last-child {
-                grid-column: 3 !important; 
-                text-align: right !important; 
-                justify-self: end !important;
-            }
             #printable-invoice .header .flex {
                 display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: flex-start !important;
             }

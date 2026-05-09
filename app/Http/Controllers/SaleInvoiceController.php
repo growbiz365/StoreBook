@@ -462,19 +462,13 @@ class SaleInvoiceController extends Controller
         $partyTotalBalance = $balances['after'];
 
         $invoiceSections = [];
-        $generalByType = [];
-        foreach ($saleInvoice->generalLines as $line) {
-            if (!$line->generalItem) {
-                continue;
-            }
-            $typeName = $line->generalItem->itemType?->item_type ?? 'Items';
-            if (!isset($generalByType[$typeName])) {
-                $generalByType[$typeName] = [];
-            }
-            $generalByType[$typeName][] = $line;
-        }
-        foreach ($generalByType as $title => $lines) {
-            $invoiceSections[] = ['title' => $title, 'kind' => 'general', 'lines' => $lines];
+        if ($saleInvoice->generalLines->isNotEmpty()) {
+            // Keep sale invoice item list flat (no item-type headings)
+            $invoiceSections[] = [
+                'title' => 'Items',
+                'kind' => 'general',
+                'lines' => $saleInvoice->generalLines->all(),
+            ];
         }
         if ($saleInvoice->armLines->isNotEmpty()) {
             $invoiceSections[] = [
