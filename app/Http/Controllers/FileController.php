@@ -6,6 +6,8 @@ use App\Models\PartyTransferAttachment;
 use App\Models\BankTransferAttachment;
 use App\Models\GeneralVoucherAttachment;
 use App\Models\ExpenseAttachment;
+use App\Models\OwnerContributionAttachment;
+use App\Models\OwnerDrawingAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -83,6 +85,42 @@ class FileController extends Controller
 
         // Check if file exists
         if (!Storage::disk('public')->exists($attachment->file_path)) {
+            abort(404, 'File not found');
+        }
+
+        return Storage::disk('public')->download(
+            $attachment->file_path,
+            $attachment->original_name
+        );
+    }
+
+    public function downloadOwnerContributionAttachment(OwnerContributionAttachment $attachment)
+    {
+        $contribution = $attachment->ownerContribution;
+
+        if (! $contribution || $contribution->business_id !== session('active_business')) {
+            abort(403, 'Access denied');
+        }
+
+        if (! Storage::disk('public')->exists($attachment->file_path)) {
+            abort(404, 'File not found');
+        }
+
+        return Storage::disk('public')->download(
+            $attachment->file_path,
+            $attachment->original_name
+        );
+    }
+
+    public function downloadOwnerDrawingAttachment(OwnerDrawingAttachment $attachment)
+    {
+        $drawing = $attachment->ownerDrawing;
+
+        if (! $drawing || $drawing->business_id !== session('active_business')) {
+            abort(403, 'Access denied');
+        }
+
+        if (! Storage::disk('public')->exists($attachment->file_path)) {
             abort(404, 'File not found');
         }
 

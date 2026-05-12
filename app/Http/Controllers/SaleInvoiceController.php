@@ -1207,19 +1207,34 @@ class SaleInvoiceController extends Controller
             }
         }
 
+        // Require grouped OR conditions — ungrouped orWhere drops business_id scope and can
+        // resolve another business's chart account; P&L then shows no revenue for this business.
         $salesRevenueId = ChartOfAccount::where('business_id', $businessId)
-            ->where('name', 'like', '%Sales%')
-            ->orWhere('name', 'like', '%Revenue%')
-            ->orWhere('name', 'like', '%Income%')
+            ->where('is_active', true)
+            ->where('type', 'income')
+            ->where(function ($q) {
+                $q->where('name', 'like', '%Sales%')
+                    ->orWhere('name', 'like', '%Revenue%')
+                    ->orWhere('name', 'like', '%Income%');
+            })
+            ->orderBy('code')
             ->value('id');
 
         $cogsId = ChartOfAccount::where('business_id', $businessId)
-            ->where('name', 'like', '%Cost of Goods%')
-            ->orWhere('name', 'like', '%COGS%')
+            ->where('is_active', true)
+            ->where('type', 'expense')
+            ->where(function ($q) {
+                $q->where('name', 'like', '%Cost of Goods%')
+                    ->orWhere('name', 'like', '%COGS%');
+            })
+            ->orderBy('code')
             ->value('id');
 
         $inventoryId = ChartOfAccount::where('business_id', $businessId)
+            ->where('is_active', true)
+            ->where('type', 'asset')
             ->where('name', 'like', '%Inventory%')
+            ->orderBy('code')
             ->value('id');
 
         // If any required account is missing, skip journal entries
@@ -1268,8 +1283,12 @@ class SaleInvoiceController extends Controller
             } else {
                 // Fallback to cash account if no bank selected
                 $cashAccountId = ChartOfAccount::where('business_id', $businessId)
-                    ->where('name', 'like', '%Cash%')
-                    ->orWhere('name', 'like', '%Bank%')
+                    ->where('is_active', true)
+                    ->where(function ($q) {
+                        $q->where('name', 'like', '%Cash%')
+                            ->orWhere('name', 'like', '%Bank%');
+                    })
+                    ->orderBy('code')
                     ->value('id');
 
                 if ($cashAccountId) {
@@ -1530,22 +1549,31 @@ class SaleInvoiceController extends Controller
         }
 
         $salesRevenueId = ChartOfAccount::where('business_id', $businessId)
-            ->where(function($q) {
+            ->where('is_active', true)
+            ->where('type', 'income')
+            ->where(function ($q) {
                 $q->where('name', 'like', '%Sales%')
-                  ->orWhere('name', 'like', '%Revenue%')
-                  ->orWhere('name', 'like', '%Income%');
+                    ->orWhere('name', 'like', '%Revenue%')
+                    ->orWhere('name', 'like', '%Income%');
             })
+            ->orderBy('code')
             ->value('id');
 
         $cogsId = ChartOfAccount::where('business_id', $businessId)
-            ->where(function($q) {
+            ->where('is_active', true)
+            ->where('type', 'expense')
+            ->where(function ($q) {
                 $q->where('name', 'like', '%Cost of Goods%')
-                  ->orWhere('name', 'like', '%COGS%');
+                    ->orWhere('name', 'like', '%COGS%');
             })
+            ->orderBy('code')
             ->value('id');
 
         $inventoryId = ChartOfAccount::where('business_id', $businessId)
+            ->where('is_active', true)
+            ->where('type', 'asset')
             ->where('name', 'like', '%Inventory%')
+            ->orderBy('code')
             ->value('id');
 
         Log::info('Chart of accounts lookup results', [

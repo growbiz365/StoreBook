@@ -2,13 +2,20 @@
     @section('title', 'General Items List - General Items Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'],['url' => '/general-items-dashboard', 'label' => 'General Items Dashboard'], ['url' => '#', 'label' => 'General Items']]" />
 
-    <x-dynamic-heading title="General Items" />
+    <x-dynamic-heading title="General Items">
+        <x-slot name="actions">
+            <a href="{{ route('general-items.export', request()->query()) }}"
+                class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-center text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 whitespace-nowrap">
+                Export CSV
+            </a>
+        </x-slot>
+    </x-dynamic-heading>
 
     <div class="space-y-4 pb-8">
         <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
             <div class="p-4 border-b border-gray-200 bg-white">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <form method="GET" action="{{ route('general-items.index') }}" class="w-full">
+                    <form method="GET" action="{{ route('general-items.index') }}" class="w-full lg:flex-1">
                         @foreach(request()->except(['item_name', 'item_type_id', 'item_code', 'page', 'status']) as $key => $value)
                             @if(is_array($value))
                                 @foreach($value as $v)
@@ -72,10 +79,10 @@
                     </form>
 
                     @can('create items')
-                        <div class="w-full lg:w-auto lg:ml-2">
+                        <div class="w-full lg:w-auto lg:ml-2 lg:shrink-0">
                             <x-button
                                 href="{{ route('general-items.create') }}"
-                                class="lg:whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700 active:bg-emerald-800 focus-visible:outline-emerald-600 focus:ring-emerald-500"
+                                class="w-full justify-center sm:w-auto lg:whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700 active:bg-emerald-800 focus-visible:outline-emerald-600 focus:ring-emerald-500"
                             >
                                 Add General Item
                             </x-button>

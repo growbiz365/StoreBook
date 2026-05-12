@@ -20,6 +20,8 @@ use App\Models\BankTransfer;
 use App\Models\Expense;
 use App\Models\OtherIncome;
 use App\Models\ChartOfAccount;
+use App\Models\OwnerContribution;
+use App\Models\OwnerDrawing;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -77,6 +79,8 @@ class AppServiceProvider extends ServiceProvider
             'Bank OB' => \App\Models\Bank::class,
             'Bank Transfer' => \App\Models\BankTransfer::class,
             'General Item' => \App\Models\GeneralItem::class,
+            OwnerContribution::VOUCHER_TYPE => \App\Models\OwnerContribution::class,
+            OwnerDrawing::VOUCHER_TYPE => \App\Models\OwnerDrawing::class,
         ]);
 
         // Register activity logging observers for all business-critical models
@@ -131,6 +135,9 @@ class AppServiceProvider extends ServiceProvider
                 
                 // Approval Module
                 \App\Models\Approval::class,
+                
+                \App\Models\OwnerContribution::class,
+                \App\Models\OwnerDrawing::class,
                 
                 // Quotation Module
                 \App\Models\Quotation::class,

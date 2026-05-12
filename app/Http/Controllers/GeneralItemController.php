@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\GeneralItem;
 use App\Models\ItemType;
 use Illuminate\Support\Facades\Validator;
@@ -23,32 +24,84 @@ class GeneralItemController extends Controller
     public function index(Request $request)
     {
         $businessId = session('active_business');
+        $itemTypes = ItemType::where('business_id', $businessId)
+            ->where('status', true)
+            ->orderBy('item_type')
+            ->get();
+
+        $query = $this->generalItemsIndexQuery($request, (int) $businessId);
+        $generalItems = $query->paginate(50)->withQueryString();
+
+        return view('general_items.index', compact('generalItems', 'itemTypes'));
+    }
+
+    /**
+     * Export filtered general items list as CSV (same filters/sort as index).
+     */
+    public function exportCsv(Request $request)
+    {
+        $businessId = session('active_business');
+        if (! $businessId) {
+            return redirect()->route('dashboard')->with('error', 'No active business selected.');
+        }
+
+        $items = $this->generalItemsIndexQuery($request, (int) $businessId)->get();
+        $filename = 'general-items-'.date('Y-m-d_His').'.csv';
+
+        return response()->streamDownload(function () use ($items) {
+            $file = fopen('php://output', 'w');
+            fwrite($file, "\xEF\xBB\xBF");
+            fputcsv($file, [
+                'Item Code',
+                'Item Name',
+                'Status',
+                'Item Type',
+                'Available Stock',
+                'Cost Price',
+                'Sale Price',
+                'Min Stock Limit',
+                'Carton / Pack Size',
+            ]);
+            foreach ($items as $item) {
+                $availableStock = round((float) $item->batches->sum('qty_remaining'));
+                fputcsv($file, [
+                    $item->item_code ?? '',
+                    $item->item_name ?? '',
+                    $item->is_active ? 'Active' : 'Inactive',
+                    $item->itemType?->item_type ?? '',
+                    $availableStock,
+                    number_format((float) $item->cost_price, 2, '.', ''),
+                    number_format((float) $item->sale_price, 2, '.', ''),
+                    $item->min_stock_limit ?? '',
+                    $item->carton_or_pack_size ?? '',
+                ]);
+            }
+            fclose($file);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    private function generalItemsIndexQuery(Request $request, int $businessId): Builder
+    {
         $asOnDate = Carbon::now()->format('Y-m-d');
         $query = GeneralItem::with(['itemType', 'batches' => function ($q) use ($asOnDate) {
             $q->where('status', 'active')
                 ->where('received_date', '<=', $asOnDate);
         }])->where('business_id', $businessId);
 
-        $itemTypes = ItemType::where('business_id', $businessId)
-            ->where('status', true)
-            ->orderBy('item_type')
-            ->get();
-
-        // Apply item name filter if provided
         if ($request->filled('item_name')) {
             $itemName = trim((string) $request->item_name);
-            $query->where('item_name', 'like', '%' . $itemName . '%');
+            $query->where('item_name', 'like', '%'.$itemName.'%');
         }
 
-        // Apply item type filter if provided
         if ($request->filled('item_type_id')) {
             $query->where('item_type_id', $request->item_type_id);
         }
 
-        // Apply item code filter if provided
         if ($request->filled('item_code')) {
             $itemCode = trim((string) $request->item_code);
-            $query->where('item_code', 'like', '%' . $itemCode . '%');
+            $query->where('item_code', 'like', '%'.$itemCode.'%');
         }
 
         if ($request->get('status') === 'active') {
@@ -57,21 +110,18 @@ class GeneralItemController extends Controller
             $query->where('is_active', false);
         }
 
-        // Apply sorting
         $sortBy = $request->get('sort_by', 'item_code');
         $sortOrder = $request->get('sort_order', 'asc');
-        
+
         if ($sortBy === 'item_code') {
-            // Natural numeric sort: 1, 2, 9, 10, 11, 100 instead of 1, 10, 100, 11, 2, 9
             $query->orderByRaw("LENGTH(item_code) $sortOrder, item_code $sortOrder");
-        } elseif (in_array($sortBy, ['item_name', 'cost_price', 'sale_price'])) {
+        } elseif (in_array($sortBy, ['item_name', 'cost_price', 'sale_price'], true)) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
             $query->orderByRaw('LENGTH(item_code) ASC, item_code ASC');
         }
 
-        $generalItems = $query->paginate(50)->withQueryString();
-        return view('general_items.index', compact('generalItems', 'itemTypes'));
+        return $query;
     }
 
     /**

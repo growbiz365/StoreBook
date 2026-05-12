@@ -173,6 +173,16 @@ class PermissionSeeder extends Seeder
             'edit general vouchers',
             'delete general vouchers',
 
+            'view owner contributions',
+            'create owner contributions',
+            'edit owner contributions',
+            'delete owner contributions',
+
+            'view owner drawings',
+            'create owner drawings',
+            'edit owner drawings',
+            'delete owner drawings',
+
             'view purchases',
             'create purchases',
             'edit purchases',

@@ -998,7 +998,7 @@
                 <input type="number" name="general_lines[INDEX][sale_price]" required step="0.01" min="0" class="ci-form-control general-sale-price" placeholder="0">
             </td>
             <td class="p-2 align-middle">
-                <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" class="ci-form-control general-qty" placeholder="0" value="1">
+                <input type="number" name="general_lines[INDEX][qty]" required step="0.01" min="0.01" class="ci-form-control general-qty" placeholder="0" value="1">
             </td>
             <td class="p-2 align-middle">
                 <span class="text-sm font-semibold general-line-total text-gray-900">0.00</span>
@@ -1106,6 +1106,20 @@
             console.log('Preserving data - submission flags detected, letting main logic handle restoration');
         }
     })();
+
+    function getCatalogItemById(id) {
+        if (id === undefined || id === null || id === '') {
+            return null;
+        }
+        const list = window.__POS_ITEM_CATALOG || [];
+        const sid = String(id);
+        for (let i = 0; i < list.length; i++) {
+            if (String(list[i].id) === sid) {
+                return list[i];
+            }
+        }
+        return null;
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize global tracking array with existing arm selections
@@ -2176,8 +2190,6 @@
         });
 
         new PosTopItemSearch();
-
-        document.querySelectorAll('#general_items_container .general-item-row').forEach(attachGeneralRowListeners);
 
         // Arm Searchable Dropdown
         class ArmSearchableDropdown {

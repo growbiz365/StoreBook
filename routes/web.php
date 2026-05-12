@@ -47,6 +47,8 @@ use App\Http\Controllers\SaleReturnController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\OwnerContributionController;
+use App\Http\Controllers\OwnerDrawingController;
 
 Route::get('/', [App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -298,6 +300,7 @@ Route::middleware('auth')->group(function () {
        
 
         Route::middleware([CheckModuleAndPermission::class . ':view items'])->group(function () {
+            Route::get('/general-items/export', [App\Http\Controllers\GeneralItemController::class, 'exportCsv'])->name('general-items.export');
             Route::patch('/general-items/{generalItem}/status', [App\Http\Controllers\GeneralItemController::class, 'updateStatus'])->name('general-items.update-status');
             Route::resource('general-items', App\Http\Controllers\GeneralItemController::class);
         });
@@ -387,6 +390,21 @@ Route::get('/banks/{bank}/balance', [BankController::class, 'getBalance'])->name
 
  Route::delete('general-vouchers/attachments/{attachment}', [GeneralVoucherController::class, 'deleteAttachment'])->name('general-vouchers.attachments.delete');
 
+Route::delete('owner-contributions/attachments/{attachment}', [OwnerContributionController::class, 'deleteAttachment'])
+    ->middleware('can:edit owner contributions')
+    ->name('owner-contributions.attachments.delete');
+
+Route::middleware([CheckModuleAndPermission::class . ':view owner contributions'])->group(function () {
+    Route::resource('owner-contributions', OwnerContributionController::class);
+});
+
+Route::delete('owner-drawings/attachments/{attachment}', [OwnerDrawingController::class, 'deleteAttachment'])
+    ->middleware('can:edit owner drawings')
+    ->name('owner-drawings.attachments.delete');
+
+Route::middleware([CheckModuleAndPermission::class . ':view owner drawings'])->group(function () {
+    Route::resource('owner-drawings', OwnerDrawingController::class);
+});
 
 
 
@@ -417,6 +435,8 @@ Route::resource('income-heads', IncomeHeadController::class);
  Route::get('files/bank-transfer-attachments/{attachment}', [FileController::class, 'downloadBankTransferAttachment'])->name('files.bank-transfer-attachments.download');
  Route::get('files/general-voucher-attachments/{attachment}', [FileController::class, 'downloadGeneralVoucherAttachment'])->name('files.general-voucher-attachments.download');
  Route::get('files/expense-attachments/{attachment}', [FileController::class, 'downloadExpenseAttachment'])->name('files.expense-attachments.download');
+ Route::get('files/owner-contribution-attachments/{attachment}', [FileController::class, 'downloadOwnerContributionAttachment'])->name('files.owner-contribution-attachments.download');
+ Route::get('files/owner-drawing-attachments/{attachment}', [FileController::class, 'downloadOwnerDrawingAttachment'])->name('files.owner-drawing-attachments.download');
 
  // Purchase Management
  

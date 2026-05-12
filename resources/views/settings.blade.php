@@ -57,7 +57,6 @@
                   bgColor="bg-purple-600" />
                    @endcan
 
-
                    <!-- <x-setting-link initials="MB" url="{{ url('banks') }}" title="Manage" subtitle="Banks"
                   bgColor="bg-purple-800" /> -->
                
@@ -70,7 +69,33 @@
         </div>
     </div>
 
-
+  @if(auth()->user()->can('module', 'view owner contributions') || auth()->user()->can('module', 'view owner drawings'))
+  <div class="mb-10 p-6 mt-5 bg-white sm:p-8">
+    <h3 class="text-base font-semibold text-gray-900 border-b border-gray-100 pb-3 mb-4">Owner transaction</h3>
+    <div>
+      <ul role="list" class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+        @can('module', 'view owner contributions')
+        <x-setting-link
+          initials="OC"
+          url="{{ route('owner-contributions.index') }}"
+          title="Owner"
+          subtitle="Contributions"
+          bgColor="bg-emerald-700"
+        />
+        @endcan
+        @can('module', 'view owner drawings')
+        <x-setting-link
+          initials="OD"
+          url="{{ route('owner-drawings.index') }}"
+          title="Owner"
+          subtitle="Drawings"
+          bgColor="bg-rose-700"
+        />
+        @endcan
+      </ul>
+    </div>
+  </div>
+  @endif
 
     <!-- <div class="mb-10 p-10 mt-5 bg-white py-5">
         <h3 class="text-base py-5 font-semibold text-gray-900">Arms Management</h3>

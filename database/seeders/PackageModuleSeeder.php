@@ -72,6 +72,16 @@ class PackageModuleSeeder extends Seeder
             'edit businesses',
             'delete businesses',
 
+            'view owner contributions',
+            'create owner contributions',
+            'edit owner contributions',
+            'delete owner contributions',
+
+            'view owner drawings',
+            'create owner drawings',
+            'edit owner drawings',
+            'delete owner drawings',
+
 
         ];
 
