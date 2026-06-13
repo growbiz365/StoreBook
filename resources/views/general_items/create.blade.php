@@ -51,7 +51,7 @@
                         <x-input-label for="sale_price" class="!mb-0">Sale Price <span class="text-red-500">*</span></x-input-label>
                         <div class="relative">
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-gray-500 text-xs">{{ $businessCurrencyLabel }}</span>
-                            <input type="number" name="sale_price" id="sale_price" step="1" min="0" value="{{ old('sale_price', 0) }}"
+                            <input type="number" name="sale_price" id="sale_price" step="any" min="0" value="{{ old('sale_price', 0) }}"
                                    class="block w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm pl-11 py-1.5" required />
                         </div>
                         @error('sale_price')
@@ -62,7 +62,7 @@
                         <x-input-label for="cost_price" class="!mb-0">Cost Price <span class="text-red-500">*</span></x-input-label>
                         <div class="relative">
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-gray-500 text-xs">{{ $businessCurrencyLabel }}</span>
-                            <input type="number" name="cost_price" id="cost_price" step="1" min="0" value="{{ old('cost_price', 0) }}"
+                            <input type="number" name="cost_price" id="cost_price" step="any" min="0" value="{{ old('cost_price', 0) }}"
                                    class="block w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm pl-11 py-1.5" required />
                         </div>
                         @error('cost_price')
