@@ -791,7 +791,7 @@
                         
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs font-bold text-gray-900 group-hover/item:text-blue-700 transition-colors duration-200">Purchase #{{ $purchase->invoice_number }}</span>
+                                <span class="text-xs font-bold text-gray-900 group-hover/item:text-blue-700 transition-colors duration-200">Purchase #{{ $purchase->display_number }}</span>
                                 <span class="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">{{ $purchase->created_at->diffForHumans() }}</span>
                             </div>
                             <p class="text-xs text-gray-700 font-medium mb-1">{{ $purchase->party->name ?? 'Cash Purchase' }}</p>

@@ -210,9 +210,12 @@ class Arm extends Model
 
     public function getPurchaseReferenceAttribute(): string
     {
-        if ($this->purchase) {
-            return 'PUR-' . $this->purchase_id;
+        if ($this->purchase_id) {
+            $number = Purchase::displayNumberForId($this->purchase_id);
+
+            return $number ? 'PUR-'.$number : 'N/A';
         }
+
         return 'N/A';
     }
 }

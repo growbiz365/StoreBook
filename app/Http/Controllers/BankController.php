@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\VoucherDisplayHelper;
 use App\Models\Bank;
 use App\Models\BankLedger;
 use App\Models\ChartOfAccount;
@@ -65,7 +66,26 @@ class BankController extends Controller
     
             // Get filtered ledger entries
             $ledgerEntries = $query->orderBy('date')->orderBy('id')->get();
-    
+
+            VoucherDisplayHelper::preloadPurchaseNumbers(
+                $ledgerEntries
+                    ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), ['purchase', 'purchase cancellation'], true))
+                    ->pluck('voucher_id')
+                    ->all()
+            );
+
+            VoucherDisplayHelper::preloadPurchaseReturnNumbers(
+                $ledgerEntries
+                    ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), [
+                        'purchase return',
+                        'purchasereturn',
+                        'purchase return cancellation',
+                        'purchasereturncancellation',
+                    ], true))
+                    ->pluck('voucher_id')
+                    ->all()
+            );
+
             // Calculate running balance
             $runningBalance = $openingBalance;
             $ledgerEntries->transform(function ($item) use (&$runningBalance) {

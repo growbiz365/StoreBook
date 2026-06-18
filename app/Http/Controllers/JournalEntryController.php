@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\VoucherDisplayHelper;
 use App\Models\JournalEntry;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -44,6 +45,23 @@ class JournalEntryController extends Controller
         $groupedEntries = $journalEntries->groupBy(function ($entry) {
             return $entry->date_added->format('Y-m-d') . '|' . $entry->voucher_type . '|' . $entry->voucher_id;
         })->sortKeysDesc();
+
+        $purchaseVoucherIds = $journalEntries
+            ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), ['purchase', 'purchase cancellation'], true))
+            ->pluck('voucher_id')
+            ->all();
+        VoucherDisplayHelper::preloadPurchaseNumbers($purchaseVoucherIds);
+
+        $purchaseReturnVoucherIds = $journalEntries
+            ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), [
+                'purchase return',
+                'purchasereturn',
+                'purchase return cancellation',
+                'purchasereturncancellation',
+            ], true))
+            ->pluck('voucher_id')
+            ->all();
+        VoucherDisplayHelper::preloadPurchaseReturnNumbers($purchaseReturnVoucherIds);
 
         // Calculate totals
         $totalDebit = $journalEntries->sum('debit_amount');

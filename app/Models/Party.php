@@ -12,6 +12,7 @@ class Party extends Model
 {
     protected $fillable = [
         'business_id',
+        'party_number',
         'chart_of_account_id',
         'name',
         'address',

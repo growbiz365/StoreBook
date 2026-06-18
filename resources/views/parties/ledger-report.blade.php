@@ -462,7 +462,7 @@
                             @foreach($ledgerEntries as $entry)
                                 <tr>
                                     <td>@businessDate($entry->date_added)</td>
-                                    <td>{{ $entry->voucher_type }} #{{ $entry->voucher_id }}</td>
+                                    <td>{{ $entry->voucher_type }} #{{ $entry->display_voucher_id }}</td>
                                     <td>
                                         @if($entry->voucher_type == 'Party Transfer' && $entry->partyTransfer)
                                             @if($entry->debit_amount > 0)

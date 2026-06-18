@@ -17,6 +17,7 @@ class Purchase extends Model
 {
     protected $fillable = [
         'business_id',
+        'purchase_number',
         'party_id',
         'payment_type',
         'bank_id',
@@ -147,6 +148,47 @@ class Purchase extends Model
     public function scopeByVendor($query, $partyId)
     {
         return $query->where('party_id', $partyId);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Purchase $purchase) {
+            if ($purchase->purchase_number !== null || ! $purchase->business_id) {
+                return;
+            }
+
+            $purchase->purchase_number = static::nextPurchaseNumberForBusiness((int) $purchase->business_id);
+        });
+    }
+
+    /**
+     * Next sequential purchase number for a business (continues after existing purchases).
+     */
+    public static function nextPurchaseNumberForBusiness(int $businessId): int
+    {
+        $lastNumber = static::where('business_id', $businessId)
+            ->orderByDesc('purchase_number')
+            ->lockForUpdate()
+            ->value('purchase_number');
+
+        return ((int) $lastNumber) + 1;
+    }
+
+    /**
+     * Human-readable label within this business (matches legacy id-based numbers for old rows).
+     */
+    public function getDisplayNumberAttribute(): string
+    {
+        return (string) ($this->purchase_number ?? $this->id);
+    }
+
+    public static function displayNumberForId(?int $id): ?string
+    {
+        if (! $id) {
+            return null;
+        }
+
+        return \App\Helpers\VoucherDisplayHelper::purchaseDisplayNumber($id);
     }
 
     // Business Logic Methods
@@ -522,7 +564,7 @@ class Purchase extends Model
             'received_date' => $this->invoice_date,
             'user_id' => auth()->id(),
             'purchase_id' => $this->id,
-            'batch_code' => 'PUR-' . $this->id . '-' . uniqid(),
+            'batch_code' => 'PUR-' . $this->purchase_number . '-' . uniqid(),
             'status' => 'active',
         ]);
 

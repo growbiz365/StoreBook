@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use App\Helpers\VoucherDisplayHelper;
 use App\Models\Expense;
 
 class JournalEntry extends Model
@@ -45,5 +46,10 @@ class JournalEntry extends Model
     public function voucher(): MorphTo
     {
         return $this->morphTo('voucher', 'voucher_type', 'voucher_id');
+    }
+
+    public function getDisplayVoucherIdAttribute(): string
+    {
+        return VoucherDisplayHelper::displayVoucherId($this->voucher_type, $this->voucher_id);
     }
 }

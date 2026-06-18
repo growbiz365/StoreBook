@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\VoucherDisplayHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -40,5 +41,10 @@ class BankLedger extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getDisplayVoucherIdAttribute(): string
+    {
+        return VoucherDisplayHelper::displayVoucherId($this->voucher_type, $this->voucher_id);
     }
 } 

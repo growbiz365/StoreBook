@@ -188,7 +188,7 @@
                                             </div>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Return #{{ $purchaseReturn->id }}</div>
+                                            <div class="text-sm font-medium text-gray-900">Return #{{ $purchaseReturn->display_number }}</div>
                                             <div class="text-sm text-gray-500">
                                                 {{ $purchaseReturn->generalLines->count() }} general items • {{ $purchaseReturn->armLines->count() }} arm lines
                                             </div>

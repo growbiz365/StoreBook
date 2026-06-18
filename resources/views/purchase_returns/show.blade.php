@@ -4,11 +4,11 @@
         ['url' => '/', 'label' => 'Home'],
         ['url' => '/purchases-dashboard', 'label' => 'Purchases Dashboard'],
         ['url' => '/purchase-returns', 'label' => 'Purchase Returns'],
-        ['url' => '#', 'label' => 'Return #' . $purchaseReturn->id]
+        ['url' => '#', 'label' => 'Return #' . $purchaseReturn->display_number]
     ]" />
 
     <x-dynamic-heading 
-        :title="'Return #' . $purchaseReturn->id" 
+        :title="'Return #' . $purchaseReturn->display_number" 
         :subtitle="'Detailed Return Summary'"
         :icon="'fas fa-undo'"
     />
@@ -100,7 +100,7 @@
                 </div>
                 <div class="text-right">
                     <div class="text-3xl font-black text-gray-900 mb-1 tracking-tight">
-                        PURCHASE RETURN #{{ $purchaseReturn->id }}
+                        PURCHASE RETURN #{{ $purchaseReturn->display_number }}
                     </div>
                     <div class="text-xs text-gray-600">
                         Date: @businessDate($purchaseReturn->return_date)
@@ -370,10 +370,10 @@
     </div>
 
     <script>
-        document.title = "Purchase Return #{{ $purchaseReturn->id }} - {{ $purchaseReturn->business->business_name ?? 'Business' }}";
+        document.title = "Purchase Return #{{ $purchaseReturn->display_number }} - {{ $purchaseReturn->business->business_name ?? 'Business' }}";
         function printReturn() {
             const originalTitle = document.title;
-            document.title = "Purchase Return #{{ $purchaseReturn->id }} - {{ $purchaseReturn->business->business_name ?? 'Business' }}";
+            document.title = "Purchase Return #{{ $purchaseReturn->display_number }} - {{ $purchaseReturn->business->business_name ?? 'Business' }}";
             document.body.classList.add('printing');
             window.print();
             setTimeout(() => {

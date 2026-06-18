@@ -1,14 +1,14 @@
 <x-app-layout>
-    @section('title', 'Purchase #' . $purchase->id . ' - Audit Log - Purchases Management - StoreBook')
+    @section('title', 'Purchase #' . $purchase->display_number . ' - Audit Log - Purchases Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[
         ['url' => '/', 'label' => 'Home'], 
         ['url' => '/purchases-dashboard', 'label' => 'Purchases Dashboard'],
         ['url' => route('purchases.index'), 'label' => 'Purchases'], 
-        ['url' => route('purchases.show', $purchase), 'label' => 'Purchase #' . $purchase->id], 
+        ['url' => route('purchases.show', $purchase), 'label' => 'Purchase #' . $purchase->display_number], 
         ['url' => '#', 'label' => 'Audit Log']
     ]" />
 
-    <x-dynamic-heading title="Purchase #{{ $purchase->id }} - Audit Log" />
+    <x-dynamic-heading title="Purchase #{{ $purchase->display_number }} - Audit Log" />
 
     <div class="bg-white shadow-lg sm:rounded-lg border border-gray-200 p-6">
         <!-- Purchase Summary -->

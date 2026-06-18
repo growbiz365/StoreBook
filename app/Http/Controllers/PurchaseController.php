@@ -1159,7 +1159,7 @@ class PurchaseController extends Controller
                 'user_id' => $purchase->created_by,
                 'purchase_id' => $purchase->id,
                 'purchase_line_id' => $line->id,
-                'batch_code' => 'PUR-' . $purchase->id . '-' . $line->line_no,
+                'batch_code' => 'PUR-' . $purchase->purchase_number . '-' . $line->line_no,
                 'status' => 'active',
             ]);
 

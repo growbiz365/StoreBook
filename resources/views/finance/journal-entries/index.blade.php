@@ -98,7 +98,7 @@
                                 $firstEntry = $entries->first();
                                 $date = $firstEntry->date_added;
                                 $voucherType = $firstEntry->voucher_type;
-                                $voucherId = $firstEntry->voucher_id;
+                                $voucherId = $firstEntry->display_voucher_id;
                                 
                                 // Calculate transaction totals
                                 $transactionDebit = $entries->sum('debit_amount');

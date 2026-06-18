@@ -198,7 +198,7 @@
                                             </div>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Purchase #{{ $purchase->id }}</div>
+                                            <div class="text-sm font-medium text-gray-900">Purchase #{{ $purchase->display_number }}</div>
                                             <div class="text-sm text-gray-500">
                                                 {{ $purchase->generalLines->count() }} general items • {{ $purchase->armLines->count() }} arm lines
                                             </div>

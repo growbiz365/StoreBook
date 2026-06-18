@@ -1,14 +1,14 @@
 <x-app-layout>
-    @section('title', 'Purchase #' . $purchase->id . ' - Purchase Details - Purchases Management - StoreBook')
+    @section('title', 'Purchase #' . $purchase->display_number . ' - Purchase Details - Purchases Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[
         ['url' => '/', 'label' => 'Home'],
         ['url' => '/purchases-dashboard', 'label' => 'Purchases Dashboard'],
         ['url' => route('purchases.index'), 'label' => 'Purchases'],
-        ['url' => '#', 'label' => 'Purchase #' . $purchase->id]
+        ['url' => '#', 'label' => 'Purchase #' . $purchase->display_number]
     ]" />
 
     <x-dynamic-heading 
-        :title="'Purchase #' . $purchase->id" 
+        :title="'Purchase #' . $purchase->display_number" 
         :subtitle="'Detailed Invoice & Purchase Summary'"
         :icon="'fas fa-file-invoice-dollar'"
     />
@@ -122,7 +122,7 @@
                 </div>
                 <div class="text-right">
                     <div class="text-3xl font-black text-gray-900 mb-1 tracking-tight">
-                        PURCHASE INVOICE #{{ $purchase->id }}
+                        PURCHASE INVOICE #{{ $purchase->display_number }}
                     </div>
                     <div class="text-xs text-gray-600">
                         Date: @businessDate($purchase->invoice_date)
@@ -591,10 +591,10 @@
     </style>
 
     <script>
-        document.title = "Purchase Invoice #{{ $purchase->id }} - {{ $purchase->business->business_name ?? 'Business' }}";
+        document.title = "Purchase Invoice #{{ $purchase->display_number }} - {{ $purchase->business->business_name ?? 'Business' }}";
         function printInvoice() {
             const originalTitle = document.title;
-            document.title = "Purchase Invoice #{{ $purchase->id }} - {{ $purchase->business->business_name ?? 'Business' }}";
+            document.title = "Purchase Invoice #{{ $purchase->display_number }} - {{ $purchase->business->business_name ?? 'Business' }}";
             document.body.classList.add('printing');
             window.print();
             setTimeout(() => {

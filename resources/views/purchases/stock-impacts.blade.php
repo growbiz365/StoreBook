@@ -1,9 +1,9 @@
 <x-app-layout>
-    @section('title', 'Stock Impacts - Purchase #' . $purchase->id . ' - Purchases Management - StoreBook')
-    <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => route('purchases.index'), 'label' => 'Purchases'], ['url' => route('purchases.show', $purchase), 'label' => 'Purchase #' . $purchase->id], ['url' => '#', 'label' => 'Stock Impacts']]" />
+    @section('title', 'Stock Impacts - Purchase #' . $purchase->display_number . ' - Purchases Management - StoreBook')
+    <x-breadcrumb :breadcrumbs="[['url' => '/', 'label' => 'Home'], ['url' => route('purchases.index'), 'label' => 'Purchases'], ['url' => route('purchases.show', $purchase), 'label' => 'Purchase #' . $purchase->display_number], ['url' => '#', 'label' => 'Stock Impacts']]" />
     
     <x-dynamic-heading 
-        :title="'Stock Impacts - Purchase #' . $purchase->id" 
+        :title="'Stock Impacts - Purchase #' . $purchase->display_number" 
         :subtitle="'Preview inventory impact before posting this purchase'"
         :icon="'fas fa-chart-line'"
     />
@@ -123,7 +123,7 @@
                                 @php
                                     $allocation = $allocations[$line->id] ?? null;
                                     $effectiveUnitCost = $allocation ? $allocation['effective_unit_cost'] : $line->getEffectiveUnitCost();
-                                    $batchCode = 'PUR-' . $purchase->id . '-' . $line->line_no;
+                                    $batchCode = 'PUR-' . $purchase->purchase_number . '-' . $line->line_no;
                                 @endphp
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $line->line_no }}</td>

@@ -4,11 +4,11 @@
         ['url' => '/', 'label' => 'Home'],
         ['url' => '/purchases-dashboard', 'label' => 'Purchases Dashboard'],
         ['url' => '/purchase-returns', 'label' => 'Purchase Returns'],
-        ['url' => '#', 'label' => 'Edit Return #' . $purchaseReturn->id]
+        ['url' => '#', 'label' => 'Edit Return #' . $purchaseReturn->display_number]
     ]" />
 
     <x-dynamic-heading 
-        :title="'Edit Return #' . $purchaseReturn->id" 
+        :title="'Edit Return #' . $purchaseReturn->display_number" 
         :subtitle="'Update return details and items'"
         :icon="'fas fa-undo'"
     />

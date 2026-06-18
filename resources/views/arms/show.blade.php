@@ -197,7 +197,7 @@
                             @if($arm->purchase_id)
                             <div class="flex justify-between items-center py-3 border-b border-gray-100">
                                 <span class="text-sm font-medium text-gray-600">Purchase ID</span>
-                                <span class="text-sm text-gray-900 font-mono">#{{ $arm->purchase_id }}</span>
+                                <span class="text-sm text-gray-900 font-mono">#{{ \App\Models\Purchase::displayNumberForId($arm->purchase_id) }}</span>
                             </div>
                             @endif
                                 </div>

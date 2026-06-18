@@ -545,7 +545,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <span class="text-xs font-medium text-gray-900 group-hover:text-green-700 transition-colors duration-200">Purchase #{{ $purchase->id }}</span>
+                                <span class="text-xs font-medium text-gray-900 group-hover:text-green-700 transition-colors duration-200">Purchase #{{ $purchase->display_number }}</span>
                                 <div class="text-xs text-gray-500">{{ $purchase->party->name ?? 'Cash Purchase' }} • {{ formatBusinessCurrency($purchase->total_amount, true, 0) }}</div>
                                 <div class="text-xs text-gray-400">{{ ucfirst($purchase->status) }} • {{ ucfirst($purchase->payment_type) }}</div>
                             </div>

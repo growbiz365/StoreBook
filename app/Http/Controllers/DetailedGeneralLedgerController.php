@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\VoucherDisplayHelper;
 use App\Models\Business;
 use App\Models\ChartOfAccount;
 use App\Models\JournalEntry;
@@ -62,6 +63,23 @@ class DetailedGeneralLedgerController extends Controller
             ->orderByRaw('account_head asc, date_added asc, voucher_type asc, voucher_id asc, id asc')
             ->get();
 
+        $purchaseVoucherIds = $entries
+            ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), ['purchase', 'purchase cancellation'], true))
+            ->pluck('voucher_id')
+            ->all();
+        VoucherDisplayHelper::preloadPurchaseNumbers($purchaseVoucherIds);
+
+        $purchaseReturnVoucherIds = $entries
+            ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), [
+                'purchase return',
+                'purchasereturn',
+                'purchase return cancellation',
+                'purchasereturncancellation',
+            ], true))
+            ->pluck('voucher_id')
+            ->all();
+        VoucherDisplayHelper::preloadPurchaseReturnNumbers($purchaseReturnVoucherIds);
+
         // Group by account
         $groupedByAccount = $entries->groupBy('account_head');
 
@@ -98,7 +116,7 @@ class DetailedGeneralLedgerController extends Controller
                 $rows[] = [
                     'date' => $entry->date_added,
                     'voucher_type' => $entry->voucher_type,
-                    'voucher_id' => $entry->voucher_id,
+                    'voucher_id' => $entry->display_voucher_id,
                     'comments' => $entry->comments,
                     'debit' => $debit,
                     'credit' => $credit,

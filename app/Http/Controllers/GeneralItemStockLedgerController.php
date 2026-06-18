@@ -1496,8 +1496,13 @@ class GeneralItemStockLedgerController extends Controller
                 if ($purchaseId) {
                     $purchase = \App\Models\Purchase::with('party')->find($purchaseId);
                     $partyName = $purchase && $purchase->party ? ' - ' . $purchase->party->name : '';
+                    $displayNumber = $purchase
+                        ? ($purchase->purchase_number ?? $purchase->id)
+                        : $purchaseId;
+                } else {
+                    $displayNumber = $entry->reference_id ?: $entry->id;
                 }
-                return "Purchase Stock # {$purchaseId}{$partyName}";
+                return "Purchase Stock # {$displayNumber}{$partyName}";
             case 'sale':
                 $saleId = $entry->reference_id ?: $entry->id;
                 $saleNumber = null;
@@ -1550,7 +1555,7 @@ class GeneralItemStockLedgerController extends Controller
                     $displayNumber = $saleNumber ?? ($entry->reference_no ? str_replace('-REV', '', $entry->reference_no) : $reversalId);
                     return "Sale Reversal # {$displayNumber}";
                 } else {
-                    return "Purchase Reversal # {$reversalId}";
+                    return "Purchase Reversal # " . \App\Models\Purchase::displayNumberForId((int) ($entry->purchase_id ?: $entry->reference_id));
                     }
                 }
             case 'return':
@@ -1562,7 +1567,17 @@ class GeneralItemStockLedgerController extends Controller
                 
                 if ($isPurchaseReturn) {
                     $displayNumber = $referenceNo ?? $returnId;
-                    return "Purchase Return # {$displayNumber}";
+                    $partyName = '';
+
+                    if ($entry->reference_id) {
+                        $purchaseReturn = \App\Models\PurchaseReturn::with('party')->find($entry->reference_id);
+                        if ($purchaseReturn) {
+                            $displayNumber = $purchaseReturn->display_number;
+                            $partyName = $purchaseReturn->party ? ' - ' . $purchaseReturn->party->name : '';
+                        }
+                    }
+
+                    return "Purchase Return # {$displayNumber}{$partyName}";
                 }
 
                 if ($isSaleReturn) {
@@ -1585,7 +1600,7 @@ class GeneralItemStockLedgerController extends Controller
             if ($entry->reference_id && $isPurchaseReturn) {
                 $purchaseReturn = \App\Models\PurchaseReturn::with('party')->find($entry->reference_id);
                 if ($purchaseReturn) {
-                    $displayNumber = $purchaseReturn->return_number ?? $displayNumber;
+                    $displayNumber = $purchaseReturn->display_number;
                     $partyName = $purchaseReturn->party ? ' - ' . $purchaseReturn->party->name : '';
                 }
             }

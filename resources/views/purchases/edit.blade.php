@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Edit Purchase #{{ $purchase->id }} - Purchases Management - StoreBook</title>
+    <title>Edit Purchase #{{ $purchase->display_number }} - Purchases Management - StoreBook</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
@@ -634,7 +634,7 @@
             <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
                 <div class="flex flex-row justify-between items-center py-3 sm:py-4">
                     <div class="flex items-center">
-                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Edit Purchase #{{ $purchase->id }}</h1>
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Edit Purchase #{{ $purchase->display_number }}</h1>
                     </div>
                     <div class="flex items-center space-x-4">
                         <a href="{{ route('purchases.show', $purchase) }}" class="text-gray-600 hover:text-gray-900">

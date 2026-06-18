@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\VoucherDisplayHelper;
 use App\Models\Party;
 use App\Models\PartyLedger;
 use App\Models\JournalEntry;
@@ -13,6 +14,14 @@ use Illuminate\Support\Facades\Log;
 
 class PartyController extends Controller
 {
+    private function ensurePartyBelongsToActiveBusiness(Party $party): void
+    {
+        $businessId = session('active_business');
+        if (!$businessId || (int) $party->business_id !== (int) $businessId) {
+            abort(404);
+        }
+    }
+
     public function index(Request $request)
     {
         $query = Party::with(['user'])
@@ -162,11 +171,15 @@ class PartyController extends Controller
 
     public function edit(Party $party)
     {
+        $this->ensurePartyBelongsToActiveBusiness($party);
+
         return view('parties.edit', compact('party'));
     }
 
     public function update(Request $request, Party $party)
     {
+        $this->ensurePartyBelongsToActiveBusiness($party);
+
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -439,7 +452,26 @@ class PartyController extends Controller
     
             // Get filtered ledger entries
             $ledgerEntries = $query->orderBy('date_added')->orderBy('id')->get();
-    
+
+            VoucherDisplayHelper::preloadPurchaseNumbers(
+                $ledgerEntries
+                    ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), ['purchase', 'purchase cancellation'], true))
+                    ->pluck('voucher_id')
+                    ->all()
+            );
+
+            VoucherDisplayHelper::preloadPurchaseReturnNumbers(
+                $ledgerEntries
+                    ->filter(fn ($entry) => in_array(strtolower(trim((string) $entry->voucher_type)), [
+                        'purchase return',
+                        'purchasereturn',
+                        'purchase return cancellation',
+                        'purchasereturncancellation',
+                    ], true))
+                    ->pluck('voucher_id')
+                    ->all()
+            );
+
             // Calculate running balance
             $runningBalance = $openingBalance;
             $ledgerEntries->transform(function ($item) use (&$runningBalance) {

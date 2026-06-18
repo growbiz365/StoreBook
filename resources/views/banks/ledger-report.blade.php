@@ -414,7 +414,7 @@
                             @foreach($ledgerEntries as $entry)
                                 <tr>
                                     <td>@businessDate($entry->date)</td>
-                                    <td>{{ $entry->voucher_type }} #{{ $entry->voucher_id }}</td>
+                                    <td>{{ $entry->voucher_type }} #{{ $entry->display_voucher_id }}</td>
                                     <td>{{ $entry->details ?? $entry->voucher_type }}</td>
                                     <td class="amount">
                                         @if($entry->deposit_amount > 0)
