@@ -133,7 +133,7 @@
                                 @endif
                             </a>
                         </th>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Catalog</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-36">Kind</th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-40">Item Type</th>
                         <th class="px-3 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Available stock</th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">
@@ -166,7 +166,7 @@
                                 @endif
                             </a>
                         </th>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Actions</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -179,23 +179,34 @@
                                 <div class="text-sm font-medium text-gray-900 break-words">{{ $item->item_name }}</div>
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap">
-                                @if($item->is_active)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                @if($item->isService())
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Service</span>
                                 @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-700">Inactive</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Goods</span>
+                                @endif
+                                @if($item->is_active)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 ml-1">Active</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-700 ml-1">Inactive</span>
                                 @endif
                             </td>
                             <td class="px-3 py-3">
-                                <div class="text-sm text-gray-900 break-words">{{ $item->itemType->item_type }}</div>
+                                <div class="text-sm text-gray-900 break-words">{{ $item->itemType->item_type ?? '—' }}</div>
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap text-right">
-                                @php
-                                    $availableStock = $item->getAvailableStockQuantity();
-                                @endphp
-                                <div class="text-sm text-gray-900">{{ \App\Support\StockQuantity::format($availableStock) }}</div>
+                                @if($item->isService())
+                                    <div class="text-sm text-gray-400">—</div>
+                                @else
+                                    @php $availableStock = $item->getAvailableStockQuantity(); @endphp
+                                    <div class="text-sm text-gray-900">{{ \App\Support\StockQuantity::format($availableStock) }}</div>
+                                @endif
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ formatBusinessCurrency($item->cost_price, true, 2) }}</div>
+                                @if($item->isService())
+                                    <div class="text-sm text-gray-400">—</div>
+                                @else
+                                    <div class="text-sm text-gray-900">{{ formatBusinessCurrency($item->cost_price, true, 2) }}</div>
+                                @endif
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ formatBusinessCurrency($item->sale_price, true, 2) }}</div>
@@ -203,14 +214,22 @@
                             <td class="px-3 py-3 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-3" onclick="event.stopPropagation()">
                                     @can('edit items')
-                                    <a href="{{ route('general-items.edit-opening-stock', $item->id) }}" 
-                                       class="text-indigo-600 hover:text-indigo-900">
+                                    <a href="{{ route('general-items.edit', $item) }}"
+                                       class="text-indigo-600 hover:text-indigo-900"
+                                       title="Edit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </a>
-                                    @endcan
-                                    @can('edit items')
+                                    @if($item->isGoods())
+                                    <a href="{{ route('general-items.edit-opening-stock', $item->id) }}"
+                                       class="text-amber-600 hover:text-amber-900"
+                                       title="Edit opening stock">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                        </svg>
+                                    </a>
+                                    @endif
                                     <form action="{{ route('general-items.update-status', $item) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PATCH')

@@ -86,9 +86,15 @@ class GeneralItemController extends Controller
                 $q->where('status', 'active');
             }])->paginate($limit, ['*'], 'page', $page);
 
-            // Add available stock to each item (including zero stock items)
+            // Add available stock for goods only; services do not track inventory
             $items->getCollection()->transform(function ($item) {
-                $item->available_stock = $item->batches->where('status', 'active')->sum('qty_remaining');
+                $item->tracks_inventory = $item->tracksInventory();
+                if ($item->tracksInventory()) {
+                    $item->available_stock = $item->batches->where('status', 'active')->sum('qty_remaining');
+                } else {
+                    $item->available_stock = null;
+                }
+
                 return $item;
             });
 
@@ -174,9 +180,15 @@ class GeneralItemController extends Controller
                 $q->where('status', 'active');
             }])->paginate($limit, ['*'], 'page', $page);
 
-            // Add available stock to each item (including zero stock items)
+            // Add available stock for goods only; services do not track inventory
             $items->getCollection()->transform(function ($item) {
-                $item->available_stock = $item->batches->where('status', 'active')->sum('qty_remaining');
+                $item->tracks_inventory = $item->tracksInventory();
+                if ($item->tracksInventory()) {
+                    $item->available_stock = $item->batches->where('status', 'active')->sum('qty_remaining');
+                } else {
+                    $item->available_stock = null;
+                }
+
                 return $item;
             });
 

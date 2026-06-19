@@ -159,8 +159,12 @@ class SaleInvoiceController extends Controller
 
         // Add available stock to each general item
         foreach ($generalItems as $item) {
-            $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
-            $item->available_stock = (float) ($stockBal['balance'] ?? 0);
+            if ($item->tracksInventory()) {
+                $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
+                $item->available_stock = (float) ($stockBal['balance'] ?? 0);
+            } else {
+                $item->available_stock = null;
+            }
         }
 
         $arms = Arm::where('business_id', $businessId)
@@ -595,9 +599,13 @@ class SaleInvoiceController extends Controller
             ->get();
 
         foreach ($generalItems as $item) {
-            $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
-            $current = (float) ($stockBal['balance'] ?? 0);
-            $item->available_stock = $current + (float) ($previouslySoldByItemId[$item->id] ?? 0);
+            if ($item->tracksInventory()) {
+                $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
+                $current = (float) ($stockBal['balance'] ?? 0);
+                $item->available_stock = $current + (float) ($previouslySoldByItemId[$item->id] ?? 0);
+            } else {
+                $item->available_stock = null;
+            }
         }
 
         $itemTypes = ItemType::where('business_id', $businessId)
@@ -1007,8 +1015,14 @@ class SaleInvoiceController extends Controller
                 'posted_by' => $userId
             ]);
 
-            // Create stock ledger entries for general items
+            // Create stock ledger entries for general items (goods only)
+            $saleInvoice->loadMissing('generalLines.generalItem');
+
             foreach ($saleInvoice->generalLines as $line) {
+                if (! $line->generalItem?->tracksInventory()) {
+                    continue;
+                }
+
                 // Get available batches for FIFO consumption
                 $batches = GeneralBatch::where('item_id', $line->general_item_id)
                     ->where('qty_remaining', '>', 0)
@@ -1240,15 +1254,22 @@ class SaleInvoiceController extends Controller
             ->orderBy('code')
             ->value('id');
 
-        // If any required account is missing, skip journal entries
-        if (!$salesRevenueId || !$cogsId || !$inventoryId) {
-            \Log::warning('Missing required chart of accounts for sale invoice posting', [
+        // If revenue account is missing, skip journal entries
+        if (! $salesRevenueId) {
+            \Log::warning('Missing sales revenue account for sale invoice posting', [
                 'sale_invoice_id' => $saleInvoice->id,
                 'sales_revenue_id' => $salesRevenueId,
-                'cogs_id' => $cogsId,
-                'inventory_id' => $inventoryId
             ]);
-            return; // Skip journal entries but continue with other posting operations
+
+            return;
+        }
+
+        if (! $cogsId || ! $inventoryId) {
+            \Log::warning('Missing COGS or inventory account for sale invoice posting; goods COGS entries will be skipped if needed', [
+                'sale_invoice_id' => $saleInvoice->id,
+                'cogs_id' => $cogsId,
+                'inventory_id' => $inventoryId,
+            ]);
         }
 
         // Entry 1: Debit Party Account (for credit sales) / Debit Bank (for cash sales) / Credit Sales Revenue
@@ -1326,8 +1347,13 @@ class SaleInvoiceController extends Controller
         // Calculate total COGS
         $totalCogs = 0;
 
-        // COGS for general items - calculate based on actual stock ledger entries
+        // COGS for general goods lines - calculate based on actual stock ledger entries
         foreach ($saleInvoice->generalLines as $line) {
+            $line->loadMissing('generalItem');
+            if (! $line->generalItem?->tracksInventory()) {
+                continue;
+            }
+
             // Get the stock ledger entries for this line to calculate correct COGS
             $stockEntries = GeneralItemStockLedger::where('general_item_id', $line->general_item_id)
                 ->where('reference_no', $saleInvoice->invoice_number)
@@ -1364,7 +1390,7 @@ class SaleInvoiceController extends Controller
         }
 
         // Create single summarized COGS and Inventory journal entries
-        if ($totalCogs > 0) {
+        if ($totalCogs > 0 && $cogsId && $inventoryId) {
             // Debit COGS (single entry for all items)
             JournalEntry::create([
                 'business_id' => $businessId,
@@ -1998,6 +2024,11 @@ class SaleInvoiceController extends Controller
 
         foreach ($generalLines as $index => $line) {
             $itemId = $line['general_item_id'];
+            $item = GeneralItem::find($itemId);
+            if ($item && $item->isService()) {
+                continue;
+            }
+
             $requiredQty = (float) $line['qty'];
 
             // Get current stock balance for this item
@@ -2025,6 +2056,11 @@ class SaleInvoiceController extends Controller
 
         foreach ($generalLines as $index => $line) {
             $itemId = $line['general_item_id'];
+            $item = GeneralItem::find($itemId);
+            if ($item && $item->isService()) {
+                continue;
+            }
+
             $requiredQty = (float) $line['qty'];
 
             // Get current stock balance for this item

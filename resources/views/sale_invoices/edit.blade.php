@@ -581,7 +581,9 @@
                 'item_name' => $i->item_name,
                 'item_code' => $i->item_code,
                 'sale_price' => (float) $i->sale_price,
-                'available_stock' => (float) ($i->available_stock ?? 0),
+                'available_stock' => $i->available_stock !== null ? (float) $i->available_stock : null,
+                'item_kind' => $i->item_kind ?? 'goods',
+                'tracks_inventory' => $i->tracksInventory(),
                 'item_type_id' => $i->item_type_id,
                 'item_type' => $i->itemType ? ['item_type' => $i->itemType->item_type] : null,
             ];
@@ -677,15 +679,16 @@
                                     @foreach($saleInvoice->generalLines as $index => $line)
                                         @php
                                             $gi = $line->generalItem;
-                                            // For edit: show available stock = current stock + quantity already sold on this invoice (for this item)
-                                            $stockBal = \App\Models\GeneralItemStockLedger::getStockBalance($line->general_item_id);
-                                            $currentStock = (float) ($stockBal['balance'] ?? 0);
-                                            $prevSoldQty = (float) $saleInvoice->generalLines->where('general_item_id', $line->general_item_id)->sum('quantity');
-                                            $avail = (float) $currentStock + (float) $prevSoldQty;
                                             $dParts = [];
                                             if ($gi->item_code) { $dParts[] = 'Code: ' . $gi->item_code; }
                                             if ($gi->itemType) { $dParts[] = $gi->itemType->item_type; }
-                                            $dParts[] = 'Stock: ' . $avail;
+                                            if ($gi->isGoods()) {
+                                                $stockBal = \App\Models\GeneralItemStockLedger::getStockBalance($line->general_item_id);
+                                                $currentStock = (float) ($stockBal['balance'] ?? 0);
+                                                $prevSoldQty = (float) $saleInvoice->generalLines->where('general_item_id', $line->general_item_id)->sum('quantity');
+                                                $avail = (float) $currentStock + (float) $prevSoldQty;
+                                                $dParts[] = 'Stock: ' . $avail;
+                                            }
                                             $detailsText = implode(' · ', $dParts);
                                         @endphp
                                         <tr class="general-item-row">
@@ -696,7 +699,15 @@
                                                 <div class="line-item-name-wrap relative">
                                                     <input type="text" readonly class="item-display-name ci-form-control bg-gray-50 font-medium" placeholder="Item" value="{{ $gi->item_name }}" autocomplete="off">
                                                     <input type="hidden" name="general_lines[{{ $index }}][general_item_id]" class="line-item-id" value="{{ $line->general_item_id }}">
+                                                    @if($gi->isGoods())
+                                                    @php
+                                                        $stockBal = \App\Models\GeneralItemStockLedger::getStockBalance($line->general_item_id);
+                                                        $currentStock = (float) ($stockBal['balance'] ?? 0);
+                                                        $prevSoldQty = (float) $saleInvoice->generalLines->where('general_item_id', $line->general_item_id)->sum('quantity');
+                                                        $avail = (float) $currentStock + (float) $prevSoldQty;
+                                                    @endphp
                                                     <div class="item-info absolute text-xs text-gray-500 left-0 mt-1 z-10 bg-white px-1 rounded" style="top:100%;">Stock: <span class="font-medium">{{ $avail }}</span></div>
+                                                    @endif
                                                     <div class="general-item-error mt-1 text-xs text-red-600 hidden"></div>
                                 </div>
                                             </td>
@@ -1121,6 +1132,31 @@
         return null;
     }
 
+    function isServiceItem(item) {
+        if (!item) {
+            return false;
+        }
+        if (item.item_kind === 'service' || item.tracks_inventory === false) {
+            return true;
+        }
+        const cat = item.id ? getCatalogItemById(item.id) : null;
+        return !!(cat && (cat.item_kind === 'service' || cat.tracks_inventory === false));
+    }
+
+    function enrichItemFromCatalog(item) {
+        if (!item || !item.id) {
+            return item;
+        }
+        const cat = getCatalogItemById(item.id);
+        const merged = cat ? Object.assign({}, cat, item) : Object.assign({}, item);
+        if (isServiceItem(merged)) {
+            merged.item_kind = 'service';
+            merged.tracks_inventory = false;
+            merged.available_stock = null;
+        }
+        return merged;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize global tracking array with existing arm selections
         if (!window.selectedArmIds || !Array.isArray(window.selectedArmIds)) {
@@ -1381,6 +1417,11 @@
                 const quantity = parseFloat(quantityInput?.value || 0);
                 if (selectedItemId && quantity > 0) {
                     const cat = getCatalogItemById(selectedItemId);
+                    if (cat && (cat.item_kind === 'service' || cat.tracks_inventory === false)) {
+                        quantityInput.style.borderColor = '';
+                        quantityInput.style.backgroundColor = '';
+                        return;
+                    }
                     const availableStock = parseFloat(cat?.available_stock || 0);
                     if (quantity > availableStock) {
                         hasInsufficientStock = true;
@@ -1411,6 +1452,13 @@
             
             if (selectedItemId && quantity > 0) {
                 const cat = getCatalogItemById(selectedItemId);
+                if (cat && (cat.item_kind === 'service' || cat.tracks_inventory === false)) {
+                    quantityInput.style.borderColor = '';
+                    quantityInput.style.backgroundColor = '';
+                    const errorDiv = row.querySelector('.quantity-error');
+                    if (errorDiv) errorDiv.remove();
+                    return;
+                }
                 const availableStock = parseFloat(cat?.available_stock || 0);
                 if (quantity > availableStock) {
                     // Show error styling
@@ -1670,6 +1718,7 @@
         function setGeneralLineDetailsCell(row, item) {
             const cell = row.querySelector('.general-details-cell');
             if (!cell) return;
+            item = enrichItemFromCatalog(item);
             const parts = [];
             if (item.item_code) {
                 parts.push('Code: ' + item.item_code);
@@ -1678,9 +1727,11 @@
             if (typeName) {
                 parts.push(typeName);
             }
-            const st = item.available_stock;
-            if (st !== undefined && st !== null && st !== '') {
-                parts.push('Stock: ' + st);
+            if (!isServiceItem(item)) {
+                const st = item.available_stock;
+                if (st !== undefined && st !== null && st !== '') {
+                    parts.push('Stock: ' + st);
+                }
             }
             cell.textContent = parts.length ? parts.join(' · ') : '—';
         }
@@ -1867,6 +1918,8 @@
                     el.dataset.salePrice = this.safeNumber(item.sale_price);
                     el.dataset.availableStock = this.safeNumber(item.available_stock);
                     el.dataset.itemCode = item.item_code || '';
+                    el.dataset.itemKind = item.item_kind || 'goods';
+                    el.dataset.tracksInventory = (item.item_kind === 'service' || item.tracks_inventory === false) ? '0' : '1';
                     const tn = (item.item_type && item.item_type.item_type) ? item.item_type.item_type : '';
                     el.dataset.itemTypeName = tn;
                     el.innerHTML = '<div class="font-medium text-gray-900">' + item.item_name + '</div>' +
@@ -1906,7 +1959,9 @@
                     item_name: el.dataset.itemName,
                     item_code: el.dataset.itemCode,
                     sale_price: this.safeNumber(el.dataset.salePrice),
-                    available_stock: this.safeNumber(el.dataset.availableStock),
+                    available_stock: el.dataset.tracksInventory === '0' ? null : this.safeNumber(el.dataset.availableStock),
+                    item_kind: el.dataset.itemKind || 'goods',
+                    tracks_inventory: el.dataset.tracksInventory !== '0',
                     item_type: el.dataset.itemTypeName ? { item_type: el.dataset.itemTypeName } : null
                 };
                 window.addOrBumpItemLine(item);
@@ -2025,6 +2080,7 @@
             if (!row || !item || !item.id) {
                 return;
             }
+            item = enrichItemFromCatalog(item);
             const hidden = row.querySelector('.line-item-id');
             const nameEl = row.querySelector('.item-display-name');
             if (hidden) {
@@ -2038,23 +2094,26 @@
                 salePriceInput.value = item.sale_price != null && item.sale_price !== '' ? item.sale_price : '';
             }
             setGeneralLineDetailsCell(row, item);
-            const availableStock = item.available_stock ?? 0;
+            const isService = isServiceItem(item);
             row.querySelectorAll('.stock-warning, .item-info').forEach((n) => n.remove());
-            const wrap = row.querySelector('.line-item-name-wrap');
-            if (wrap) {
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'item-info mt-1 text-xs leading-snug';
-                if (availableStock <= 0) {
-                    infoDiv.className += ' text-red-600 font-medium';
-                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — No stock</span>';
-                } else if (availableStock <= 5) {
-                    infoDiv.className += ' text-orange-700 font-medium';
-                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — Low stock</span>';
-                } else {
-                    infoDiv.className += ' text-gray-600';
-                    infoDiv.innerHTML = '<span>Stock: <span class="font-medium">' + availableStock + '</span></span>';
+            if (!isService) {
+                const availableStock = item.available_stock ?? 0;
+                const wrap = row.querySelector('.line-item-name-wrap');
+                if (wrap) {
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'item-info mt-1 text-xs leading-snug';
+                    if (availableStock <= 0) {
+                        infoDiv.className += ' text-red-600 font-medium';
+                        infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — No stock</span>';
+                    } else if (availableStock <= 5) {
+                        infoDiv.className += ' text-orange-700 font-medium';
+                        infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — Low stock</span>';
+                    } else {
+                        infoDiv.className += ' text-gray-600';
+                        infoDiv.innerHTML = '<span>Stock: <span class="font-medium">' + availableStock + '</span></span>';
+                    }
+                    wrap.appendChild(infoDiv);
                 }
-                wrap.appendChild(infoDiv);
             }
             if (salePriceInput) {
                 calculateLineTotal(salePriceInput);
@@ -2070,6 +2129,7 @@
             if (!item || !item.id) {
                 return;
             }
+            item = enrichItemFromCatalog(item);
             const existing = findGeneralRowByItemId(item.id);
             if (existing) {
                 const qtyInput = existing.querySelector('.general-qty');

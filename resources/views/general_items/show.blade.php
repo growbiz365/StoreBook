@@ -39,6 +39,7 @@
                 </svg>
                         Edit Item
             </a>
+            @unless($generalItem->isService())
             <a href="{{ route('general-items.edit-opening-stock', $generalItem) }}" 
                         class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,6 +47,7 @@
                 </svg>
                         Edit Opening Stock
             </a>
+            @endunless
             @can('edit items')
                     <form method="POST" action="{{ route('general-items.update-status', $generalItem) }}" class="inline">
                         @csrf
@@ -73,6 +75,14 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-6">
                     <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">Kind:</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $generalItem->isService() ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
+                            {{ $generalItem->isService() ? 'Service' : 'Goods' }}
+                        </span>
+                    </div>
+
+                    @unless($generalItem->isService())
+                    <div class="flex items-center space-x-2">
                         <span class="text-sm font-medium text-gray-700">Status:</span>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
                             @switch($generalItem->stock_status)
@@ -88,6 +98,7 @@
                             @endif
                         </span>
                     </div>
+                    @endunless
 
                     <div class="flex items-center space-x-2">
                         <span class="text-sm font-medium text-gray-700">Catalog:</span>
@@ -96,16 +107,22 @@
                         </span>
                     </div>
                     
+                    @unless($generalItem->isService())
                     <div class="flex items-center space-x-2">
                         <span class="text-sm font-medium text-gray-700">Available Stock:</span>
                         <span class="text-lg font-bold text-gray-900">{{ \App\Support\StockQuantity::format($availableStock) }}</span>
                         @if($generalItem->min_stock_limit)
                             <span class="text-sm text-gray-500">/ {{ $generalItem->min_stock_limit }} min</span>
                         @endif
-        </div>
-    </div>
+                    </div>
+                    @else
+                    <div class="flex items-center space-x-2 text-blue-700">
+                        <span class="text-sm font-medium">No stock tracking — sold on sale invoices only</span>
+                    </div>
+                    @endunless
+                </div>
 
-    @if($generalItem->stock_status === 'low')
+    @if(!$generalItem->isService() && $generalItem->stock_status === 'low')
                     <div class="flex items-center space-x-2 text-red-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
@@ -182,6 +199,13 @@
                     </h3>
                 </div>
                 <div class="p-6">
+                    @if($generalItem->isService())
+                    <div class="text-center p-6 bg-green-50 rounded-lg">
+                        <label class="block text-sm font-medium text-green-600 mb-2">Sale Price</label>
+                        <p class="text-3xl font-bold text-green-900">{{ formatBusinessCurrency($generalItem->sale_price, true, 2) }}</p>
+                        <p class="mt-2 text-sm text-gray-600">Services are billed by quantity on sale invoices; inventory and COGS are not tracked.</p>
+                    </div>
+                    @else
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="text-center p-4 bg-blue-50 rounded-lg">
                             <label class="block text-sm font-medium text-blue-600 mb-2">Cost Price</label>
@@ -208,10 +232,13 @@
                             <p class="text-xl font-semibold text-yellow-900">{{ number_format($generalItem->min_stock_limit) }}</p>
                     </div>
                     @endif
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
 
+            @unless($generalItem->isService())
             <!-- Journal Entries Card -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200" x-data="{ journalEntriesOpen: true }">
                 <div class="px-6 py-4 border-b border-gray-200">
@@ -298,9 +325,26 @@
             </div>
         </div>
         </div>
+            @endunless
 
         <!-- Right Column - Sidebar -->
         <div class="space-y-6">
+            @if($generalItem->isService())
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Service
+                    </h3>
+                </div>
+                <div class="p-6 text-sm text-gray-600 space-y-2">
+                    <p>This item is a <strong>service</strong>. It can be added to sale invoices but does not affect stock or inventory valuation.</p>
+                    <p>Sale price: <strong>{{ formatBusinessCurrency($generalItem->sale_price, true, 2) }}</strong></p>
+                </div>
+            </div>
+            @else
             <!-- Stock Status Card -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
@@ -351,6 +395,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             <!-- Quick Actions Card -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -372,6 +417,7 @@
                             Edit Item
                         </a>
                         
+                        @unless($generalItem->isService())
                         <a href="{{ route('general-items.edit-opening-stock', $generalItem) }}" 
                             class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,6 +425,7 @@
                             </svg>
                             Edit Opening Stock
                         </a>
+                        @endunless
                         
                         <a href="{{ route('general-items.index') }}" 
                             class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">

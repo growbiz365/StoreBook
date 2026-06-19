@@ -54,6 +54,7 @@ class GeneralItemController extends Controller
             fputcsv($file, [
                 'Item Code',
                 'Item Name',
+                'Kind',
                 'Status',
                 'Item Type',
                 'Available Stock',
@@ -63,17 +64,20 @@ class GeneralItemController extends Controller
                 'Carton / Pack Size',
             ]);
             foreach ($items as $item) {
-                $availableStock = round((float) $item->batches->sum('qty_remaining'));
+                $availableStock = $item->isService()
+                    ? 'N/A'
+                    : round((float) $item->batches->sum('qty_remaining'));
                 fputcsv($file, [
                     $item->item_code ?? '',
                     $item->item_name ?? '',
+                    $item->isService() ? 'Service' : 'Goods',
                     $item->is_active ? 'Active' : 'Inactive',
                     $item->itemType?->item_type ?? '',
                     $availableStock,
-                    number_format((float) $item->cost_price, 2, '.', ''),
+                    $item->isService() ? '' : number_format((float) $item->cost_price, 2, '.', ''),
                     number_format((float) $item->sale_price, 2, '.', ''),
-                    $item->min_stock_limit ?? '',
-                    $item->carton_or_pack_size ?? '',
+                    $item->isService() ? '' : ($item->min_stock_limit ?? ''),
+                    $item->isService() ? '' : ($item->carton_or_pack_size ?? ''),
                 ]);
             }
             fclose($file);
@@ -110,6 +114,10 @@ class GeneralItemController extends Controller
             $query->where('is_active', false);
         }
 
+        if ($request->filled('item_kind') && in_array($request->item_kind, [GeneralItem::KIND_GOODS, GeneralItem::KIND_SERVICE], true)) {
+            $query->where('item_kind', $request->item_kind);
+        }
+
         $sortBy = $request->get('sort_by', 'item_code');
         $sortOrder = $request->get('sort_order', 'asc');
 
@@ -140,36 +148,50 @@ class GeneralItemController extends Controller
     public function store(Request $request)
     {
         $businessId = session('active_business');
-        
-        $validator = Validator::make($request->all(), [
-            'item_name' => 'required|string|max:255',
-            'item_type_id' => 'required|exists:item_types,id',
-            'item_code' => 'nullable|string|max:255|unique:general_items,item_code,NULL,id,business_id,'.$businessId,
-            'min_stock_limit' => 'nullable|integer|min:0',
-            'carton_or_pack_size' => 'nullable|string|max:255',
-            'cost_price' => 'required|numeric|min:0',
-            'opening_stock' => 'nullable|integer|min:0',
-            'sale_price' => 'required|numeric|min:0',
-        ]);
+        $itemKind = $request->input('item_kind', GeneralItem::KIND_GOODS);
+
+        if (! in_array($itemKind, [GeneralItem::KIND_GOODS, GeneralItem::KIND_SERVICE], true)) {
+            $itemKind = GeneralItem::KIND_GOODS;
+        }
+
+        $validator = $this->makeGeneralItemValidator($request, (int) $businessId, null, $itemKind);
 
         if ($validator->fails()) {
             return redirect()->route('general-items.create')->withErrors($validator)->withInput();
         }
 
-        DB::transaction(function () use ($request, $businessId) {
-            // Auto-generate item_code if empty
+        DB::transaction(function () use ($request, $businessId, $itemKind) {
             $itemCode = $request->item_code;
             if (empty($itemCode)) {
                 $itemCode = 'ITM-' . strtoupper(Str::random(8));
             }
 
-            // Calculate opening_total
+            if ($itemKind === GeneralItem::KIND_SERVICE) {
+                GeneralItem::create([
+                    'item_name' => $request->item_name,
+                    'item_kind' => GeneralItem::KIND_SERVICE,
+                    'item_type_id' => $this->resolveServiceItemTypeId((int) $businessId),
+                    'item_code' => $itemCode,
+                    'min_stock_limit' => null,
+                    'carton_or_pack_size' => null,
+                    'cost_price' => 0,
+                    'opening_stock' => 0,
+                    'opening_total' => 0,
+                    'sale_price' => $request->sale_price,
+                    'business_id' => $businessId,
+                    'is_active' => true,
+                ]);
+
+                return;
+            }
+
             $openingStock = $request->opening_stock ?? 0;
             $costPrice = $request->cost_price;
             $openingTotal = $openingStock * $costPrice;
 
             $item = GeneralItem::create([
                 'item_name' => $request->item_name,
+                'item_kind' => GeneralItem::KIND_GOODS,
                 'item_type_id' => $request->item_type_id,
                 'item_code' => $itemCode,
                 'min_stock_limit' => $request->min_stock_limit,
@@ -321,17 +343,23 @@ class GeneralItemController extends Controller
     {
         $businessId = session('active_business');
         $generalItem = GeneralItem::where('business_id', $businessId)->findOrFail($id);
+
+        if ($generalItem->isService()) {
+            $validator = $this->makeGeneralItemValidator($request, (int) $businessId, (int) $id, GeneralItem::KIND_SERVICE);
+            if ($validator->fails()) {
+                return redirect()->route('general-items.edit', $id)->withErrors($validator)->withInput();
+            }
+
+            $generalItem->update([
+                'item_name' => $request->item_name,
+                'item_code' => $request->item_code,
+                'sale_price' => $request->sale_price,
+            ]);
+
+            return redirect()->route('general-items.index')->with('success', 'Service updated successfully.');
+        }
         
-        $validator = Validator::make($request->all(), [
-            'item_name' => 'required|string|max:255',
-            'item_type_id' => 'required|exists:item_types,id',
-            'item_code' => 'required|string|max:255|unique:general_items,item_code,'.$id.',id,business_id,'.$businessId,
-            'min_stock_limit' => 'nullable|integer|min:0',
-            'carton_or_pack_size' => 'nullable|string|max:255',
-            'cost_price' => 'required|numeric|min:0',
-            'opening_stock' => 'nullable|integer|min:0',
-            'sale_price' => 'required|numeric|min:0',
-        ]);
+        $validator = $this->makeGeneralItemValidator($request, (int) $businessId, (int) $id, GeneralItem::KIND_GOODS);
 
         if ($validator->fails()) {
             return redirect()->route('general-items.edit', $id)->withErrors($validator)->withInput();
@@ -1000,6 +1028,11 @@ class GeneralItemController extends Controller
     {
         $businessId = session('active_business');
         $generalItem = GeneralItem::with('itemType')->where('business_id', $businessId)->findOrFail($id);
+
+        if ($generalItem->isService()) {
+            return redirect()->route('general-items.show', $generalItem)
+                ->with('error', 'Opening stock does not apply to service items.');
+        }
         
         return view('general_items.edit_opening_stock', compact('generalItem'));
     }
@@ -1011,6 +1044,11 @@ class GeneralItemController extends Controller
     {
         $businessId = session('active_business');
         $generalItem = GeneralItem::where('business_id', $businessId)->findOrFail($id);
+
+        if ($generalItem->isService()) {
+            return redirect()->route('general-items.show', $generalItem)
+                ->with('error', 'Opening stock does not apply to service items.');
+        }
         
         $validator = Validator::make($request->all(), [
             'opening_stock' => 'required|integer|min:0',
@@ -1245,5 +1283,44 @@ class GeneralItemController extends Controller
         
         // For cost-only adjustments, no journal entries are needed as the total value doesn't change
         // The FIFO calculation will use the updated unit cost from the adjustment entry
+    }
+
+    private function makeGeneralItemValidator(Request $request, int $businessId, ?int $itemId, string $itemKind)
+    {
+        $uniqueCodeRule = 'nullable|string|max:255|unique:general_items,item_code';
+        if ($itemId) {
+            $uniqueCodeRule .= ','.$itemId.',id,business_id,'.$businessId;
+        } else {
+            $uniqueCodeRule .= ',NULL,id,business_id,'.$businessId;
+        }
+
+        if ($itemKind === GeneralItem::KIND_SERVICE) {
+            return Validator::make($request->all(), [
+                'item_name' => 'required|string|max:255',
+                'item_code' => $uniqueCodeRule,
+                'sale_price' => 'required|numeric|min:0',
+            ]);
+        }
+
+        return Validator::make($request->all(), [
+            'item_name' => 'required|string|max:255',
+            'item_type_id' => 'required|exists:item_types,id',
+            'item_code' => $uniqueCodeRule,
+            'min_stock_limit' => 'nullable|integer|min:0',
+            'carton_or_pack_size' => 'nullable|string|max:255',
+            'cost_price' => 'required|numeric|min:0',
+            'opening_stock' => 'nullable|numeric|min:0',
+            'sale_price' => 'required|numeric|min:0',
+        ]);
+    }
+
+    private function resolveServiceItemTypeId(int $businessId): int
+    {
+        $type = ItemType::firstOrCreate(
+            ['business_id' => $businessId, 'item_type' => 'Services'],
+            ['status' => true]
+        );
+
+        return (int) $type->id;
     }
 }

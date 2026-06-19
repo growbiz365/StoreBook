@@ -547,7 +547,9 @@
                 'item_name' => $i->item_name,
                 'item_code' => $i->item_code,
                 'sale_price' => (float) $i->sale_price,
-                'available_stock' => (float) ($i->available_stock ?? 0),
+                'available_stock' => $i->available_stock !== null ? (float) $i->available_stock : null,
+                'item_kind' => $i->item_kind ?? 'goods',
+                'tracks_inventory' => $i->tracksInventory(),
                 'item_type_id' => $i->item_type_id,
                 'item_type' => $i->itemType ? ['item_type' => $i->itemType->item_type] : null,
             ];
@@ -970,6 +972,31 @@
         return null;
     }
 
+    function isServiceItem(item) {
+        if (!item) {
+            return false;
+        }
+        if (item.item_kind === 'service' || item.tracks_inventory === false) {
+            return true;
+        }
+        const cat = item.id ? getCatalogItemById(item.id) : null;
+        return !!(cat && (cat.item_kind === 'service' || cat.tracks_inventory === false));
+    }
+
+    function enrichItemFromCatalog(item) {
+        if (!item || !item.id) {
+            return item;
+        }
+        const cat = getCatalogItemById(item.id);
+        const merged = cat ? Object.assign({}, cat, item) : Object.assign({}, item);
+        if (isServiceItem(merged)) {
+            merged.item_kind = 'service';
+            merged.tracks_inventory = false;
+            merged.available_stock = null;
+        }
+        return merged;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         let generalItemIndex = 0;
 
@@ -1323,6 +1350,10 @@
                 const quantity = parseFloat(quantityInput?.value || 0);
                 
                 if (selectedItemId && itemInput && quantity > 0) {
+                    const cat = getCatalogItemById(selectedItemId);
+                    if (cat && (cat.item_kind === 'service' || cat.tracks_inventory === false)) {
+                        return;
+                    }
                     // Get available stock from the item data
                     const stockInfo = row.querySelector('.item-info');
                     if (stockInfo) {
@@ -1364,6 +1395,14 @@
             const quantity = parseFloat(quantityInput.value || 0);
             
             if (selectedItemId && itemInput && quantity > 0) {
+                const cat = getCatalogItemById(selectedItemId);
+                if (cat && (cat.item_kind === 'service' || cat.tracks_inventory === false)) {
+                    quantityInput.style.borderColor = '';
+                    quantityInput.style.backgroundColor = '';
+                    const errorDiv = row.querySelector('.quantity-error');
+                    if (errorDiv) errorDiv.remove();
+                    return;
+                }
                 const stockInfo = row.querySelector('.item-info');
                 if (stockInfo) {
                     const stockText = stockInfo.textContent;
@@ -1587,6 +1626,8 @@
                     el.dataset.salePrice = this.safeNumber(item.sale_price);
                     el.dataset.availableStock = this.safeNumber(item.available_stock);
                     el.dataset.itemCode = item.item_code || '';
+                    el.dataset.itemKind = item.item_kind || 'goods';
+                    el.dataset.tracksInventory = (item.item_kind === 'service' || item.tracks_inventory === false) ? '0' : '1';
                     const tn = (item.item_type && item.item_type.item_type) ? item.item_type.item_type : '';
                     el.dataset.itemTypeName = tn;
                     el.innerHTML = '<div class="font-medium text-gray-900">' + item.item_name + '</div>' +
@@ -1626,7 +1667,9 @@
                     item_name: el.dataset.itemName,
                     item_code: el.dataset.itemCode,
                     sale_price: this.safeNumber(el.dataset.salePrice),
-                    available_stock: this.safeNumber(el.dataset.availableStock),
+                    available_stock: el.dataset.tracksInventory === '0' ? null : this.safeNumber(el.dataset.availableStock),
+                    item_kind: el.dataset.itemKind || 'goods',
+                    tracks_inventory: el.dataset.tracksInventory !== '0',
                     item_type: el.dataset.itemTypeName ? { item_type: el.dataset.itemTypeName } : null
                 };
                 window.addOrBumpItemLine(item);
@@ -1745,6 +1788,7 @@
             if (!row || !item || !item.id) {
                 return;
             }
+            item = enrichItemFromCatalog(item);
             const hidden = row.querySelector('.line-item-id');
             const nameEl = row.querySelector('.item-display-name');
             if (hidden) {
@@ -1758,23 +1802,26 @@
                 salePriceInput.value = item.sale_price != null && item.sale_price !== '' ? item.sale_price : '';
             }
             setGeneralLineDetailsCell(row, item);
-            const availableStock = item.available_stock ?? 0;
+            const isService = isServiceItem(item);
             row.querySelectorAll('.stock-warning, .item-info').forEach((n) => n.remove());
-            const wrap = row.querySelector('.line-item-name-wrap');
-            if (wrap) {
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'item-info mt-1 text-xs leading-snug';
-                if (availableStock <= 0) {
-                    infoDiv.className += ' text-red-600 font-medium';
-                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — No stock</span>';
-                } else if (availableStock <= 5) {
-                    infoDiv.className += ' text-orange-700 font-medium';
-                    infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — Low stock</span>';
-                } else {
-                    infoDiv.className += ' text-gray-600';
-                    infoDiv.innerHTML = '<span>Stock: <span class="font-medium">' + availableStock + '</span></span>';
+            if (!isService) {
+                const availableStock = item.available_stock ?? 0;
+                const wrap = row.querySelector('.line-item-name-wrap');
+                if (wrap) {
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'item-info mt-1 text-xs leading-snug';
+                    if (availableStock <= 0) {
+                        infoDiv.className += ' text-red-600 font-medium';
+                        infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — No stock</span>';
+                    } else if (availableStock <= 5) {
+                        infoDiv.className += ' text-orange-700 font-medium';
+                        infoDiv.innerHTML = '<span>⚠️ Stock: <span class="font-medium">' + availableStock + '</span> — Low stock</span>';
+                    } else {
+                        infoDiv.className += ' text-gray-600';
+                        infoDiv.innerHTML = '<span>Stock: <span class="font-medium">' + availableStock + '</span></span>';
+                    }
+                    wrap.appendChild(infoDiv);
                 }
-                wrap.appendChild(infoDiv);
             }
             if (salePriceInput) {
                 calculateLineTotal(salePriceInput);
@@ -1790,6 +1837,7 @@
             if (!item || !item.id) {
                 return;
             }
+            item = enrichItemFromCatalog(item);
             const existing = findGeneralRowByItemId(item.id);
             if (existing) {
                 const qtyInput = existing.querySelector('.general-qty');
@@ -2077,6 +2125,7 @@
         function setGeneralLineDetailsCell(row, item) {
             const cell = row.querySelector('.general-details-cell');
             if (!cell) return;
+            item = enrichItemFromCatalog(item);
             const parts = [];
             if (item.item_code) {
                 parts.push('Code: ' + item.item_code);
@@ -2085,9 +2134,11 @@
             if (typeName) {
                 parts.push(typeName);
             }
-            const st = item.available_stock;
-            if (st !== undefined && st !== null && st !== '') {
-                parts.push('Stock: ' + st);
+            if (!isServiceItem(item)) {
+                const st = item.available_stock;
+                if (st !== undefined && st !== null && st !== '') {
+                    parts.push('Stock: ' + st);
+                }
             }
             cell.textContent = parts.length ? parts.join(' · ') : '—';
         }

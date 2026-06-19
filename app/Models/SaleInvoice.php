@@ -670,8 +670,12 @@ class SaleInvoice extends Model
         // Load fresh relationships to ensure we have the current data
         $this->load(['generalLines.generalItem', 'generalLines.batch', 'armLines.arm', 'party']);
 
-        // Reverse general item stock ledger entries
+        // Reverse general item stock ledger entries (goods only)
         foreach ($this->generalLines as $line) {
+            if (! $line->generalItem?->tracksInventory()) {
+                continue;
+            }
+
             // Get the actual stock ledger entries that were created for this sale line
             $originalSaleEntries = GeneralItemStockLedger::where('general_item_id', $line->general_item_id)
                 ->where('reference_no', $this->invoice_number)
@@ -1189,8 +1193,14 @@ class SaleInvoice extends Model
                 'posted_by' => $userId
             ]);
 
-            // Create stock ledger entries for general items
+            // Create stock ledger entries for general goods only
+            $this->loadMissing('generalLines.generalItem');
+
             foreach ($this->generalLines as $line) {
+                if (! $line->generalItem?->tracksInventory()) {
+                    continue;
+                }
+
                 // Get available batches for FIFO consumption
                 $batches = GeneralBatch::where('item_id', $line->general_item_id)
                     ->where('qty_remaining', '>', 0)
@@ -1360,8 +1370,12 @@ class SaleInvoice extends Model
         $businessId = $this->business_id;
         $userId = auth()->id();
 
-        // Create stock ledger entries for general items
+        // Create stock ledger entries for general goods only
         foreach ($this->generalLines as $line) {
+            if (! $line->generalItem?->tracksInventory()) {
+                continue;
+            }
+
             // Get available batches for FIFO consumption
             $batches = GeneralBatch::where('item_id', $line->general_item_id)
                 ->where('qty_remaining', '>', 0)
@@ -1525,15 +1539,22 @@ class SaleInvoice extends Model
             ->where('name', 'like', '%Inventory%')
             ->value('id');
 
-        // If any required account is missing, skip journal entries
-        if (!$salesRevenueId || !$cogsId || !$inventoryId) {
-            \Log::warning('Missing required chart of accounts for sale invoice posting', [
+        // If revenue account is missing, skip journal entries
+        if (! $salesRevenueId) {
+            \Log::warning('Missing sales revenue account for sale invoice posting', [
                 'sale_invoice_id' => $this->id,
                 'sales_revenue_id' => $salesRevenueId,
-                'cogs_id' => $cogsId,
-                'inventory_id' => $inventoryId
             ]);
-            return; // Skip journal entries but continue with other posting operations
+
+            return;
+        }
+
+        if (! $cogsId || ! $inventoryId) {
+            \Log::warning('Missing COGS or inventory account for sale invoice posting; goods COGS entries will be skipped if needed', [
+                'sale_invoice_id' => $this->id,
+                'cogs_id' => $cogsId,
+                'inventory_id' => $inventoryId,
+            ]);
         }
 
         // Entry 1: Debit Party Account (for credit sales) / Debit Bank (for cash sales) / Credit Sales Revenue
@@ -1635,8 +1656,12 @@ class SaleInvoice extends Model
         // Calculate total COGS
         $totalCogs = 0;
 
-        // COGS for general items - calculate based on actual stock ledger entries
+        // COGS for general goods lines - calculate based on actual stock ledger entries
         foreach ($this->generalLines as $line) {
+            if (! $line->generalItem?->tracksInventory()) {
+                continue;
+            }
+
             // Get the stock ledger entries for this line to calculate correct COGS
             // For edits, we need to exclude entries that have been reversed
             $stockEntries = GeneralItemStockLedger::where('general_item_id', $line->general_item_id)
@@ -1673,8 +1698,8 @@ class SaleInvoice extends Model
             $totalCogs += $cogsAmount;
         }
 
-        // Create single summarized COGS and Inventory journal entries
-        if ($totalCogs > 0) {
+        // Create single summarized COGS and Inventory journal entries (goods only)
+        if ($totalCogs > 0 && $cogsId && $inventoryId) {
             // Debit COGS (single entry for all items)
             JournalEntry::create([
                 'business_id' => $businessId,

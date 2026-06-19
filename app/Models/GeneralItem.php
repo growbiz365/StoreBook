@@ -9,11 +9,16 @@ use App\Support\StockQuantity;
 
 class GeneralItem extends Model
 {
+    public const KIND_GOODS = 'goods';
+
+    public const KIND_SERVICE = 'service';
+
     /** @var float|null Memoized result for {@see getAvailableStockQuantity()} */
     private ?float $availableStockQuantityResolved = null;
 
     protected $fillable = [
         'item_name',
+        'item_kind',
         'item_type_id',
         'item_code',
         'min_stock_limit',
@@ -60,6 +65,10 @@ class GeneralItem extends Model
      */
     public function getAvailableStockQuantity(): float
     {
+        if ($this->isService()) {
+            return 0.0;
+        }
+
         if ($this->availableStockQuantityResolved !== null) {
             return $this->availableStockQuantityResolved;
         }
@@ -121,6 +130,36 @@ class GeneralItem extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopeGoods(Builder $query): Builder
+    {
+        return $query->where('item_kind', self::KIND_GOODS);
+    }
+
+    public function scopeServices(Builder $query): Builder
+    {
+        return $query->where('item_kind', self::KIND_SERVICE);
+    }
+
+    public function isService(): bool
+    {
+        return ($this->item_kind ?? self::KIND_GOODS) === self::KIND_SERVICE;
+    }
+
+    public function isGoods(): bool
+    {
+        return ! $this->isService();
+    }
+
+    public function tracksInventory(): bool
+    {
+        return $this->isGoods();
+    }
+
+    public function getItemKindLabelAttribute(): string
+    {
+        return $this->isService() ? 'Service' : 'Goods';
+    }
+
     /**
      * Active items, plus any item that appears on a posted sale (e.g. sale returns after deactivation).
      */
@@ -157,6 +196,9 @@ class GeneralItem extends Model
             $item = static::where('business_id', $businessId)->find($itemId);
             if ($item && ! $item->is_active && ! in_array($itemId, $allowedInactiveItemIds, true)) {
                 $errors["general_lines.$i.general_item_id"] = 'This item is inactive and cannot be sold.';
+            }
+            if ($item && $item->isService() && (float) ($line['qty'] ?? 0) <= 0) {
+                $errors["general_lines.$i.qty"] = 'Service quantity must be greater than zero.';
             }
         }
 
