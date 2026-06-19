@@ -190,9 +190,9 @@
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap text-right">
                                 @php
-                                    $availableStock = round($item->batches->sum('qty_remaining'));
+                                    $availableStock = $item->getAvailableStockQuantity();
                                 @endphp
-                                <div class="text-sm text-gray-900">{{ number_format($availableStock, 0) }}</div>
+                                <div class="text-sm text-gray-900">{{ \App\Support\StockQuantity::format($availableStock) }}</div>
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ formatBusinessCurrency($item->cost_price, true, 2) }}</div>

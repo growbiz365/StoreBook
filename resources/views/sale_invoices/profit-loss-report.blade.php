@@ -464,7 +464,7 @@
                                             {{ ucfirst($row['item_type']) }}
                                         </span>
                                     </td>
-                                    <td class="text-right amount">{{ number_format(round($row['quantity']), 0) }}</td>
+                                    <td class="text-right amount">{{ \App\Support\StockQuantity::format($row['quantity']) }}</td>
                                     <td class="text-right amount">{{ number_format($row['unit_cost'], 2) }}</td>
                                     <td class="text-right amount">{{ number_format($row['total_cost'], 2) }}</td>
                                     <td class="text-right amount">{{ number_format($row['sale_rate'], 2) }}</td>

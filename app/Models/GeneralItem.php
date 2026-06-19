@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Support\StockQuantity;
 
 class GeneralItem extends Model
 {
@@ -55,8 +56,7 @@ class GeneralItem extends Model
     }
 
     /**
-     * Available quantity: sum of qty_remaining on active batches received on or before today.
-     * Matches general items index listing and FIFO consumption rules.
+     * Available quantity from stock ledger (supports decimal qty).
      */
     public function getAvailableStockQuantity(): float
     {
@@ -64,30 +64,8 @@ class GeneralItem extends Model
             return $this->availableStockQuantityResolved;
         }
 
-        $asOnDate = now()->format('Y-m-d');
-
-        if ($this->relationLoaded('batches')) {
-            $this->availableStockQuantityResolved = round((float) $this->batches
-                ->filter(function ($batch) use ($asOnDate) {
-                    if (($batch->status ?? '') !== 'active') {
-                        return false;
-                    }
-                    if (! $batch->received_date) {
-                        return false;
-                    }
-
-                    return $batch->received_date->format('Y-m-d') <= $asOnDate;
-                })
-                ->sum('qty_remaining'));
-
-            return $this->availableStockQuantityResolved;
-        }
-
-        $this->availableStockQuantityResolved = round((float) GeneralBatch::query()
-            ->where('item_id', $this->id)
-            ->where('status', 'active')
-            ->where('received_date', '<=', $asOnDate)
-            ->sum('qty_remaining'));
+        $balance = GeneralItemStockLedger::getStockBalance($this->id);
+        $this->availableStockQuantityResolved = StockQuantity::normalize($balance['balance']);
 
         return $this->availableStockQuantityResolved;
     }

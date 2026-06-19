@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GeneralItem;
 use App\Models\GeneralItemStockLedger;
 use App\Models\GeneralBatch;
+use App\Support\StockQuantity;
 use App\Models\InventoryTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -199,8 +200,13 @@ class GeneralItemStockLedgerController extends Controller
 
         // Get items with their current stock and valuation using FIFO
         $items = $query->get()->map(function ($item) use ($asOnDate, $businessId) {
-            // Calculate current stock from batches
-            $currentStock = $item->batches->sum('qty_remaining');
+            $currentStock = StockQuantity::normalize(
+                (float) GeneralItemStockLedger::query()
+                    ->where('business_id', $businessId)
+                    ->where('general_item_id', $item->id)
+                    ->whereDate('transaction_date', '<=', $asOnDate)
+                    ->sum('quantity')
+            );
             
             // Calculate inventory asset value using FIFO
             $inventoryAssetValue = $this->calculateFIFOValue($businessId, $item->id, $asOnDate);
@@ -1743,8 +1749,13 @@ class GeneralItemStockLedgerController extends Controller
 
         // Get items with their current stock and valuation
         $items = $query->get()->map(function ($item) use ($asOnDate, $businessId) {
-            // Calculate current stock from batches
-            $currentStock = $item->batches->sum('qty_remaining');
+            $currentStock = StockQuantity::normalize(
+                (float) GeneralItemStockLedger::query()
+                    ->where('business_id', $businessId)
+                    ->where('general_item_id', $item->id)
+                    ->whereDate('transaction_date', '<=', $asOnDate)
+                    ->sum('quantity')
+            );
             
             // Calculate inventory asset value using FIFO
             $inventoryAssetValue = $this->calculateFIFOValue($businessId, $item->id, $asOnDate);

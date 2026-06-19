@@ -98,7 +98,7 @@
                     
                     <div class="flex items-center space-x-2">
                         <span class="text-sm font-medium text-gray-700">Available Stock:</span>
-                        <span class="text-lg font-bold text-gray-900">{{ number_format($availableStock, 0) }}</span>
+                        <span class="text-lg font-bold text-gray-900">{{ \App\Support\StockQuantity::format($availableStock) }}</span>
                         @if($generalItem->min_stock_limit)
                             <span class="text-sm text-gray-500">/ {{ $generalItem->min_stock_limit }} min</span>
                         @endif
@@ -314,7 +314,7 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-gray-900 mb-2">{{ number_format($availableStock, 0) }}</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-2">{{ \App\Support\StockQuantity::format($availableStock) }}</div>
                             <div class="text-sm text-gray-600">Current Stock</div>
                         </div>
                         

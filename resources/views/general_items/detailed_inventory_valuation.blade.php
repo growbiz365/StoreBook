@@ -648,11 +648,11 @@
                                             @endif
                                         </td>
                                         <td class="amount {{ $transaction['quantity'] > 0 ? 'quantity-positive' : ($transaction['quantity'] < 0 ? 'quantity-negative' : 'quantity-zero') }}">
-                                            {{ $transaction['quantity'] > 0 ? '+' : '' }}{{ number_format(round($transaction['quantity']), 0) }}
+                                            {{ \App\Support\StockQuantity::format($transaction['quantity'], true) }}
                                         </td>
                                         <td class="amount">{{ number_format(round($transaction['unit_cost']), 0) }}</td>
                                         <td class="amount {{ $transaction['stock_on_hand'] > 0 ? 'stock-positive' : ($transaction['stock_on_hand'] == 0 ? 'stock-zero' : 'stock-negative') }}">
-                                            {{ number_format(round($transaction['stock_on_hand']), 0) }}
+                                            {{ \App\Support\StockQuantity::format($transaction['stock_on_hand']) }}
                                         </td>
                                         <td class="amount">{{ number_format(round($transaction['inventory_asset_value']), 0) }}</td>
                                     </tr>

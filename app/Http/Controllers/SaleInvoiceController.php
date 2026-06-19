@@ -16,6 +16,7 @@ use App\Models\ChartOfAccount;
 use App\Models\ArmHistory;
 use App\Models\SaleInvoiceAuditLog;
 use App\Models\PartyLedger;
+use App\Support\StockQuantity;
 use App\Models\BankLedger;
 use App\Models\ItemType;
 use Illuminate\Http\Request;
@@ -1030,7 +1031,7 @@ class SaleInvoiceController extends Controller
                     if ($remainingQty <= 0)
                         break;
 
-                    $qtyToConsume = min($remainingQty, $batch->qty_remaining);
+                    $qtyToConsume = StockQuantity::normalize(min($remainingQty, (float) $batch->qty_remaining));
 
                     // Create stock ledger entry
                     GeneralItemStockLedger::create([
@@ -1041,7 +1042,7 @@ class SaleInvoiceController extends Controller
                         'transaction_date' => $saleInvoice->invoice_date,
                         'quantity' => -$qtyToConsume,
                         'quantity_out' => $qtyToConsume,
-                        'balance_quantity' => $batch->qty_remaining - $qtyToConsume,
+                        'balance_quantity' => StockQuantity::normalize((float) $batch->qty_remaining - $qtyToConsume),
                         'unit_cost' => $batch->unit_cost,
                         'total_cost' => $qtyToConsume * $batch->unit_cost,
                         'reference_no' => $saleInvoice->invoice_number,
@@ -1050,7 +1051,9 @@ class SaleInvoiceController extends Controller
                     ]);
 
                     // Update batch remaining quantity
-                    $batch->update(['qty_remaining' => $batch->qty_remaining - $qtyToConsume]);
+                    $batch->update([
+                        'qty_remaining' => StockQuantity::normalize((float) $batch->qty_remaining - $qtyToConsume),
+                    ]);
 
                     $consumedBatches[] = [
                         'batch_id' => $batch->id,
@@ -2001,7 +2004,7 @@ class SaleInvoiceController extends Controller
             $stockBalance = GeneralItemStockLedger::getStockBalance($itemId);
             $availableQty = $stockBalance['balance'];
 
-            if ($availableQty < $requiredQty) {
+            if (StockQuantity::isLessThan($availableQty, $requiredQty)) {
                 $item = GeneralItem::find($itemId);
                 $itemName = $item ? $item->item_name : 'Unknown Item';
                 
@@ -2036,7 +2039,7 @@ class SaleInvoiceController extends Controller
             // Calculate available stock for edit: current stock + previously sold quantity
             $availableQty = $currentStock + $previouslySoldQty;
 
-            if ($availableQty < $requiredQty) {
+            if (StockQuantity::isLessThan($availableQty, $requiredQty)) {
                 $item = GeneralItem::find($itemId);
                 $itemName = $item ? $item->item_name : 'Unknown Item';
                 

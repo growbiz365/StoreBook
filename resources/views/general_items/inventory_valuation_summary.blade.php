@@ -746,7 +746,7 @@
                                             <td><strong>{{ $item['item_code'] }}</strong></td>
                                             <td>{{ $item['item_name'] }}</td>
                                             <td class="amount {{ $item['current_stock'] > 0 ? 'stock-positive' : ($item['current_stock'] == 0 ? 'stock-zero' : 'stock-negative') }}">
-                                                {{ number_format(round($item['current_stock']), 0) }}
+                                                {{ \App\Support\StockQuantity::format($item['current_stock']) }}
                                             </td>
                                             <td class="amount">
                                                 <a href="{{ route('general-items.detailed-inventory-valuation', $item['id']) }}" 
@@ -761,7 +761,7 @@
                                 @endforeach
                                 <tr class="total-row">
                                     <td colspan="2" scope="row"><strong>Total</strong></td>
-                                    <td class="amount"><strong>{{ number_format(round($totalStock), 0) }}</strong></td>
+                                    <td class="amount"><strong>{{ \App\Support\StockQuantity::format($totalStock) }}</strong></td>
                                     <td class="amount"><strong>{{ number_format(round($totalValue), 0) }}</strong></td>
                                 </tr>
                             </tbody>
@@ -781,7 +781,7 @@
                                 <div class="mobile-card-row">
                                     <span class="mobile-card-label">Stock On Hand:</span>
                                     <span class="mobile-card-value amount {{ $item['current_stock'] > 0 ? 'stock-positive' : ($item['current_stock'] == 0 ? 'stock-zero' : 'stock-negative') }}">
-                                        {{ number_format(round($item['current_stock']), 0) }}
+                                        {{ \App\Support\StockQuantity::format($item['current_stock']) }}
                                     </span>
                                 </div>
                                 <div class="mobile-card-row">
@@ -802,7 +802,7 @@
                         <div class="mobile-card-header">Total Summary</div>
                         <div class="mobile-card-row">
                             <span class="mobile-card-label">Total Stock:</span>
-                            <span class="mobile-card-value amount"><strong>{{ number_format(round($totalStock), 0) }}</strong></span>
+                            <span class="mobile-card-value amount"><strong>{{ \App\Support\StockQuantity::format($totalStock) }}</strong></span>
                         </div>
                         <div class="mobile-card-row">
                             <span class="mobile-card-label">Total Value:</span>

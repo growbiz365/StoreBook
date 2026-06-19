@@ -383,7 +383,9 @@ class GeneralItemStockLedger extends Model
 
             // Update batch remaining quantity
             $batch = GeneralBatch::find($allocation['batch_id']);
-            $batch->update(['qty_remaining' => $batch->qty_remaining - $allocation['quantity']]);
+            $batch->update([
+                'qty_remaining' => \App\Support\StockQuantity::normalize((float) $batch->qty_remaining - $allocation['quantity']),
+            ]);
         }
 
         return $entries;

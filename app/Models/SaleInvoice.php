@@ -16,6 +16,7 @@ use App\Models\ChartOfAccount;
 use App\Models\GeneralBatch;
 use App\Models\SaleInvoiceAuditLog;
 use App\Models\PartyLedger;
+use App\Support\StockQuantity;
 use App\Models\BankLedger;
 
 class SaleInvoice extends Model
@@ -1212,7 +1213,8 @@ class SaleInvoice extends Model
                     if ($remainingQty <= 0)
                         break;
 
-                    $qtyToConsume = min($remainingQty, $batch->qty_remaining);
+                    $qtyToConsume = min($remainingQty, (float) $batch->qty_remaining);
+                    $qtyToConsume = StockQuantity::normalize($qtyToConsume);
 
                     // Create stock ledger entry
                     GeneralItemStockLedger::create([
@@ -1233,7 +1235,9 @@ class SaleInvoice extends Model
                     ]);
 
                     // Update batch remaining quantity
-                    $batch->update(['qty_remaining' => $batch->qty_remaining - $qtyToConsume]);
+                    $batch->update([
+                        'qty_remaining' => StockQuantity::normalize((float) $batch->qty_remaining - $qtyToConsume),
+                    ]);
 
                     $consumedBatches[] = [
                         'batch_id' => $batch->id,
@@ -1378,7 +1382,7 @@ class SaleInvoice extends Model
             foreach ($batches as $batch) {
                 if ($remainingQty <= 0) break;
 
-                $qtyToConsume = min($remainingQty, $batch->qty_remaining);
+                $qtyToConsume = StockQuantity::normalize(min($remainingQty, (float) $batch->qty_remaining));
 
                 // Create stock ledger entry
                 GeneralItemStockLedger::create([
@@ -1400,7 +1404,9 @@ class SaleInvoice extends Model
                 ]);
 
                 // Update batch remaining quantity
-                $batch->update(['qty_remaining' => $batch->qty_remaining - $qtyToConsume]);
+                $batch->update([
+                    'qty_remaining' => StockQuantity::normalize((float) $batch->qty_remaining - $qtyToConsume),
+                ]);
 
                 $remainingQty -= $qtyToConsume;
             }

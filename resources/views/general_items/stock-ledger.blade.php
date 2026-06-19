@@ -333,20 +333,20 @@
             <div class="summary-grid">
                 <div class="summary-card">
                     <h4>Total In</h4>
-                    <div class="summary-value stock-in">{{ number_format(round($summary['total_in'] ?? 0), 0) }}</div>
+                    <div class="summary-value stock-in">{{ \App\Support\StockQuantity::format($summary['total_in'] ?? 0) }}</div>
                 </div>
                 <div class="summary-card">
                     <h4>Total Out</h4>
-                    <div class="summary-value stock-out">{{ number_format(round($summary['total_out'] ?? 0), 0) }}</div>
+                    <div class="summary-value stock-out">{{ \App\Support\StockQuantity::format($summary['total_out'] ?? 0) }}</div>
                 </div>
                 <div class="summary-card">
                     <h4>Current Stock</h4>
-                    <div class="summary-value">{{ number_format(round($summary['current_stock'] ?? 0), 0) }}</div>
+                    <div class="summary-value">{{ \App\Support\StockQuantity::format($summary['current_stock'] ?? 0) }}</div>
                 </div>
                 <div class="summary-card">
                     <h4>Net Movement</h4>
                     <div class="summary-value {{ ($summary['net_movement'] ?? 0) >= 0 ? 'stock-in' : 'stock-out' }}">
-                        {{ number_format(round($summary['net_movement'] ?? 0), 0) }}
+                        {{ \App\Support\StockQuantity::format($summary['net_movement'] ?? 0, true) }}
                     </div>
                 </div>
                 <div class="summary-card">
@@ -442,13 +442,13 @@
                                         </span>
                                     </td>
                                     <td class="amount {{ in_array($entry->transaction_type, ['opening', 'purchase']) ? 'stock-in' : (in_array($entry->transaction_type, ['issue', 'sale']) ? 'stock-out' : '') }}">
-                                        {{ number_format(round($entry->quantity), 0) }}
+                                        {{ \App\Support\StockQuantity::format($entry->quantity, true) }}
                                     </td>
                                     <td class="amount">{{ number_format(round($entry->unit_cost ?? 0), 0) }}</td>
                                     <td class="amount">{{ number_format(round($entry->quantity * ($entry->unit_cost ?? 0)), 0) }}</td>
                                     
                                     <td class="amount running-balance {{ $entry->running_balance >= 0 ? 'positive' : 'negative' }}">
-                                        {{ number_format(round($entry->running_balance), 0) }}
+                                        {{ \App\Support\StockQuantity::format($entry->running_balance) }}
                                     </td>
                                 </tr>
                             @endforeach

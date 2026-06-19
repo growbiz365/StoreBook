@@ -26,8 +26,8 @@ class GeneralBatch extends Model
         'received_date' => 'date',
         'unit_cost' => 'decimal:2',
         'total_cost' => 'decimal:2',
-        'qty_received' => 'integer',
-        'qty_remaining' => 'integer',
+        'qty_received' => 'decimal:2',
+        'qty_remaining' => 'decimal:2',
     ];
 
     public function item(): BelongsTo
@@ -66,9 +66,9 @@ class GeneralBatch extends Model
         return $this->status === 'active';
     }
 
-    public function getConsumedQuantityAttribute(): int
+    public function getConsumedQuantityAttribute(): float
     {
-        return $this->qty_received - $this->qty_remaining;
+        return (float) $this->qty_received - (float) $this->qty_remaining;
     }
 
     public function getConsumptionPercentageAttribute(): float
@@ -81,7 +81,8 @@ class GeneralBatch extends Model
 
     public function canBeReversed(): bool
     {
-        return $this->isActive() && $this->qty_remaining === $this->qty_received;
+        return $this->isActive()
+            && abs((float) $this->qty_remaining - (float) $this->qty_received) < 0.01;
     }
 }
 
