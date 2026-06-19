@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\Purchase;
 use App\Models\PurchaseReturn;
 use App\Models\SaleInvoice;
+use App\Models\SaleReturn;
 
 class VoucherDisplayHelper
 {
@@ -16,6 +17,9 @@ class VoucherDisplayHelper
 
     /** @var array<int, string> */
     protected static array $saleInvoiceNumbers = [];
+
+    /** @var array<int, string> */
+    protected static array $saleReturnNumbers = [];
 
     public static function displayVoucherId(?string $voucherType, $voucherId): string
     {
@@ -35,6 +39,10 @@ class VoucherDisplayHelper
 
         if (self::isSaleInvoiceVoucherType($type)) {
             return self::saleInvoiceDisplayNumber((int) $voucherId);
+        }
+
+        if (self::isSaleReturnVoucherType($type)) {
+            return self::saleReturnDisplayNumber((int) $voucherId);
         }
 
         return (string) $voucherId;
@@ -129,12 +137,31 @@ class VoucherDisplayHelper
         }
 
         $invoice = SaleInvoice::query()
-            ->select('id')
+            ->select('id', 'sale_number')
             ->find($saleInvoiceId);
 
-        $number = $invoice ? (string) $invoice->invoice_number : (string) $saleInvoiceId;
+        $number = $invoice
+            ? 'SI-' . ($invoice->sale_number ?? $invoice->id)
+            : 'SI-' . $saleInvoiceId;
 
         return self::$saleInvoiceNumbers[$saleInvoiceId] = $number;
+    }
+
+    public static function saleReturnDisplayNumber(int $saleReturnId): string
+    {
+        if (isset(self::$saleReturnNumbers[$saleReturnId])) {
+            return self::$saleReturnNumbers[$saleReturnId];
+        }
+
+        $saleReturn = SaleReturn::query()
+            ->select('id', 'return_number')
+            ->find($saleReturnId);
+
+        $number = $saleReturn
+            ? (string) ($saleReturn->getAttributes()['return_number'] ?? $saleReturn->id)
+            : (string) $saleReturnId;
+
+        return self::$saleReturnNumbers[$saleReturnId] = $number;
     }
 
     private static function isPurchaseReturnVoucherType(string $type): bool
@@ -166,6 +193,16 @@ class VoucherDisplayHelper
             'saleinvoice',
             'sale invoice',
             'sale invoice cancellation',
+        ], true);
+    }
+
+    private static function isSaleReturnVoucherType(string $type): bool
+    {
+        return in_array($type, [
+            'salereturn',
+            'sale return',
+            'sale return cancellation',
+            'salereturncancellation',
         ], true);
     }
 }

@@ -167,9 +167,7 @@ class Purchase extends Model
     public static function nextPurchaseNumberForBusiness(int $businessId): int
     {
         $lastNumber = static::where('business_id', $businessId)
-            ->orderByDesc('purchase_number')
-            ->lockForUpdate()
-            ->value('purchase_number');
+            ->max('purchase_number');
 
         return ((int) $lastNumber) + 1;
     }

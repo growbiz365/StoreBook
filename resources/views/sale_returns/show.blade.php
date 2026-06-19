@@ -3,11 +3,11 @@
     <x-breadcrumb :breadcrumbs="[
         ['url' => '/', 'label' => 'Home'],
         ['url' => '/sale-returns', 'label' => 'Sale Returns'],
-        ['url' => '#', 'label' => 'Return #' . $saleReturn->id]
+        ['url' => '#', 'label' => 'Return #' . $saleReturn->display_number]
     ]" />
 
     <x-dynamic-heading 
-        :title="'Return #' . $saleReturn->id" 
+        :title="'Return #' . $saleReturn->display_number" 
         :subtitle="'Detailed Return Summary'"
         :icon="'fas fa-undo'"
     />
@@ -99,7 +99,7 @@
                 </div>
                 <div class="text-right">
                     <div class="text-3xl font-black text-gray-900 mb-1 tracking-tight">
-                        SALE RETURN #{{ $saleReturn->id }}
+                        SALE RETURN #{{ $saleReturn->display_number }}
                     </div>
                     <div class="text-xs text-gray-600">
                         Date: @businessDate($saleReturn->return_date)
@@ -354,10 +354,10 @@
     </div>
 
     <script>
-        document.title = "Sale Return #{{ $saleReturn->id }} - {{ $saleReturn->business->business_name ?? 'Business' }}";
+        document.title = "Sale Return #{{ $saleReturn->display_number }} - {{ $saleReturn->business->business_name ?? 'Business' }}";
         function printReturn() {
             const originalTitle = document.title;
-            document.title = "Sale Return #{{ $saleReturn->id }} - {{ $saleReturn->business->business_name ?? 'Business' }}";
+            document.title = "Sale Return #{{ $saleReturn->display_number }} - {{ $saleReturn->business->business_name ?? 'Business' }}";
             document.body.classList.add('printing');
             window.print();
             setTimeout(() => {

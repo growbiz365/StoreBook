@@ -178,10 +178,9 @@ class PurchaseReturn extends Model
 
     public static function nextReturnNumberForBusiness(int $businessId): int
     {
-        $lastNumber = static::where('business_id', $businessId)
-            ->orderByDesc('return_number')
-            ->lockForUpdate()
-            ->value('return_number');
+        $lastNumber = static::withTrashed()
+            ->where('business_id', $businessId)
+            ->max('return_number');
 
         return ((int) $lastNumber) + 1;
     }

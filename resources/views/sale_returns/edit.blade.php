@@ -3,11 +3,11 @@
     <x-breadcrumb :breadcrumbs="[
         ['url' => '/', 'label' => 'Home'],
         ['url' => '/sale-returns', 'label' => 'Sale Returns'],
-        ['url' => '#', 'label' => 'Edit Return #' . $saleReturn->id]
+        ['url' => '#', 'label' => 'Edit Return #' . $saleReturn->display_number]
     ]" />
 
     <x-dynamic-heading 
-        :title="'Edit Return #' . $saleReturn->id" 
+        :title="'Edit Return #' . $saleReturn->display_number" 
         :subtitle="'Update return details and items'"
         :icon="'fas fa-undo'"
     />

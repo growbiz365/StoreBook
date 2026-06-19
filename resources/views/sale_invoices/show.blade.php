@@ -1,14 +1,14 @@
 <x-app-layout>
-    @section('title', 'Sale #' . $saleInvoice->id . ' - Sale Details - Sales Management - StoreBook')
+    @section('title', 'Sale #' . $saleInvoice->invoice_number . ' - Sale Details - Sales Management - StoreBook')
     <x-breadcrumb :breadcrumbs="[
         ['url' => '/', 'label' => 'Home'],
         ['url' => '/sales-dashboard', 'label' => 'Sales Dashboard'],
         ['url' => '/sale-invoices', 'label' => 'Sales'],
-        ['url' => '#', 'label' => 'Sale #' . $saleInvoice->id]
+        ['url' => '#', 'label' => 'Sale #' . $saleInvoice->invoice_number]
     ]" />
 
     <x-dynamic-heading 
-        :title="'Sale #' . $saleInvoice->id" 
+        :title="'Sale #' . $saleInvoice->invoice_number" 
         :subtitle="'Detailed Invoice & Sale Summary'"
         :icon="'fas fa-file-invoice-dollar'"
     />

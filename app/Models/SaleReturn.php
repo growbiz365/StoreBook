@@ -22,6 +22,7 @@ class SaleReturn extends Model
 
     protected $fillable = [
         'business_id',
+        'return_number',
         'party_id',
         'return_type',
         'bank_id',
@@ -164,6 +165,49 @@ class SaleReturn extends Model
         return $query->where('party_id', $partyId);
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (SaleReturn $saleReturn) {
+            if (($saleReturn->getAttributes()['return_number'] ?? null) !== null || ! $saleReturn->business_id) {
+                return;
+            }
+
+            $saleReturn->return_number = static::nextReturnNumberForBusiness((int) $saleReturn->business_id);
+        });
+    }
+
+    public static function nextReturnNumberForBusiness(int $businessId): int
+    {
+        $lastNumber = static::withTrashed()
+            ->where('business_id', $businessId)
+            ->max('return_number');
+
+        return ((int) $lastNumber) + 1;
+    }
+
+    protected function numericReturnNumber(): int
+    {
+        if (array_key_exists('return_number', $this->attributes)) {
+            return (int) $this->attributes['return_number'];
+        }
+
+        return (int) $this->id;
+    }
+
+    public function getDisplayNumberAttribute(): string
+    {
+        return (string) $this->numericReturnNumber();
+    }
+
+    public static function displayNumberForId(?int $id): ?string
+    {
+        if (! $id) {
+            return null;
+        }
+
+        return \App\Helpers\VoucherDisplayHelper::saleReturnDisplayNumber($id);
+    }
+
     // Business Logic Methods
     public function isDraft(): bool
     {
@@ -220,7 +264,7 @@ class SaleReturn extends Model
 
     public function getReturnNumberAttribute(): string
     {
-        return 'SR-' . $this->id;
+        return 'SR-' . $this->numericReturnNumber();
     }
 
     public function getFormattedReturnDateAttribute(): string

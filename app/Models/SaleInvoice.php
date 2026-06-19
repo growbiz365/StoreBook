@@ -24,6 +24,7 @@ class SaleInvoice extends Model
 
     protected $fillable = [
         'business_id',
+        'sale_number',
         'party_id',
         'approval_id',
         'quotation_id',
@@ -165,6 +166,29 @@ class SaleInvoice extends Model
         return $query->where('party_id', $partyId);
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (SaleInvoice $saleInvoice) {
+            if ($saleInvoice->sale_number !== null || ! $saleInvoice->business_id) {
+                return;
+            }
+
+            $saleInvoice->sale_number = static::nextSaleNumberForBusiness((int) $saleInvoice->business_id);
+        });
+    }
+
+    /**
+     * Next sequential sale number for a business (continues after existing sales).
+     */
+    public static function nextSaleNumberForBusiness(int $businessId): int
+    {
+        $lastNumber = static::withTrashed()
+            ->where('business_id', $businessId)
+            ->max('sale_number');
+
+        return ((int) $lastNumber) + 1;
+    }
+
     // Business Logic Methods
     public function isDraft(): bool
     {
@@ -224,7 +248,16 @@ class SaleInvoice extends Model
 
     public function getInvoiceNumberAttribute(): string
     {
-        return 'SI-' . $this->id;
+        return 'SI-' . ($this->sale_number ?? $this->id);
+    }
+
+    public static function displayNumberForId(?int $id): ?string
+    {
+        if (! $id) {
+            return null;
+        }
+
+        return \App\Helpers\VoucherDisplayHelper::saleInvoiceDisplayNumber($id);
     }
 
     public function getFormattedInvoiceDateAttribute(): string

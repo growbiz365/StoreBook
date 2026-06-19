@@ -2290,10 +2290,9 @@ class SaleInvoiceController extends Controller
         
         // Apply filters
         if ($invoiceNumber) {
-            // Remove SI- prefix if present and extract numeric ID
-            $invoiceId = preg_replace('/[^0-9]/', '', str_replace('SI-', '', $invoiceNumber));
-            if ($invoiceId) {
-                $query->where('id', $invoiceId);
+            $saleNumber = preg_replace('/[^0-9]/', '', str_replace('SI-', '', $invoiceNumber));
+            if ($saleNumber) {
+                $query->where('sale_number', (int) $saleNumber);
             }
         }
         
