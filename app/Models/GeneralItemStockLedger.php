@@ -261,12 +261,23 @@ class GeneralItemStockLedger extends Model
     /**
      * Get stock balance for a specific item.
      */
-    public static function getStockBalance(int $itemId): array
+    public static function getStockBalance(int $itemId, ?int $businessId = null): array
 {
-    $businessId = session('active_business');
+    if ($businessId === null) {
+        $businessId = session('active_business');
+    }
 
-    $result = self::where('business_id', $businessId)
-        ->where('general_item_id', $itemId)
+    if ($businessId === null) {
+        $businessId = GeneralItem::whereKey($itemId)->value('business_id');
+    }
+
+    $query = self::where('general_item_id', $itemId);
+
+    if ($businessId !== null) {
+        $query->where('business_id', $businessId);
+    }
+
+    $result = $query
         ->selectRaw('
             COALESCE(SUM(quantity),0) as total_quantity,
             COALESCE(SUM(quantity_in),0) as total_in,
@@ -275,9 +286,9 @@ class GeneralItemStockLedger extends Model
         ->first();
 
     return [
-        'total_in' => (float) $result->total_in,
-        'total_out' => (float) $result->total_out,
-        'balance' => (float) $result->total_quantity, // ✅ true stock
+        'total_in' => (float) ($result->total_in ?? 0),
+        'total_out' => (float) ($result->total_out ?? 0),
+        'balance' => (float) ($result->total_quantity ?? 0),
     ];
 }
 

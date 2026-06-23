@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneralItem;
+use App\Models\GeneralItemStockLedger;
+use App\Support\StockQuantity;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
@@ -90,7 +92,8 @@ class GeneralItemController extends Controller
             $items->getCollection()->transform(function ($item) {
                 $item->tracks_inventory = $item->tracksInventory();
                 if ($item->tracksInventory()) {
-                    $item->available_stock = $item->batches->where('status', 'active')->sum('qty_remaining');
+                    $balance = GeneralItemStockLedger::getStockBalance($item->id, $item->business_id);
+                    $item->available_stock = StockQuantity::normalize($balance['balance']);
                 } else {
                     $item->available_stock = null;
                 }
@@ -184,7 +187,8 @@ class GeneralItemController extends Controller
             $items->getCollection()->transform(function ($item) {
                 $item->tracks_inventory = $item->tracksInventory();
                 if ($item->tracksInventory()) {
-                    $item->available_stock = $item->batches->where('status', 'active')->sum('qty_remaining');
+                    $balance = GeneralItemStockLedger::getStockBalance($item->id, $item->business_id);
+                    $item->available_stock = StockQuantity::normalize($balance['balance']);
                 } else {
                     $item->available_stock = null;
                 }

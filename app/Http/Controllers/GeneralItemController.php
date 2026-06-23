@@ -66,7 +66,7 @@ class GeneralItemController extends Controller
             foreach ($items as $item) {
                 $availableStock = $item->isService()
                     ? 'N/A'
-                    : round((float) $item->batches->sum('qty_remaining'));
+                    : \App\Support\StockQuantity::format($item->getAvailableStockQuantity());
                 fputcsv($file, [
                     $item->item_code ?? '',
                     $item->item_name ?? '',

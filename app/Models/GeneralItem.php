@@ -73,7 +73,8 @@ class GeneralItem extends Model
             return $this->availableStockQuantityResolved;
         }
 
-        $balance = GeneralItemStockLedger::getStockBalance($this->id);
+        $businessId = (int) ($this->business_id ?? session('active_business'));
+        $balance = GeneralItemStockLedger::getStockBalance($this->id, $businessId);
         $this->availableStockQuantityResolved = StockQuantity::normalize($balance['balance']);
 
         return $this->availableStockQuantityResolved;

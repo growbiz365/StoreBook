@@ -160,7 +160,7 @@ class SaleInvoiceController extends Controller
         // Add available stock to each general item
         foreach ($generalItems as $item) {
             if ($item->tracksInventory()) {
-                $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
+                $stockBal = GeneralItemStockLedger::getStockBalance($item->id, $businessId);
                 $item->available_stock = (float) ($stockBal['balance'] ?? 0);
             } else {
                 $item->available_stock = null;
@@ -600,7 +600,7 @@ class SaleInvoiceController extends Controller
 
         foreach ($generalItems as $item) {
             if ($item->tracksInventory()) {
-                $stockBal = GeneralItemStockLedger::getStockBalance($item->id);
+                $stockBal = GeneralItemStockLedger::getStockBalance($item->id, $businessId);
                 $current = (float) ($stockBal['balance'] ?? 0);
                 $item->available_stock = $current + (float) ($previouslySoldByItemId[$item->id] ?? 0);
             } else {
@@ -2032,7 +2032,7 @@ class SaleInvoiceController extends Controller
             $requiredQty = (float) $line['qty'];
 
             // Get current stock balance for this item
-            $stockBalance = GeneralItemStockLedger::getStockBalance($itemId);
+            $stockBalance = GeneralItemStockLedger::getStockBalance($itemId, $businessId);
             $availableQty = $stockBalance['balance'];
 
             if (StockQuantity::isLessThan($availableQty, $requiredQty)) {
@@ -2064,7 +2064,7 @@ class SaleInvoiceController extends Controller
             $requiredQty = (float) $line['qty'];
 
             // Get current stock balance for this item
-            $stockBalance = GeneralItemStockLedger::getStockBalance($itemId);
+            $stockBalance = GeneralItemStockLedger::getStockBalance($itemId, $businessId);
             $currentStock = $stockBalance['balance'];
 
             // Find the original quantity sold in this invoice (sum, in case the item appears more than once)

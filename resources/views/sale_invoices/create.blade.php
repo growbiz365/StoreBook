@@ -988,11 +988,13 @@
             return item;
         }
         const cat = getCatalogItemById(item.id);
-        const merged = cat ? Object.assign({}, cat, item) : Object.assign({}, item);
+        const merged = cat ? Object.assign({}, item, cat) : Object.assign({}, item);
         if (isServiceItem(merged)) {
             merged.item_kind = 'service';
             merged.tracks_inventory = false;
             merged.available_stock = null;
+        } else if (cat && cat.available_stock !== undefined && cat.available_stock !== null) {
+            merged.available_stock = cat.available_stock;
         }
         return merged;
     }
