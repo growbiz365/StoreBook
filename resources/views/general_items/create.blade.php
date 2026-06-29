@@ -4,7 +4,7 @@
 
     <x-dynamic-heading title="Add General Item" />
 
-    <form action="{{ route('general-items.store') }}" method="POST" class="max-w-5xl">
+    <form action="{{ route('general-items.store') }}" method="POST" class="max-w-5xl" id="general-item-create-form">
         @csrf
         <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 p-3 sm:p-4 space-y-4">
 
@@ -122,6 +122,7 @@
                         @error('cost_price')
                             <p class="text-xs text-red-600">{{ $message }}</p>
                         @enderror
+                        <p id="opening-stock-cost-hint" class="text-xs text-red-600 hidden">Please enter a cost price to calculate the opening stock value total.</p>
                     </div>
                 </div>
             </section>
@@ -181,6 +182,8 @@
             const costPriceInput = document.getElementById('cost_price');
             const openingStockInput = document.getElementById('opening_stock');
             const openingTotalInput = document.getElementById('opening_total');
+            const openingStockCostHint = document.getElementById('opening-stock-cost-hint');
+            const createForm = document.getElementById('general-item-create-form');
 
             const serviceNameInput = document.getElementById('item_name');
             const goodsNameInput = document.getElementById('item_name_goods');
@@ -242,6 +245,7 @@
                     goodsSaleInput.removeAttribute('required');
                     if (itemTypeSelect) itemTypeSelect.removeAttribute('required');
                     if (costPriceInput) costPriceInput.removeAttribute('required');
+                    if (openingStockCostHint) openingStockCostHint.classList.add('hidden');
                 } else {
                     syncSharedFields(false);
                     serviceNameInput.removeAttribute('required');
@@ -290,6 +294,33 @@
                 const costPrice = parseFloat(costPriceInput.value) || 0;
                 const openingStock = parseInt(openingStockInput.value, 10) || 0;
                 openingTotalInput.value = (costPrice * openingStock).toFixed(2);
+                updateOpeningStockCostHint(costPrice, openingStock);
+            }
+
+            function updateOpeningStockCostHint(costPrice, openingStock) {
+                if (!openingStockCostHint || selectedKind() === 'service') return;
+                const needsCostPrice = openingStock > 0 && costPrice <= 0;
+                openingStockCostHint.classList.toggle('hidden', !needsCostPrice);
+            }
+
+            function openingStockNeedsCostPrice() {
+                if (selectedKind() === 'service' || !costPriceInput || !openingStockInput) return false;
+                const costPrice = parseFloat(costPriceInput.value) || 0;
+                const openingStock = parseInt(openingStockInput.value, 10) || 0;
+                return openingStock > 0 && costPrice <= 0;
+            }
+
+            if (createForm) {
+                createForm.addEventListener('submit', function(event) {
+                    if (openingStockNeedsCostPrice()) {
+                        event.preventDefault();
+                        updateOpeningStockCostHint(
+                            parseFloat(costPriceInput.value) || 0,
+                            parseInt(openingStockInput.value, 10) || 0
+                        );
+                        costPriceInput.focus();
+                    }
+                });
             }
 
             if (costPriceInput) costPriceInput.addEventListener('input', calculateOpeningTotal);

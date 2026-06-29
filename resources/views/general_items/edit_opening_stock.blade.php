@@ -10,7 +10,7 @@
 
     <x-dynamic-heading title="Edit Opening Stock - {{ $generalItem->item_name }}" />
 
-    <form action="{{ route('general-items.update-opening-stock', $generalItem) }}" method="POST">
+    <form action="{{ route('general-items.update-opening-stock', $generalItem) }}" method="POST" id="edit-opening-stock-form">
         @csrf
         @method('PUT')
         <div class="bg-white shadow-lg sm:rounded-lg border border-gray-200 p-4">
@@ -61,6 +61,7 @@
                         @error('cost_price')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
+                        <p id="opening-stock-cost-hint" class="mt-1 text-xs text-red-600 hidden">Please enter a cost price to calculate the opening stock value total.</p>
                     </div>
 
                     <div>
@@ -111,12 +112,33 @@
             const costPriceInput = document.querySelector('input[name="cost_price"]');
             const openingStockInput = document.querySelector('input[name="opening_stock"]');
             const openingTotalInput = document.getElementById('opening_total');
+            const openingStockCostHint = document.getElementById('opening-stock-cost-hint');
+            const editOpeningStockForm = document.getElementById('edit-opening-stock-form');
 
             function calculateOpeningTotal() {
                 const costPrice = parseFloat(costPriceInput.value) || 0;
                 const openingStock = parseInt(openingStockInput.value) || 0;
                 const openingTotal = costPrice * openingStock;
                 openingTotalInput.value = openingTotal.toFixed(2);
+                updateOpeningStockCostHint(costPrice, openingStock);
+            }
+
+            function updateOpeningStockCostHint(costPrice, openingStock) {
+                if (!openingStockCostHint) return;
+                const needsCostPrice = openingStock > 0 && costPrice <= 0;
+                openingStockCostHint.classList.toggle('hidden', !needsCostPrice);
+            }
+
+            if (editOpeningStockForm) {
+                editOpeningStockForm.addEventListener('submit', function(event) {
+                    const costPrice = parseFloat(costPriceInput.value) || 0;
+                    const openingStock = parseInt(openingStockInput.value) || 0;
+                    if (openingStock > 0 && costPrice <= 0) {
+                        event.preventDefault();
+                        updateOpeningStockCostHint(costPrice, openingStock);
+                        costPriceInput.focus();
+                    }
+                });
             }
 
             costPriceInput.addEventListener('input', calculateOpeningTotal);

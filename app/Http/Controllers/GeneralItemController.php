@@ -719,7 +719,7 @@ class GeneralItemController extends Controller
                 }
 
                 // Handle journal entries - reverse old and post new
-                $this->handleJournalEntriesForDirectEdit($businessId, $generalItem, $openingTotal, $currentOpeningStock, $currentCostPrice);
+                $this->handleJournalEntriesForDirectEdit($businessId, $generalItem, $openingTotal, $newOpeningStock, $currentOpeningStock, $currentCostPrice);
             } else {
                 // Remove opening stock completely
                 if ($openingBatch) {
@@ -934,9 +934,10 @@ class GeneralItemController extends Controller
      * Handle journal entries for direct opening stock editing
      * For direct editing (no sales occurred), we delete old entries and create new ones
      */
-    private function handleJournalEntriesForDirectEdit($businessId, $generalItem, $newOpeningTotal, $oldOpeningStock, $oldCostPrice)
+    private function handleJournalEntriesForDirectEdit($businessId, $generalItem, $newOpeningTotal, $newOpeningStock, $oldOpeningStock, $oldCostPrice)
     {
         $oldOpeningTotal = $oldOpeningStock * $oldCostPrice;
+        $newCostPrice = (float) $generalItem->cost_price;
         $inventoryAccountId = ChartOfAccount::getInventoryAssetAccountId();
         $openingEquityAccountId = ChartOfAccount::getOpeningStockEquityAccountId();
 
@@ -963,7 +964,7 @@ class GeneralItemController extends Controller
             'user_id' => auth()->id(),
             'debit_amount' => $newOpeningTotal,
             'credit_amount' => 0,
-            'comments' => 'Opening stock for ' . $generalItem->item_name . ' (Updated: ' . number_format($oldOpeningStock, 2) . ' units @ ' . number_format($oldCostPrice, 2) . ' = ' . number_format($oldOpeningTotal, 2) . ' → ' . number_format($newOpeningTotal / $generalItem->cost_price, 2) . ' units @ ' . number_format($generalItem->cost_price, 2) . ' = ' . number_format($newOpeningTotal, 2) . ')',
+            'comments' => 'Opening stock for ' . $generalItem->item_name . ' (Updated: ' . number_format($oldOpeningStock, 2) . ' units @ ' . number_format($oldCostPrice, 2) . ' = ' . number_format($oldOpeningTotal, 2) . ' → ' . number_format($newOpeningStock, 2) . ' units @ ' . number_format($newCostPrice, 2) . ' = ' . number_format($newOpeningTotal, 2) . ')',
         ]);
 
         JournalEntry::create([
@@ -975,7 +976,7 @@ class GeneralItemController extends Controller
             'user_id' => auth()->id(),
             'debit_amount' => 0,
             'credit_amount' => $newOpeningTotal,
-            'comments' => 'Opening stock equity for ' . $generalItem->item_name . ' (Updated: ' . number_format($oldOpeningStock, 2) . ' units @ ' . number_format($oldCostPrice, 2) . ' = ' . number_format($oldOpeningTotal, 2) . ' → ' . number_format($newOpeningTotal / $generalItem->cost_price, 2) . ' units @ ' . number_format($generalItem->cost_price, 2) . ' = ' . number_format($newOpeningTotal, 2) . ')',
+            'comments' => 'Opening stock equity for ' . $generalItem->item_name . ' (Updated: ' . number_format($oldOpeningStock, 2) . ' units @ ' . number_format($oldCostPrice, 2) . ' = ' . number_format($oldOpeningTotal, 2) . ' → ' . number_format($newOpeningStock, 2) . ' units @ ' . number_format($newCostPrice, 2) . ' = ' . number_format($newOpeningTotal, 2) . ')',
         ]);
     }
 
@@ -1055,6 +1056,8 @@ class GeneralItemController extends Controller
             'cost_price' => 'required|numeric|min:0',
             'sale_price' => 'required|numeric|min:0',
         ]);
+
+        $this->addOpeningStockCostPriceValidation($validator, $request);
 
         if ($validator->fails()) {
             return redirect()->route('general-items.edit-opening-stock', $id)->withErrors($validator)->withInput();
@@ -1140,7 +1143,7 @@ class GeneralItemController extends Controller
             $this->updateStockLedgerOpeningStock($generalItem->id, $newOpeningStock, $newCostPrice, $newOpeningTotal);
 
             // Update journal entries
-            $this->handleJournalEntriesForDirectEdit($businessId, $generalItem, $newOpeningTotal, $currentOpeningStock, $currentCostPrice);
+            $this->handleJournalEntriesForDirectEdit($businessId, $generalItem, $newOpeningTotal, $newOpeningStock, $currentOpeningStock, $currentCostPrice);
         });
 
         return redirect()->route('general-items.show', $id)->with('success', 'Opening stock updated successfully.');
@@ -1302,7 +1305,7 @@ class GeneralItemController extends Controller
             ]);
         }
 
-        return Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'item_name' => 'required|string|max:255',
             'item_type_id' => 'required|exists:item_types,id',
             'item_code' => $uniqueCodeRule,
@@ -1312,6 +1315,25 @@ class GeneralItemController extends Controller
             'opening_stock' => 'nullable|numeric|min:0',
             'sale_price' => 'required|numeric|min:0',
         ]);
+
+        $this->addOpeningStockCostPriceValidation($validator, $request);
+
+        return $validator;
+    }
+
+    private function addOpeningStockCostPriceValidation($validator, Request $request): void
+    {
+        $validator->after(function ($validator) use ($request) {
+            $openingStock = (float) ($request->input('opening_stock', 0));
+            $costPrice = (float) ($request->input('cost_price', 0));
+
+            if ($openingStock > 0 && $costPrice <= 0) {
+                $validator->errors()->add(
+                    'cost_price',
+                    'Please enter a cost price to calculate the opening stock value total.'
+                );
+            }
+        });
     }
 
     private function resolveServiceItemTypeId(int $businessId): int
