@@ -3132,7 +3132,6 @@ class ArmSearchableDropdown {
             if (remarksValue && document.getElementById('remarks')) {
                 document.getElementById('remarks').value = remarksValue;
             }
-            }
 
             // Restore customer details
             if (formData.name_of_customer) {
