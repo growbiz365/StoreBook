@@ -262,7 +262,7 @@
                                 <div class="font-medium text-gray-900">{{ $line->generalItem->item_name }}</div>
                                 <div class="text-gray-500 text-xs">{{ $line->generalItem->item_type ?? 'General Item' }}</div>
                             </td>
-                            <td class="px-3 py-2 text-right font-medium text-gray-900">{{ number_format(round($line->quantity), 0) }}</td>
+                            <td class="px-3 py-2 text-right font-medium text-gray-900">{{ \App\Support\StockQuantity::format($line->quantity) }}</td>
                             <td class="px-3 py-2 text-right font-medium text-gray-900">{{ number_format(round($line->return_price), 0) }}</td>
                             <td class="px-3 py-2 text-right font-bold text-gray-900">{{ number_format(round($line->quantity * $line->return_price), 0) }}</td>
                         </tr>

@@ -1779,7 +1779,8 @@ function initializeExistingData() {
                     const itemName = line.general_item?.item_name || line.generalItem?.item_name || '';
                     generalRow.querySelector('.searchable-input').value = itemName;
                     generalRow.querySelector('.selected-item-id').value = line.general_item_id;
-                    generalRow.querySelector('.general-qty').value = Math.round(line.quantity);
+                    const qty = parseFloat(line.quantity);
+                    generalRow.querySelector('.general-qty').value = (qty % 1 === 0) ? String(Math.floor(qty)) : String(qty);
                     generalRow.querySelector('.general-sale-price').value = line.return_price;
                     calculateLineTotal(generalRow.querySelector('.general-qty'));
                 }
@@ -3085,7 +3086,7 @@ class ArmSearchableDropdown {
             </div>
         </td>
         <td class="px-4 py-4 whitespace-nowrap">
-            <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
+            <input type="number" name="general_lines[INDEX][qty]" required step="0.01" min="0.01" 
                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-qty focus:border-orange-500 focus:ring-orange-500"
                    placeholder="0" value="1">
         </td>

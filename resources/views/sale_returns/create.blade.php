@@ -3632,7 +3632,7 @@ class ArmSearchableDropdown {
             </div>
         </td>
         <td class="px-4 py-4 whitespace-nowrap">
-            <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
+            <input type="number" name="general_lines[INDEX][qty]" required step="0.01" min="0.01" 
                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-qty focus:border-orange-500 focus:ring-orange-500"
                    placeholder="0" value="1">
         </td>
