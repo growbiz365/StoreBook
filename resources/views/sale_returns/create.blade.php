@@ -517,27 +517,28 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mt-6">
                     <div>
                         <label for="shipping_charges" class="block text-sm font-medium text-gray-700 mb-2">
                             Shipping Charges
                         </label>
                         <input type="number" name="shipping_charges" id="shipping_charges" value="{{ old('shipping_charges', 0) }}" 
-                            step="1" min="0" 
+                            step="0.01" min="0" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 @error('shipping_charges') border-red-500 @enderror">
                         @error('shipping_charges')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">
-                            Reason for Return
+                    <div class="md:col-span-1 lg:col-span-4">
+                        <label for="remarks" class="block text-sm font-medium text-gray-700 mb-2">
+                            Remarks
                         </label>
-                        <input type="text" name="reason" id="reason" value="{{ old('reason') }}" 
-                            placeholder="e.g., Defective item, Wrong size, Customer changed mind"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 @error('reason') border-red-500 @enderror">
-                        @error('reason')
+                        <input type="text" name="remarks" id="remarks" value="{{ old('remarks') }}"
+                               placeholder="Optional notes about this return"
+                               maxlength="1000"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 @error('remarks') border-red-500 @enderror">
+                        @error('remarks')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -2992,7 +2993,7 @@ class ArmSearchableDropdown {
                 bank_id: document.getElementById('bank_id').value,
                 return_date: document.getElementById('return_date').value,
                 shipping_charges: document.getElementById('shipping_charges').value,
-                reason: document.getElementById('reason').value,
+                remarks: document.getElementById('remarks')?.value || '',
                 // Customer details for cash returns
                 name_of_customer: document.getElementById('name_of_customer')?.value || '',
                 father_name: document.getElementById('father_name')?.value || '',
@@ -3127,9 +3128,10 @@ class ArmSearchableDropdown {
                 document.getElementById('shipping_charges').value = formData.shipping_charges;
                 console.log('Restored shipping_charges:', formData.shipping_charges);
             }
-            if (formData.reason) {
-                document.getElementById('reason').value = formData.reason;
-                console.log('Restored reason:', formData.reason);
+            const remarksValue = formData.remarks ?? formData.reason;
+            if (remarksValue && document.getElementById('remarks')) {
+                document.getElementById('remarks').value = remarksValue;
+            }
             }
 
             // Restore customer details
@@ -3343,7 +3345,7 @@ class ArmSearchableDropdown {
     function addSaleReturnDataPersistenceListeners() {
         // Add listeners to form fields
         const formFields = [
-            'return_type', 'party_id', 'bank_id', 'return_date', 'shipping_charges', 'reason',
+            'return_type', 'party_id', 'bank_id', 'return_date', 'shipping_charges', 'remarks',
             'name_of_customer', 'father_name', 'contact', 'address', 'cnic', 'licence_no',
             'licence_issue_date', 'licence_valid_upto', 'licence_issued_by', 're_reg_no',
             'dc', 'Date'

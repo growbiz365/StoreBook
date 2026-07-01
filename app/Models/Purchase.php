@@ -24,6 +24,7 @@ class Purchase extends Model
         'invoice_date',
         'subtotal',
         'shipping_charges',
+        'remarks',
         'total_amount',
         'status',
         'created_by',

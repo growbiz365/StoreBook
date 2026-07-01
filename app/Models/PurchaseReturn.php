@@ -30,9 +30,9 @@ class PurchaseReturn extends Model
         'return_date',
         'subtotal',
         'shipping_charges',
+        'remarks',
         'total_amount',
         'status',
-        'reason',
         'created_by',
         'posted_by',
         'cancelled_by',
@@ -412,7 +412,7 @@ class PurchaseReturn extends Model
     private function hasMeaningfulChanges(array $newGeneralLines, array $newArmLines, array $returnData): bool
     {
         // Check if return data has meaningful changes (excluding status changes)
-        $returnFields = ['party_id', 'return_type', 'bank_id', 'return_date', 'shipping_charges', 'reason'];
+        $returnFields = ['party_id', 'return_type', 'bank_id', 'return_date', 'shipping_charges', 'remarks'];
         foreach ($returnFields as $field) {
             if (isset($returnData[$field]) && $this->$field != $returnData[$field]) {
                 return true;

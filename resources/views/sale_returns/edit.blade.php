@@ -517,7 +517,7 @@
                     </div>
                     </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mt-6">
                     <div>
                         <label for="shipping_charges" class="block text-sm font-medium text-gray-700 mb-2">
                             Shipping Charges
@@ -530,14 +530,15 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">
-                            Reason for Return
+                    <div class="md:col-span-1 lg:col-span-4">
+                        <label for="remarks" class="block text-sm font-medium text-gray-700 mb-2">
+                            Remarks
                         </label>
-                        <input type="text" name="reason" id="reason" value="{{ old('reason', $saleReturn->reason) }}" 
-                            placeholder="e.g., Defective item, Wrong size, Customer changed mind"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 @error('reason') border-red-500 @enderror">
-                        @error('reason')
+                        <input type="text" name="remarks" id="remarks" value="{{ old('remarks', $saleReturn->remarks) }}"
+                               placeholder="Optional notes about this return"
+                               maxlength="1000"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 @error('remarks') border-red-500 @enderror">
+                        @error('remarks')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

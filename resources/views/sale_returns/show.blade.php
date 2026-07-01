@@ -234,8 +234,8 @@
                     @if($saleReturn->bank)
                         <div class="text-gray-600">Bank: {{ $saleReturn->bank->chartOfAccount->name ?? $saleReturn->bank->account_name }}</div>
                     @endif
-                    @if($saleReturn->reason)
-                        <div class="text-gray-600">Reason: {{ $saleReturn->reason }}</div>
+                    @if($saleReturn->remarks)
+                        <div class="text-gray-600">Remarks: {{ $saleReturn->remarks }}</div>
                     @endif
                 </div>
             </div>

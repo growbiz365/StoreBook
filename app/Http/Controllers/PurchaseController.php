@@ -259,6 +259,7 @@ class PurchaseController extends Controller
                 'bank_id' => 'nullable|required_if:payment_type,cash|exists:banks,id',
                 'invoice_date' => 'required|date',
                 'shipping_charges' => 'nullable|numeric|min:0',
+                'remarks' => 'nullable|string|max:1000',
                 'action' => 'required|in:save,post',
                 
                 // Customer details validation (only for cash payments)
@@ -482,6 +483,7 @@ class PurchaseController extends Controller
                 'bank_id' => $request->bank_id,
                 'invoice_date' => $request->invoice_date,
                 'shipping_charges' => $request->shipping_charges ?? 0,
+                'remarks' => $request->remarks,
                 'status' => $request->action === 'post' ? 'posted' : 'draft',
                 'created_by' => $userId,
                 'name_of_customer' => $request->name_of_customer,
@@ -729,6 +731,7 @@ class PurchaseController extends Controller
                 'bank_id' => 'nullable|required_if:payment_type,cash|exists:banks,id',
                 'invoice_date' => 'required|date',
                 'shipping_charges' => 'nullable|numeric|min:0',
+                'remarks' => 'nullable|string|max:1000',
                 
                 // Customer details validation (only for cash payments)
                 'name_of_customer' => 'nullable|string|max:255',
@@ -893,6 +896,7 @@ class PurchaseController extends Controller
                 'bank_id' => $request->bank_id,
                 'invoice_date' => $request->invoice_date,
                 'shipping_charges' => $request->shipping_charges ?? 0,
+                'remarks' => $request->remarks,
                 'name_of_customer' => $request->name_of_customer,
                 'father_name' => $request->father_name,
                 'contact' => $request->contact,

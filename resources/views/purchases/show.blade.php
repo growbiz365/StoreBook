@@ -262,6 +262,11 @@
                 @endif
                 </div>
             </div>
+            @if(filled($purchase->remarks))
+            <div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                <span class="font-semibold text-gray-700">Remarks:</span> {{ $purchase->remarks }}
+            </div>
+            @endif
         </div>
 
         <div class="p-6">

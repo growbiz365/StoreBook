@@ -154,7 +154,7 @@ class SaleReturnController extends Controller
                 'original_sale_invoice_id' => 'nullable|exists:sale_invoices,id',
                 'return_date' => 'required|date',
                 'shipping_charges' => 'nullable|numeric|min:0',
-                'reason' => 'nullable|string|max:1000',
+                'remarks' => 'nullable|string|max:1000',
                 'action' => 'required|in:save,post',
 
                 // Customer details validation (for cash returns)
@@ -219,7 +219,7 @@ class SaleReturnController extends Controller
                 'original_sale_invoice_id' => $request->original_sale_invoice_id,
                 'return_date' => $request->return_date,
                 'shipping_charges' => $request->shipping_charges ?? 0,
-                'reason' => $request->reason,
+                'remarks' => $request->remarks,
                 'status' => 'draft',
                 'created_by' => $userId,
                 'name_of_customer' => $request->name_of_customer,
@@ -474,7 +474,7 @@ class SaleReturnController extends Controller
                 'original_sale_invoice_id' => 'nullable|exists:sale_invoices,id',
                 'return_date' => 'required|date|before_or_equal:today',
                 'shipping_charges' => 'nullable|numeric|min:0',
-                'reason' => 'nullable|string|max:1000',
+                'remarks' => 'nullable|string|max:1000',
 
                 // Customer details validation (for cash returns)
                 'name_of_customer' => 'nullable|string|max:255',
@@ -539,7 +539,7 @@ class SaleReturnController extends Controller
                 'original_sale_invoice_id' => $request->original_sale_invoice_id,
                 'return_date' => $request->return_date,
                 'shipping_charges' => $request->shipping_charges ?? 0,
-                'reason' => $request->reason,
+                'remarks' => $request->remarks,
                 'name_of_customer' => $request->name_of_customer,
                 'father_name' => $request->father_name,
                 'contact' => $request->contact,

@@ -235,8 +235,8 @@
                     @if($purchaseReturn->bank)
                         <div class="text-gray-600">Bank: {{ $purchaseReturn->bank->chartOfAccount->name ?? $purchaseReturn->bank->account_name }}</div>
                     @endif
-                    @if($purchaseReturn->reason)
-                        <div class="text-gray-600">Reason: {{ $purchaseReturn->reason }}</div>
+                    @if($purchaseReturn->remarks)
+                        <div class="text-gray-600">Remarks: {{ $purchaseReturn->remarks }}</div>
                     @endif
                 </div>
             </div>
@@ -262,7 +262,7 @@
                         <tr class="hover:bg-blue-50">
                             <td class="px-3 py-2 text-gray-900">{{ $line->generalItem->item_name }}</td>
                             <td class="px-3 py-2 text-gray-600">{{ $line->generalItem->item_type ?? 'General Item' }}</td>
-                            <td class="px-3 py-2 text-gray-900 text-right">{{ number_format(round($line->quantity), 0) }}</td>
+                            <td class="px-3 py-2 text-gray-900 text-right">{{ number_format($line->quantity, 2) }}</td>
                             <td class="px-3 py-2 text-gray-900 text-right">{{ number_format($line->return_price, 2) }}</td>
                             <td class="px-3 py-2 text-gray-900 text-right font-semibold">{{ number_format($line->quantity * $line->return_price, 2) }}</td>
                         </tr>

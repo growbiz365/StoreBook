@@ -705,6 +705,19 @@
                             @enderror
                     </div>
                 </div>
+
+                <div class="mt-4">
+                    <label for="remarks" class="block text-sm font-medium text-gray-700 mb-2">
+                        Remarks
+                    </label>
+                    <input type="text" name="remarks" id="remarks" value="{{ old('remarks') }}"
+                           placeholder="Optional notes about this purchase"
+                           maxlength="1000"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 @error('remarks') border-red-500 @enderror">
+                    @error('remarks')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Customer Details Section (for Cash payments) -->
@@ -1106,7 +1119,7 @@
                 </div>
             </td>
             <td class="px-4 py-4 whitespace-nowrap">
-                <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
+                <input type="number" name="general_lines[INDEX][qty]" required step="0.01" min="0.01" 
                        class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-qty focus:border-blue-500 focus:ring-blue-500"
                        placeholder="0" value="1">
             </td>
@@ -3015,6 +3028,7 @@
                     bank_id: document.getElementById('bank_id').value,
                     invoice_date: document.getElementById('invoice_date').value,
                     shipping_charges: document.getElementById('shipping_charges').value,
+                    remarks: document.getElementById('remarks')?.value || '',
                     name_of_customer: document.getElementById('name_of_customer')?.value || '',
                     father_name: document.getElementById('father_name')?.value || '',
                     contact: document.getElementById('contact')?.value || '',
@@ -3136,6 +3150,9 @@
                 }
                 if (formData.shipping_charges) {
                     document.getElementById('shipping_charges').value = formData.shipping_charges;
+                }
+                if (formData.remarks && document.getElementById('remarks')) {
+                    document.getElementById('remarks').value = formData.remarks;
                 }
                 
                 // Restore customer details

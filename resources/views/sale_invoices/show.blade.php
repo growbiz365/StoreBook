@@ -183,6 +183,11 @@
                     @endif
                 </div>
                 </div>
+                @if(filled($saleInvoice->remarks))
+                <div class="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-600">
+                    <span class="font-semibold text-gray-700">Remarks:</span> {{ $saleInvoice->remarks }}
+                </div>
+                @endif
             </div>
 
             @if($saleInvoice->sale_type === 'cash' && ($saleInvoice->licence_no || $saleInvoice->licence_issue_date || $saleInvoice->licence_valid_upto || $saleInvoice->licence_issued_by || $saleInvoice->re_reg_no || $saleInvoice->dc || $saleInvoice->Date))

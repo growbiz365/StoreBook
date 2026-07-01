@@ -889,6 +889,16 @@
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                                 </div>
+                            <div class="form-group">
+                                <label for="remarks">Remarks</label>
+                                <input type="text" name="remarks" id="remarks" value="{{ old('remarks', $saleInvoice->remarks) }}"
+                                    placeholder="Optional notes about this sale"
+                                    maxlength="1000"
+                                    class="ci-form-control @error('remarks') border-red-500 @enderror">
+                                @error('remarks')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </aside>
                         </div>
                         

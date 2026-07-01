@@ -520,7 +520,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mt-6">
                     <div>
                         <label for="shipping_charges" class="block text-sm font-medium text-gray-700 mb-2">
                             Shipping Charges
@@ -533,14 +533,15 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">
-                            Reason for Return
+                    <div class="md:col-span-1 lg:col-span-4">
+                        <label for="remarks" class="block text-sm font-medium text-gray-700 mb-2">
+                            Remarks
                         </label>
-                        <input type="text" name="reason" id="reason" value="{{ old('reason') }}" 
-                            placeholder="e.g., Defective item, Wrong size, Customer changed mind"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 @error('reason') border-red-500 @enderror">
-                        @error('reason')
+                        <input type="text" name="remarks" id="remarks" value="{{ old('remarks') }}"
+                               placeholder="Optional notes about this return"
+                               maxlength="1000"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 @error('remarks') border-red-500 @enderror">
+                        @error('remarks')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -2836,6 +2837,8 @@ function savePurchaseReturnFormData() {
             party_display: document.getElementById('party_search_input')?.value || '',
             bank_id: document.getElementById('bank_id').value,
             return_date: document.getElementById('return_date').value,
+            shipping_charges: document.getElementById('shipping_charges')?.value || '',
+            remarks: document.getElementById('remarks')?.value || '',
             // Party license details
             party_license_no: document.getElementById('party_license_no')?.value || '',
             party_license_issue_date: document.getElementById('party_license_issue_date')?.value || '',
@@ -2952,6 +2955,13 @@ function loadSavedPurchaseReturnData() {
         if (formData.return_date) {
             document.getElementById('return_date').value = formData.return_date;
             console.log('Restored return_date:', formData.return_date);
+        }
+        if (formData.shipping_charges && document.getElementById('shipping_charges')) {
+            document.getElementById('shipping_charges').value = formData.shipping_charges;
+        }
+        const remarksValue = formData.remarks ?? formData.reason;
+        if (remarksValue && document.getElementById('remarks')) {
+            document.getElementById('remarks').value = remarksValue;
         }
 
         // Restore party license details
@@ -3135,7 +3145,7 @@ function triggerSearchableDropdownUpdate(searchInput) {
 function addPurchaseReturnDataPersistenceListeners() {
     // Add listeners to form fields
     const formFields = [
-        'return_type', 'party_id', 'bank_id', 'return_date'
+        'return_type', 'party_id', 'bank_id', 'return_date', 'shipping_charges', 'remarks'
     ];
     
     formFields.forEach(fieldId => {
@@ -3420,7 +3430,7 @@ window.debugPurchaseReturnForm = {
             </div>
         </td>
         <td class="px-4 py-4 whitespace-nowrap">
-            <input type="number" name="general_lines[INDEX][qty]" required step="1" min="1" 
+            <input type="number" name="general_lines[INDEX][qty]" required step="0.01" min="0.01"
                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm general-qty focus:border-orange-500 focus:ring-orange-500"
                    placeholder="0" value="1">
         </td>

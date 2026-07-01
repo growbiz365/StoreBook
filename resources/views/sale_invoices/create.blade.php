@@ -827,6 +827,16 @@
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                                 </div>
+                            <div class="form-group">
+                                <label for="remarks">Remarks</label>
+                                <input type="text" name="remarks" id="remarks" value="{{ old('remarks') }}"
+                                    placeholder="Optional notes about this sale"
+                                    maxlength="1000"
+                                    class="ci-form-control @error('remarks') border-red-500 @enderror">
+                                @error('remarks')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </aside>
                         </div>
                         
@@ -2671,6 +2681,7 @@
                 bank_id: document.getElementById('bank_id').value,
                 invoice_date: document.getElementById('invoice_date').value,
                 shipping_charges: document.getElementById('shipping_charges')?.value || '',
+                remarks: document.getElementById('remarks')?.value || '',
                 adjustment: document.getElementById('adjustment')?.value || '',
                 discount: document.getElementById('discount')?.value || '',
                 name_of_customer: document.getElementById('name_of_customer')?.value || '',
@@ -2806,6 +2817,7 @@
             // Restore charges and cash-customer details
             const simpleFields = [
                 'shipping_charges',
+                'remarks',
                 'adjustment',
                 'discount',
                 'name_of_customer',
@@ -2942,6 +2954,7 @@
             'bank_id',
             'invoice_date',
             'shipping_charges',
+            'remarks',
             'adjustment',
             'discount',
             'name_of_customer',

@@ -34,6 +34,7 @@ class SaleInvoice extends Model
         'invoice_date',
         'subtotal',
         'shipping_charges',
+        'remarks',
         'adjustment',
         'discount',
         'total_amount',
