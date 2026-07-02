@@ -38,6 +38,13 @@
                     <x-input-error :messages="$errors->get('name')" class="mt-2" />
                 </div>
 
+                <!-- Personal Code -->
+                <div>
+                    <x-input-label for="pcode">PCode (Personal Code)</x-input-label>
+                    <x-text-input id="pcode" name="pcode" value="{{ old('pcode') }}" />
+                    @error('pcode') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
+                </div>
+
                 <!-- Phone -->
                 <div>
                     <x-input-label for="phone_no">Phone Number</x-input-label>

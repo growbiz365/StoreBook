@@ -53,12 +53,12 @@
                 <div>
                     <x-input-label for="debit_party_id">Debit (بنـــام) Party <span class="text-red-500">*</span></x-input-label>
                     <select id="debit_party_id" name="debit_party_id" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        class="chosen-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                         <option value="">Select Debit Party</option>
                         @foreach($parties as $party)
                             <option value="{{ $party->id }}"
                                 {{ old('debit_party_id', $partyTransfer->debit_party_id) == $party->id ? 'selected' : '' }}>
-                                {{ $party->name }}
+                                {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
                             </option>
                         @endforeach
                     </select>
@@ -73,12 +73,12 @@
                 <div>
                     <x-input-label for="credit_party_id">Credit (جمـــع) Party <span class="text-red-500">*</span></x-input-label>
                     <select id="credit_party_id" name="credit_party_id" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        class="chosen-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                         <option value="">Select Credit Party</option>
                         @foreach($parties as $party)
                             <option value="{{ $party->id }}"
                                 {{ old('credit_party_id', $partyTransfer->credit_party_id) == $party->id ? 'selected' : '' }}>
-                                {{ $party->name }}
+                                {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
                             </option>
                         @endforeach
                     </select>
@@ -181,6 +181,8 @@
     </div>
 </x-app-layout>
 
+@include('general_vouchers._chosen_assets')
+
 <script>
 let attachmentCount = 1;
 
@@ -235,9 +237,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('transferForm');
     const debitPartySelect = document.getElementById('debit_party_id');
     const creditPartySelect = document.getElementById('credit_party_id');
+    const $ = window.jQuery;
+
+    if ($ && $.fn.chosen) {
+        $('#debit_party_id').chosen({
+            width: '100%',
+            search_contains: true,
+            allow_single_deselect: true,
+            placeholder_text_single: 'Select Debit Party'
+        });
+        $('#credit_party_id').chosen({
+            width: '100%',
+            search_contains: true,
+            allow_single_deselect: true,
+            placeholder_text_single: 'Select Credit Party'
+        });
+    }
+
+    function refreshChosen(select) {
+        if ($ && $.fn.chosen && select) {
+            $(select).trigger('chosen:updated');
+        }
+    }
 
     // Add event listeners for party selection
-    debitPartySelect.addEventListener('change', function() {
+    $('#debit_party_id').on('change', function() {
         if (this.value) {
             fetchPartyBalance(this.value, 'debit');
         } else {
@@ -246,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filterCreditPartyOptions();
     });
 
-    creditPartySelect.addEventListener('change', function() {
+    $('#credit_party_id').on('change', function() {
         if (this.value) {
             fetchPartyBalance(this.value, 'credit');
         } else {
@@ -341,8 +365,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (creditPartySelect.value === selectedDebitParty) {
                 creditPartySelect.value = '';
                 hidePartyBalance('credit');
+                refreshChosen(creditPartySelect);
             }
         }
+
+        refreshChosen(creditPartySelect);
     }
 
     form.addEventListener('submit', function(e) {

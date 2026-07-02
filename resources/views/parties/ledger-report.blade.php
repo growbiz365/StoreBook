@@ -383,7 +383,7 @@
                             <option value="">Select a party</option>
                             @foreach($parties as $party)
                                 <option value="{{ $party->id }}" {{ request('party_id') == $party->id ? 'selected' : '' }}>
-                                    {{ $party->name }}
+                                    {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
                                 </option>
                             @endforeach
                         </select>

@@ -36,6 +36,7 @@ class PartyController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('pcode', 'like', "%{$searchTerm}%")
                     ->orWhere('phone_no', 'like', "%{$searchTerm}%")
                     ->orWhere('ntn', 'like', "%{$searchTerm}%");
             });
@@ -61,6 +62,7 @@ class PartyController extends Controller
 
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'pcode' => 'nullable|string|max:50|unique:parties,pcode,NULL,id,business_id,' . session('active_business'),
                 'address' => 'nullable|string',
                 'phone_no' => 'nullable|string|max:20',
                 'whatsapp_no' => 'nullable|string|max:20',
@@ -183,6 +185,7 @@ class PartyController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'pcode' => 'nullable|string|max:50|unique:parties,pcode,' . $party->id . ',id,business_id,' . session('active_business'),
                 'address' => 'nullable|string',
                 'phone_no' => 'nullable|string|max:20',
                 'whatsapp_no' => 'nullable|string|max:20',

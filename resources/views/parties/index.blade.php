@@ -52,6 +52,9 @@
                         <div>
                             <div>{{ $party->name }}</div>
                             <div class="text-sm text-gray-500">CNIC: {{ $party->cnic ?? 'N/A' }}</div>
+                            @if($party->pcode)
+                                <div class="text-sm text-gray-500">PCode: {{ $party->pcode }}</div>
+                            @endif
                         </div>
                     </x-table-cell>
                     <x-table-cell>{{ number_format($party->opening_balance, 2) }}</x-table-cell>

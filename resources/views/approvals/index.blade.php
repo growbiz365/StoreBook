@@ -69,11 +69,11 @@
                     </select>
                 </div>
                 <div class="min-w-[120px]">
-                    <select name="party_id" id="party_id" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm chosen-select">
+                    <select name="party_id" id="party_id" class="chosen-select-party-filter w-full px-2 py-1 border border-gray-300 rounded-md text-sm" data-placeholder="All Parties">
                         <option value="">All Parties</option>
                         @foreach($parties ?? [] as $party)
                             <option value="{{ $party->id }}" {{ request('party_id') == $party->id ? 'selected' : '' }}>
-                                {{ $party->name }}
+                                {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
                             </option>
                         @endforeach
                     </select>
@@ -153,61 +153,6 @@
         </div>
     </div>
 
-    <!-- jQuery Chosen for Party Dropdown -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
-    <style>
-    /* Make Chosen match Tailwind input styles exactly */
-    .chosen-container { width: 100% !important; }
-    .chosen-container-single .chosen-single {
-        height: auto;
-        min-height: 31px; /* Match py-1 (0.25rem top + 0.25rem bottom = 8px) + text line height */
-        line-height: 1.5; /* Match default line-height */
-        border: 1px solid #d1d5db; /* border-gray-300 */
-        border-radius: 0.375rem; /* rounded-md */
-        padding: 0.25rem 2rem 0.25rem 0.5rem; /* py-1 px-2 equivalent, with space for arrow */
-        background: #fff;
-        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
-        font-size: 0.875rem; /* text-sm */
-        color: #111827; /* text-gray-900 */
-    }
-    .chosen-container-single .chosen-single span { 
-        margin-right: 0;
-        display: block;
-    }
-    .chosen-container-single .chosen-single div { 
-        right: 0.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    .chosen-container-active .chosen-single,
-    .chosen-container .chosen-single:focus {
-        border-color: #3b82f6; /* blue-500 */
-        box-shadow: 0 0 0 1px #3b82f6 inset, 0 0 0 1px rgba(59, 130, 246, 0.2);
-    }
-    .chosen-container .chosen-search input {
-        height: 31px;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        padding: 0.25rem 0.5rem; /* py-1 px-2 */
-        font-size: 0.875rem; /* text-sm */
-    }
-    .chosen-container .chosen-results li.highlighted {
-        background-color: #3b82f6;
-        background-image: none;
-    }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize jQuery Chosen for party dropdown
-            $('#party_id').chosen({
-                width: '100%',
-                search_contains: true,
-                allow_single_deselect: true,
-                placeholder_text_single: 'All Parties'
-            });
-        });
-    </script>
+    @include('partials.chosen-index-party-filter')
 </x-app-layout>
 

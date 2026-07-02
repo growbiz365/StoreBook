@@ -32,6 +32,14 @@
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                 </div>
 
+                <!-- Personal Code -->
+                <div>
+                    <x-input-label for="pcode">PCode (Personal Code)</x-input-label>
+                    <input type="text" id="pcode" name="pcode" value="{{ old('pcode', $party->pcode) }}"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                    @error('pcode') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                </div>
+
                 <!-- Phone -->
                 <div>
                     <x-input-label for="phone_no">Phone Number</x-input-label>

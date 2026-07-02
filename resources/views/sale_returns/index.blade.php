@@ -65,11 +65,12 @@
                 <div class="min-w-[150px]">
                     <label for="customer_id" class="sr-only">Customer</label>
                     <select name="customer_id" id="customer_id"
-                        class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                        <option value="">All Customers</option>
+                        class="chosen-select-party-filter w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                        data-placeholder="All Parties">
+                        <option value="">All Parties</option>
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}" {{ request('customer_id') == $customer->id ? 'selected' : '' }}>
-                                {{ $customer->name }}
+                                {{ $customer->name }}@if($customer->pcode) ({{ $customer->pcode }})@endif
                             </option>
                         @endforeach
                     </select>
@@ -306,4 +307,6 @@
             </div>
         @endif
     </div>
+
+    @include('partials.chosen-index-party-filter')
 </x-app-layout>

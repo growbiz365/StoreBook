@@ -53,6 +53,7 @@ class PartyController extends Controller
             if (!empty($searchTerm)) {
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('name', 'like', "%{$searchTerm}%")
+                        ->orWhere('pcode', 'like', "%{$searchTerm}%")
                         ->orWhere('phone_no', 'like', "%{$searchTerm}%")
                         ->orWhere('cnic', 'like', "%{$searchTerm}%")
                         ->orWhere('ntn', 'like', "%{$searchTerm}%");

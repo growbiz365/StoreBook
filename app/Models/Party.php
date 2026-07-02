@@ -15,6 +15,7 @@ class Party extends Model
         'party_number',
         'chart_of_account_id',
         'name',
+        'pcode',
         'address',
         'phone_no',
         'whatsapp_no',
