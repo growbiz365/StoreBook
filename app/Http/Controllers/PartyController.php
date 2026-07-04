@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\VoucherDisplayHelper;
+use App\Helpers\PartyLedgerDescriptionHelper;
 use App\Models\Party;
 use App\Models\PartyLedger;
 use App\Models\JournalEntry;
@@ -474,6 +475,8 @@ class PartyController extends Controller
                     ->pluck('voucher_id')
                     ->all()
             );
+
+            PartyLedgerDescriptionHelper::preload($ledgerEntries);
 
             // Calculate running balance
             $runningBalance = $openingBalance;

@@ -2166,6 +2166,17 @@
         // Global array to track selected general item IDs
         window.selectedGeneralItemIds = window.selectedGeneralItemIds || [];
 
+        function formatPartyDisplayText(party) {
+            if (!party || !party.name) {
+                return '';
+            }
+            let text = party.name;
+            if (party.pcode) {
+                text += ` (${party.pcode})`;
+            }
+            return text;
+        }
+
         // Party Searchable Dropdown
         class PartySearchableDropdown {
             constructor(container, options = {}) {
@@ -2359,10 +2370,11 @@
                     resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
                     resultItem.dataset.partyId = party.id;
                     resultItem.dataset.partyName = party.name;
+                    resultItem.dataset.partyPcode = party.pcode || '';
                     resultItem.dataset.partyCnic = party.cnic || '';
                     
                     resultItem.innerHTML = `
-                        <div class="font-medium text-gray-900">${party.name}</div>
+                        <div class="font-medium text-gray-900">${formatPartyDisplayText(party)}</div>
                         <div class="text-sm text-gray-500">
                             ${party.cnic ? `CNIC: ${party.cnic}` : ''}
                         </div>
@@ -2412,13 +2424,7 @@
             selectParty(party) {
                 this.selectedItem = party;
                 
-                // Create display text with name and additional info
-                let displayText = party.name;
-                if (party.cnic) {
-                    displayText += ` (CNIC: ${party.cnic})`;
-                }
-                
-                this.input.value = displayText;
+                this.input.value = formatPartyDisplayText(party);
                 this.hiddenInput.value = party.id;
                 
                 // Trigger the change event on the hidden input to fetch balance
@@ -2433,6 +2439,7 @@
                     const party = {
                         id: firstResult.dataset.partyId,
                         name: firstResult.dataset.partyName,
+                        pcode: firstResult.dataset.partyPcode || '',
                         cnic: firstResult.dataset.partyCnic
                     };
                     this.selectParty(party);
@@ -2445,6 +2452,7 @@
                     const party = {
                         id: highlightedResult.dataset.partyId,
                         name: highlightedResult.dataset.partyName,
+                        pcode: highlightedResult.dataset.partyPcode || '',
                         cnic: highlightedResult.dataset.partyCnic
                     };
                     this.selectParty(party);
@@ -2527,13 +2535,7 @@
                     if (party && !party.error) {
                         const partySearchInput = document.getElementById('party_search_input');
                         
-                        // Create display text with name and additional info
-                        let displayText = party.name;
-                        if (party.cnic) {
-                            displayText += ` (CNIC: ${party.cnic})`;
-                        }
-                        
-                        partySearchInput.value = displayText;
+                        partySearchInput.value = formatPartyDisplayText(party);
                         // Trigger balance fetch
                         fetchCustomerBalance(party.id);
                     }
@@ -2637,13 +2639,7 @@
                     if (party && !party.error) {
                         const partySearchInput = document.getElementById('party_search_input');
                         
-                        // Create display text with name and additional info
-                        let displayText = party.name;
-                        if (party.cnic) {
-                            displayText += ` (CNIC: ${party.cnic})`;
-                        }
-                        
-                        partySearchInput.value = displayText;
+                        partySearchInput.value = formatPartyDisplayText(party);
                         if (window.fetchCustomerBalance) {
                             window.fetchCustomerBalance(party.id);
                         }

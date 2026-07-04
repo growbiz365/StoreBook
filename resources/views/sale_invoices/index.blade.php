@@ -232,7 +232,13 @@
                                                 {{ $saleInvoice->generalLines->count() + $saleInvoice->armLines->count() }} lines
                                             </div>
                                             <div class="md:hidden mt-2 text-xs text-gray-600">
-                                                <span class="font-medium text-gray-800">{{ $saleInvoice->party->name ?? '—' }}</span>
+                                                <span class="font-medium text-gray-800">
+                                                    @if($saleInvoice->party)
+                                                        {{ $saleInvoice->party->name }}@if($saleInvoice->party->pcode) ({{ $saleInvoice->party->pcode }})@endif
+                                                    @else
+                                                        —
+                                                    @endif
+                                                </span>
                                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded ml-1 text-[10px] font-medium bg-gray-100 text-gray-700">{{ ucfirst($saleInvoice->sale_type) }}</span>
                                             </div>
                                         </div>
@@ -244,7 +250,13 @@
                                     </div>
                                 </td>
                                 <td class="px-4 sm:px-6 py-3 align-top hidden md:table-cell">
-                                    <div class="text-sm font-medium text-gray-900 truncate max-w-[14rem]" title="{{ $saleInvoice->party->name ?? '' }}">{{ $saleInvoice->party->name ?? '—' }}</div>
+                                    <div class="text-sm font-medium text-gray-900 truncate max-w-[14rem]" title="@if($saleInvoice->party){{ $saleInvoice->party->name }}@if($saleInvoice->party->pcode) ({{ $saleInvoice->party->pcode }})@endif @endif">
+                                        @if($saleInvoice->party)
+                                            {{ $saleInvoice->party->name }}@if($saleInvoice->party->pcode) ({{ $saleInvoice->party->pcode }})@endif
+                                        @else
+                                            —
+                                        @endif
+                                    </div>
                                     <div class="text-xs text-gray-500 mt-0.5">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-100">
                                             {{ ucfirst($saleInvoice->sale_type) }}

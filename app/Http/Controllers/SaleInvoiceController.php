@@ -199,7 +199,9 @@ class SaleInvoiceController extends Controller
                 'sale_type' => $prefillQuotation->payment_type,
                 // Only prefill the relevant side to avoid cash+credit fields both set
                 'party_id' => $prefillQuotation->payment_type === 'credit' ? $prefillQuotation->party_id : null,
-                'party_display' => $prefillQuotation->payment_type === 'credit' ? ($prefillQuotation->party?->name ?? '') : '',
+                'party_display' => $prefillQuotation->payment_type === 'credit'
+                    ? (($prefillQuotation->party?->name ?? '') . ($prefillQuotation->party?->pcode ? ' (' . $prefillQuotation->party->pcode . ')' : ''))
+                    : '',
                 'bank_id' => $prefillQuotation->payment_type === 'cash' ? $prefillQuotation->bank_id : null,
                 'invoice_date' => optional($prefillQuotation->quotation_date)->format('Y-m-d') ?? date('Y-m-d'),
                 'shipping_charges' => (float) ($prefillQuotation->shipping_charges ?? 0),
@@ -544,7 +546,7 @@ class SaleInvoiceController extends Controller
         $totalBalance = $bal['after'];
 
         $customerLabel = $saleInvoice->sale_type === 'credit'
-            ? ($saleInvoice->party?->name ?? 'Credit')
+            ? (($saleInvoice->party?->name ?? 'Credit') . ($saleInvoice->party?->pcode ? ' (' . $saleInvoice->party->pcode . ')' : ''))
             : ($saleInvoice->name_of_customer ?: 'Cash');
 
         return response()->view('sale_invoices.thermal_print', [

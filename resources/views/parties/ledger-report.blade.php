@@ -463,23 +463,7 @@
                                 <tr>
                                     <td>@businessDate($entry->date_added)</td>
                                     <td>{{ $entry->voucher_type }} #{{ $entry->display_voucher_id }}</td>
-                                    <td>
-                                        @if($entry->voucher_type == 'Party Transfer' && $entry->partyTransfer)
-                                            @if($entry->debit_amount > 0)
-                                                Debit Party: {{ $entry->partyTransfer->creditParty->name }}
-                                                @if($entry->partyTransfer->details)
-                                                    , {{ $entry->partyTransfer->details }}
-                                                @endif
-                                            @else
-                                                Credit Party: {{ $entry->partyTransfer->debitParty->name }}
-                                                @if($entry->partyTransfer->details)
-                                                    , {{ $entry->partyTransfer->details }}
-                                                @endif
-                                            @endif
-                                        @else
-                                            {{ $entry->voucher_type }}
-                                        @endif
-                                    </td>
+                                    <td>{{ $entry->ledger_description }}</td>
                                     <td class="amount">
                                         @if($entry->credit_amount > 0)
                                             <span class="credit-amount">{{ number_format($entry->credit_amount, 2) }}</span>

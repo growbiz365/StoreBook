@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Helpers\VoucherDisplayHelper;
+use App\Helpers\PartyLedgerDescriptionHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -54,5 +55,10 @@ class PartyLedger extends Model
     public function getDisplayVoucherIdAttribute(): string
     {
         return VoucherDisplayHelper::displayVoucherId($this->voucher_type, $this->voucher_id);
+    }
+
+    public function getLedgerDescriptionAttribute(): string
+    {
+        return PartyLedgerDescriptionHelper::description($this);
     }
 } 

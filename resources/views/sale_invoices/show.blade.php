@@ -116,7 +116,7 @@
         $bizAddr = $biz->store_address ?? $biz->address ?? '';
         $bizEmailLine = $biz->store_email ?? $biz->email ?? '';
         $billToName = $saleInvoice->sale_type === 'credit'
-            ? ($saleInvoice->party?->name ?? 'Credit')
+            ? (($saleInvoice->party?->name ?? 'Credit') . ($saleInvoice->party?->pcode ? ' (' . $saleInvoice->party->pcode . ')' : ''))
             : ($saleInvoice->name_of_customer ?: 'Cash');
     @endphp
 
