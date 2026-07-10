@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract pcode + name from Customer/Supplier BioReport xlsx files."""
+"""Extract pcode, name, and phone (Contact) from Customer/Supplier BioReport xlsx files."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from pathlib import Path
 
 import openpyxl
 
+EMPTY_CONTACT_VALUES = {"", "null", "none", "n/a", "-", "//"}
+
 
 def norm(value) -> str:
     if value is None:
@@ -16,19 +18,29 @@ def norm(value) -> str:
     return str(value).strip()
 
 
-def find_columns(rows: list[tuple]) -> tuple[int, int, int]:
+def norm_contact(value) -> str:
+    contact = norm(value)
+    if contact.lower() in EMPTY_CONTACT_VALUES:
+        return ""
+    return contact
+
+
+def find_columns(rows: list[tuple]) -> tuple[int, int, int, int | None]:
     for index, row in enumerate(rows):
         cells = [norm(c) for c in (row or ())]
         pcode_col = None
         name_col = None
+        contact_col = None
         for col, cell in enumerate(cells):
             lowered = cell.lower()
             if lowered in {"pcode", "personnal code", "code"}:
                 pcode_col = col
             elif lowered == "name":
                 name_col = col
+            elif lowered == "contact":
+                contact_col = col
         if pcode_col is not None and name_col is not None:
-            return index, pcode_col, name_col
+            return index, pcode_col, name_col, contact_col
     raise RuntimeError("Could not locate pcode/name header row")
 
 
@@ -38,34 +50,55 @@ def extract_file(path: Path, source: str, parties: dict, duplicates: list) -> di
     rows = list(worksheet.iter_rows(values_only=True))
     workbook.close()
 
-    header_idx, pcode_col, name_col = find_columns(rows)
+    header_idx, pcode_col, name_col, contact_col = find_columns(rows)
     imported = 0
     skipped = 0
+    with_phone = 0
 
     for row in rows[header_idx + 1 :]:
         cells = list(row or ())
         pcode = norm(cells[pcode_col] if pcode_col < len(cells) else "")
         name = norm(cells[name_col] if name_col < len(cells) else "")
+        phone_no = norm_contact(
+            cells[contact_col] if contact_col is not None and contact_col < len(cells) else ""
+        )
         if not pcode or not name:
             skipped += 1
             continue
 
         key = pcode.upper()
-        if key in parties and parties[key]["name"] != name:
-            duplicates.append(
-                {
-                    "pcode": pcode,
-                    "existing": parties[key],
-                    "new": {"pcode": pcode, "name": name, "source": source},
-                }
-            )
-        if key not in parties:
-            parties[key] = {"pcode": pcode, "name": name, "source": source}
+        if key in parties:
+            existing = parties[key]
+            if existing["name"] != name:
+                duplicates.append(
+                    {
+                        "pcode": pcode,
+                        "existing": existing,
+                        "new": {
+                            "pcode": pcode,
+                            "name": name,
+                            "phone_no": phone_no,
+                            "source": source,
+                        },
+                    }
+                )
+            if phone_no and not existing.get("phone_no"):
+                existing["phone_no"] = phone_no
+        else:
+            parties[key] = {
+                "pcode": pcode,
+                "name": name,
+                "phone_no": phone_no,
+                "source": source,
+            }
             imported += 1
+            if phone_no:
+                with_phone += 1
 
     return {
         "imported": imported,
         "skipped_empty": skipped,
+        "with_phone": with_phone,
         "header_row": header_idx + 1,
     }
 
@@ -98,6 +131,7 @@ def main() -> int:
         "parties": sorted(parties.values(), key=lambda item: item["pcode"].upper()),
         "stats": {
             "total_unique": len(parties),
+            "with_phone": sum(1 for item in parties.values() if item.get("phone_no")),
             "per_file": per_file,
             "name_conflicts": len(duplicates),
         },

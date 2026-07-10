@@ -18,9 +18,11 @@ class ImportPartiesFromBioReports extends Command
                             {--json= : JSON file produced by scripts/extract_parties_bio_reports.py}
                             {--chunk=250 : rows per database chunk}
                             {--skip-existing : Skip pcodes that already exist for this business}
+                            {--update-phones : Update phone_no on existing parties matched by pcode}
+                            {--force-phones : With --update-phones, overwrite existing phone numbers}
                             {--dry-run : Parse JSON and show counts only}';
 
-    protected $description = 'Import party pcode + name from Customer/Supplier BioReport xlsx files (via JSON extract)';
+    protected $description = 'Import party pcode, name, and phone from Customer/Supplier BioReport xlsx files (via JSON extract)';
 
     public function handle(): int
     {
@@ -60,11 +62,16 @@ class ImportPartiesFromBioReports extends Command
                 return [
                     'pcode' => trim((string) ($row['pcode'] ?? '')),
                     'name' => trim((string) ($row['name'] ?? '')),
+                    'phone_no' => trim((string) ($row['phone_no'] ?? '')),
                     'source' => (string) ($row['source'] ?? ''),
                 ];
             })
             ->filter(fn (array $row) => $row['pcode'] !== '' && $row['name'] !== '')
             ->values();
+
+        if ($this->option('update-phones')) {
+            return $this->updatePhones($businessId, $rows, $payload);
+        }
 
         $existingPcodes = Party::query()
             ->where('business_id', $businessId)
@@ -132,6 +139,7 @@ class ImportPartiesFromBioReports extends Command
                         $partyMeta[] = [
                             'name' => $name,
                             'pcode' => $pcode,
+                            'phone_no' => $row['phone_no'],
                             'code' => $code,
                         ];
                     }
@@ -156,7 +164,7 @@ class ImportPartiesFromBioReports extends Command
                             'name' => $meta['name'],
                             'pcode' => $meta['pcode'],
                             'address' => null,
-                            'phone_no' => null,
+                            'phone_no' => $meta['phone_no'] ?: null,
                             'whatsapp_no' => null,
                             'cnic' => null,
                             'ntn' => null,
@@ -186,6 +194,107 @@ class ImportPartiesFromBioReports extends Command
         $bar->finish();
         $this->newLine();
         $this->info("Imported {$imported} parties into business_id={$businessId}.");
+
+        return self::SUCCESS;
+    }
+
+    private function updatePhones(int $businessId, $rows, array $payload): int
+    {
+        $force = (bool) $this->option('force-phones');
+        $chunkSize = max(50, (int) $this->option('chunk'));
+
+        $partiesByPcode = Party::query()
+            ->where('business_id', $businessId)
+            ->whereNotNull('pcode')
+            ->get()
+            ->keyBy(fn (Party $party) => Str::upper((string) $party->pcode));
+
+        $withPhoneInJson = $rows->filter(fn (array $row) => $row['phone_no'] !== '')->count();
+        $matched = 0;
+        $updated = 0;
+        $skippedHasPhone = 0;
+        $missingInDb = 0;
+        $emptyInJson = $rows->count() - $withPhoneInJson;
+
+        $this->info("Business {$businessId} | JSON rows: {$rows->count()} | with phone in JSON: {$withPhoneInJson} | parties in DB: {$partiesByPcode->count()}");
+
+        if (isset($payload['stats'])) {
+            $this->line('Extract stats: '.json_encode($payload['stats']));
+        }
+
+        $toUpdate = $rows
+            ->filter(fn (array $row) => $row['phone_no'] !== '')
+            ->map(function (array $row) use ($partiesByPcode, $force, &$matched, &$skippedHasPhone, &$missingInDb) {
+                $party = $partiesByPcode->get(Str::upper($row['pcode']));
+                if (! $party) {
+                    $missingInDb++;
+
+                    return null;
+                }
+
+                $matched++;
+                $currentPhone = trim((string) ($party->phone_no ?? ''));
+                if ($currentPhone !== '' && ! $force) {
+                    $skippedHasPhone++;
+
+                    return null;
+                }
+
+                if ($currentPhone === $row['phone_no']) {
+                    return null;
+                }
+
+                return [
+                    'id' => $party->id,
+                    'phone_no' => $row['phone_no'],
+                ];
+            })
+            ->filter()
+            ->values();
+
+        $this->line("Matched by pcode: {$matched} | will update: {$toUpdate->count()} | skipped already has phone: {$skippedHasPhone} | missing in DB: {$missingInDb} | empty phone in JSON: {$emptyInJson}");
+
+        if ($this->option('dry-run')) {
+            $this->warn('DRY RUN complete. No database writes.');
+
+            return self::SUCCESS;
+        }
+
+        if ($toUpdate->isEmpty()) {
+            $this->warn('Nothing to update.');
+
+            return self::SUCCESS;
+        }
+
+        $bar = $this->output->createProgressBar($toUpdate->count());
+        $bar->start();
+
+        try {
+            foreach ($toUpdate->chunk($chunkSize) as $chunk) {
+                DB::transaction(function () use ($chunk, &$updated, $bar) {
+                    foreach ($chunk as $row) {
+                        Party::query()
+                            ->whereKey($row['id'])
+                            ->update([
+                                'phone_no' => $row['phone_no'],
+                                'updated_at' => now(),
+                            ]);
+                        $updated++;
+                        $bar->advance();
+                    }
+                });
+            }
+        } catch (Throwable $e) {
+            $bar->finish();
+            $this->newLine();
+            $this->error($e->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $bar->finish();
+        $this->newLine();
+        $this->info("Updated phone_no for {$updated} parties in business_id={$businessId}.");
 
         return self::SUCCESS;
     }
