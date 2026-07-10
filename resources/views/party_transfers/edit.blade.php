@@ -240,16 +240,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const $ = window.jQuery;
 
     if ($ && $.fn.chosen) {
-        $('#debit_party_id').chosen({
-            width: '100%',
-            search_contains: true,
-            allow_single_deselect: true,
+        window.initPartyChosen('#debit_party_id', {
             placeholder_text_single: 'Select Debit Party'
         });
-        $('#credit_party_id').chosen({
-            width: '100%',
-            search_contains: true,
-            allow_single_deselect: true,
+        window.initPartyChosen('#credit_party_id', {
             placeholder_text_single: 'Select Credit Party'
         });
     }

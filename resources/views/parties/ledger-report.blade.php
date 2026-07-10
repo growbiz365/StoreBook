@@ -510,14 +510,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Chosen JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    @include('partials.chosen-party-pcode-search')
     
     <script>
         $(document).ready(function() {
-            // Initialize Chosen select
-            $('.chosen-select').chosen({
-                width: '100%',
-                search_contains: true,
-                allow_single_deselect: true,
+            window.initPartyChosen('#party_id', {
                 placeholder_text_single: 'Select a party'
             });
         });

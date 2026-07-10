@@ -33,6 +33,12 @@ class PartyController extends Controller
             $query->where('status', $request->status);
         }
 
+        $pcodeTerm = trim((string) $request->input('pcode', ''));
+
+        if ($pcodeTerm !== '') {
+            $query->where('pcode', 'like', '%'.$pcodeTerm.'%');
+        }
+
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
@@ -43,7 +49,16 @@ class PartyController extends Controller
             });
         }
 
-        $parties = $query->latest()
+        if ($pcodeTerm !== '') {
+            $query->orderByRaw(
+                'CASE WHEN UPPER(pcode) = UPPER(?) THEN 0 WHEN pcode LIKE ? THEN 1 ELSE 2 END',
+                [$pcodeTerm, $pcodeTerm.'%']
+            )->orderBy('name');
+        } else {
+            $query->latest();
+        }
+
+        $parties = $query
             ->paginate(15)
             ->withQueryString();
 

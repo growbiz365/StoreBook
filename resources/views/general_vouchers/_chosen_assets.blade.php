@@ -34,3 +34,4 @@
     }
     .chosen-container .chosen-single.border-red-500 { border-color: #ef4444 !important; }
 </style>
+@include('partials.chosen-party-pcode-search')

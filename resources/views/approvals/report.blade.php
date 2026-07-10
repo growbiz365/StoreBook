@@ -680,15 +680,14 @@
         }
     }
     </style>
+    @include('partials.chosen-party-pcode-search')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize jQuery Chosen for party dropdown
-            $('#party_id').chosen({
-                width: '100%',
-                search_contains: true,
-                allow_single_deselect: true,
-                placeholder_text_single: 'All Parties'
-            });
+            if (typeof window.initPartyChosen === 'function') {
+                window.initPartyChosen('#party_id', {
+                    placeholder_text_single: 'All Parties'
+                });
+            }
         });
     </script>
 </body>

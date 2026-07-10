@@ -58,9 +58,16 @@ class PartyController extends Controller
                         ->orWhere('cnic', 'like', "%{$searchTerm}%")
                         ->orWhere('ntn', 'like', "%{$searchTerm}%");
                 });
+
+                $query->orderByRaw(
+                    'CASE WHEN UPPER(pcode) = UPPER(?) THEN 0 WHEN pcode LIKE ? THEN 1 ELSE 2 END',
+                    [$searchTerm, $searchTerm.'%']
+                )->orderBy('name');
+            } else {
+                $query->latest();
             }
 
-            $parties = $query->latest()
+            $parties = $query
                 ->paginate($limit, ['*'], 'page', $page);
 
             return response()->json([

@@ -24,11 +24,8 @@
         }
 
         if ($partySelect && $partySelect.length) {
-            $partySelect.chosen({
+            window.initPartyChosen($partySelect, {
                 placeholder_text_single: 'Select Party',
-                search_contains: true,
-                width: '100%',
-                allow_single_deselect: true
             });
 
             if ($partySelect.parent().find('.chosen-error-container .text-red-600').length) {

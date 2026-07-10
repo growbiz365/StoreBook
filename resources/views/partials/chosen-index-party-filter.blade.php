@@ -34,6 +34,7 @@
         color: #312e81;
     }
 </style>
+@include('partials.chosen-party-pcode-search')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (!window.jQuery || !jQuery.fn.chosen) {
@@ -46,12 +47,23 @@
                 return;
             }
 
+            if (typeof window.initPartyChosen === 'function') {
+                window.initPartyChosen($select, {
+                    placeholder_text_single: $select.data('placeholder') || 'All Parties',
+                });
+                return;
+            }
+
             $select.chosen({
                 width: '100%',
                 search_contains: true,
                 allow_single_deselect: true,
                 placeholder_text_single: $select.data('placeholder') || 'All Parties'
             });
+
+            if (typeof window.attachPartyChosenPcodeSort === 'function') {
+                window.attachPartyChosenPcodeSort($select);
+            }
         });
     });
 </script>

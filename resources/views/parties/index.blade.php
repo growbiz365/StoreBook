@@ -4,21 +4,42 @@
 
     <x-dynamic-heading title="Parties" />
 
-    <div class="space-y-4 pb-8">
-        <div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-            <div class="flex gap-4">
-                <x-search-form action="{{ route('parties.index') }}" placeholder="Search by name, phone, or NTN..." />
-                <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
-                    onchange="window.location.href='{{ route('parties.index') }}?status='+this.value+'&search={{ request('search') }}'">
-                    <option value="">All Status</option>
-                    <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
-                    <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
-                </select>
+    <div class="flex flex-nowrap items-center justify-between gap-3 pb-8">
+        <form action="{{ route('parties.index') }}" method="GET" class="flex flex-nowrap items-center gap-2 min-w-0 flex-1">
+            <div class="relative shrink-0 w-52">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search name, phone, NTN..."
+                    class="w-full rounded-md border-gray-300 shadow-sm pl-9 pr-2 py-1.5 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                >
+                <svg class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 0 5 11a6 6 0 0 0 12 0z"/>
+                </svg>
             </div>
+            <input
+                type="text"
+                name="pcode"
+                value="{{ request('pcode') }}"
+                placeholder="PCode"
+                class="shrink-0 w-28 rounded-md border-gray-300 shadow-sm px-2 py-1.5 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+            >
+            <select name="status" class="shrink-0 w-28 rounded-md border-gray-300 shadow-sm px-2 py-1.5 focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <option value="">All Status</option>
+                <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
+                <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
+            </select>
+            <button type="submit" class="shrink-0 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md whitespace-nowrap">
+                Filter
+            </button>
+            @if(request()->hasAny(['search', 'pcode', 'status']))
+                <a href="{{ route('parties.index') }}" class="shrink-0 text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap">Clear</a>
+            @endif
+        </form>
 
-            <div class="ml-0 sm:ml-4 mt-4 sm:mt-0 w-full sm:w-auto">
-                <x-button href="{{ route('parties.create') }}">Add Party</x-button>
-            </div>
+        <div class="shrink-0">
+            <x-button href="{{ route('parties.create') }}">Add Party</x-button>
         </div>
     </div>
 
@@ -50,11 +71,9 @@
                     <x-table-cell>{{ $loop->iteration }}</x-table-cell>
                     <x-table-cell>
                         <div>
-                            <div>{{ $party->name }}</div>
-                            <div class="text-sm text-gray-500">CNIC: {{ $party->cnic ?? 'N/A' }}</div>
-                            @if($party->pcode)
-                                <div class="text-sm text-gray-500">PCode: {{ $party->pcode }}</div>
-                            @endif
+                            <div class="font-medium text-gray-900">{{ $party->name }}</div>
+                            <div class="text-sm text-gray-500">Phone: {{ $party->phone_no ?? '-' }}</div>
+                            <div class="text-sm text-gray-500">PCode: {{ $party->pcode ?? '-' }}</div>
                         </div>
                     </x-table-cell>
                     <x-table-cell>{{ number_format($party->opening_balance, 2) }}</x-table-cell>
