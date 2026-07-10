@@ -71,13 +71,12 @@ class PurchaseReturnController extends Controller
         }
 
         $purchaseReturns = $query->paginate(15)->withQueryString();
-        
-        // Get vendors for filter dropdown
-        $vendors = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
-        
-        return view('purchase_returns.index', compact('purchaseReturns', 'vendors'));
+
+        $filterParty = $request->filled('customer_id')
+            ? Party::find($request->customer_id)
+            : null;
+
+        return view('purchase_returns.index', compact('purchaseReturns', 'filterParty'));
     }
 
     /**

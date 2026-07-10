@@ -171,7 +171,8 @@
         }
 
         input[type="date"],
-        select {
+        select,
+        .report-party-input {
             width: 100%;
             padding: 6px 10px;
             border: 1px solid #dee2e6;
@@ -449,14 +450,12 @@
                     <div class="filter-inputs">
                         <div class="form-group">
                             <label for="party_id">Party</label>
-                            <select name="party_id" id="party_id" class="chosen-select">
-                                <option value="">All Parties</option>
-                                @foreach($parties as $party)
-                                    <option value="{{ $party->id }}" {{ $partyId == $party->id ? 'selected' : '' }}>
-                                        {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
-                                    </option>
-                                @endforeach
-                            </select>
+                            @include('partials.index-party-filter', [
+                                'name' => 'party_id',
+                                'selectedParty' => $filterParty ?? null,
+                                'inputClass' => 'report-party-input',
+                                'placeholder' => 'Search party...',
+                            ])
                         </div>
 
                         <div class="form-group">
@@ -625,71 +624,6 @@
             </div>
         </div>
     </div>
-
-    <!-- jQuery Chosen for Party Dropdown -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
-    <style>
-    /* Make Chosen match existing form input styles */
-    .chosen-container { width: 100% !important; }
-    .chosen-container-single .chosen-single {
-        height: 32px;
-        line-height: 30px;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        padding: 0 2rem 0 0.625rem; /* Match padding: 6px 10px, with space for arrow */
-        background: #fff;
-        box-shadow: none;
-        font-size: 12px;
-        font-family: 'Inter', sans-serif;
-        color: #1a1a1a;
-    }
-    .chosen-container-single .chosen-single span { 
-        margin-right: 0;
-        display: block;
-    }
-    .chosen-container-single .chosen-single div { 
-        right: 0.625rem;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    .chosen-container-active .chosen-single,
-    .chosen-container .chosen-single:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
-    .chosen-container .chosen-search input {
-        height: 32px;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        padding: 6px 10px;
-        font-size: 12px;
-        font-family: 'Inter', sans-serif;
-    }
-    .chosen-container .chosen-results li.highlighted {
-        background-color: #0d6efd;
-        background-image: none;
-    }
-    @media print {
-        .chosen-container {
-            display: none !important;
-        }
-        select.chosen-select {
-            display: block !important;
-        }
-    }
-    </style>
-    @include('partials.chosen-party-pcode-search')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof window.initPartyChosen === 'function') {
-                window.initPartyChosen('#party_id', {
-                    placeholder_text_single: 'All Parties'
-                });
-            }
-        });
-    </script>
 </body>
 </html>
 

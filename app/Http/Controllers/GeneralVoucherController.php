@@ -51,12 +51,7 @@ class GeneralVoucherController extends Controller
             ->orderBy('account_name')
             ->get();
 
-        $parties = Party::where('business_id', session('active_business'))
-            ->where('status', 1) // Only active parties
-            ->orderBy('name')
-            ->get();
-            
-        return view('general_vouchers.create', compact('banks', 'parties'));
+        return view('general_vouchers.create', compact('banks'));
     }
 
     public function store(Request $request)
@@ -267,12 +262,9 @@ class GeneralVoucherController extends Controller
             ->orderBy('account_name')
             ->get();
 
-        $parties = Party::where('business_id', session('active_business'))
-            ->where('status', 1) // Only active parties
-            ->orderBy('name')
-            ->get();
-            
-        return view('general_vouchers.edit', compact('generalVoucher', 'banks', 'parties'));
+        $generalVoucher->load('party');
+
+        return view('general_vouchers.edit', compact('generalVoucher', 'banks'));
     }
 
     public function update(Request $request, GeneralVoucher $generalVoucher)

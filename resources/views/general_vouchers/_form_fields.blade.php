@@ -47,14 +47,21 @@
 
         <div>
             <label for="party_id" class="{{ $labelClass }}">Party <span class="text-red-600">*</span></label>
-            <select id="party_id" name="party_id" required class="{{ $fieldClass }} chosen-select">
-                <option value="">Select Party</option>
-                @foreach($parties as $party)
-                    <option value="{{ $party->id }}" {{ $selectedPartyId == $party->id ? 'selected' : '' }}>
-                        {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
-                    </option>
-                @endforeach
-            </select>
+            @php
+                $partyDisplay = $voucher?->party
+                    ? $voucher->party->name . ($voucher->party->pcode ? ' (' . $voucher->party->pcode . ')' : '')
+                    : '';
+            @endphp
+            <x-ajax-party-select
+                name="party_id"
+                id="party_id"
+                input-id="party_search_input"
+                :value="$selectedPartyId"
+                :display="$partyDisplay"
+                :required="true"
+                :input-class="$fieldClass"
+                placeholder="Search by name or pcode..."
+            />
             <div class="chosen-error-container">
                 <x-input-error :messages="$errors->get('party_id')" class="mt-0.5" />
             </div>

@@ -44,7 +44,6 @@
         </form>
     </div>
 
-    @include('general_vouchers._chosen_assets')
     @include('general_vouchers._form_scripts')
     <script>
         function deleteAttachment(id) {

@@ -68,15 +68,13 @@
                         <option value="closed" {{ request('status') == 'closed' ? 'selected' : '' }}>Closed</option>
                     </select>
                 </div>
-                <div class="min-w-[120px]">
-                    <select name="party_id" id="party_id" class="chosen-select-party-filter w-full px-2 py-1 border border-gray-300 rounded-md text-sm" data-placeholder="All Parties">
-                        <option value="">All Parties</option>
-                        @foreach($parties ?? [] as $party)
-                            <option value="{{ $party->id }}" {{ request('party_id') == $party->id ? 'selected' : '' }}>
-                                {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
-                            </option>
-                        @endforeach
-                    </select>
+                <div class="min-w-[180px]">
+                    @include('partials.index-party-filter', [
+                        'name' => 'party_id',
+                        'selectedParty' => $filterParty ?? null,
+                        'inputClass' => 'w-full px-2 py-1 border border-gray-300 rounded-md text-sm',
+                        'placeholder' => 'Search party...',
+                    ])
                 </div>
                 <div class="min-w-[120px]">
                     <input type="date" name="approval_date" value="{{ request('approval_date') }}"
@@ -153,6 +151,6 @@
         </div>
     </div>
 
-    @include('partials.chosen-index-party-filter')
+
 </x-app-layout>
 

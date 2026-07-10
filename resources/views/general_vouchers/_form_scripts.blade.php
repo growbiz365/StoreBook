@@ -17,29 +17,31 @@
         const bankSelect = document.getElementById('bank_id');
         const amountInput = document.getElementById('amount');
         const entryTypeRadios = document.querySelectorAll('input[name="entry_type"]');
-        const $partySelect = window.jQuery ? $('#party_id') : null;
-
-        function getPartyId() {
-            return $partySelect ? $partySelect.val() : document.getElementById('party_id')?.value;
-        }
-
         if ($partySelect && $partySelect.length) {
-            window.initPartyChosen($partySelect, {
-                placeholder_text_single: 'Select Party',
-            });
+            const partyContainer = document.querySelector('[data-ajax-party-select] #party_id')?.closest('[data-ajax-party-select]')
+                || document.querySelector('[data-ajax-party-select]');
 
-            if ($partySelect.parent().find('.chosen-error-container .text-red-600').length) {
-                $partySelect.next('.chosen-container').find('.chosen-single').addClass('border-red-500');
+            function getPartyId() {
+                return document.getElementById('party_id')?.value || '';
             }
 
-            $partySelect.on('change', function() {
-                const partyId = $(this).val();
+            document.getElementById('party_id')?.addEventListener('change', function () {
+                const partyId = this.value;
                 if (partyId) {
                     fetchPartyBalance(partyId);
                 } else {
                     hidePartyBalance();
                 }
             });
+
+            const initialPartyId = getPartyId();
+            if (initialPartyId) {
+                fetchPartyBalance(initialPartyId);
+            }
+        } else {
+            function getPartyId() {
+                return document.getElementById('party_id')?.value || '';
+            }
         }
 
         bankSelect.addEventListener('change', function() {

@@ -379,14 +379,21 @@
                 <form action="{{ route('parties.ledger-report') }}" method="GET" class="filter-form">
                     <div class="form-group">
                         <label for="party_id">Select Party</label>
-                        <select name="party_id" id="party_id" required class="chosen-select">
-                            <option value="">Select a party</option>
-                            @foreach($parties as $party)
-                                <option value="{{ $party->id }}" {{ request('party_id') == $party->id ? 'selected' : '' }}>
-                                    {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
-                                </option>
-                            @endforeach
-                        </select>
+                        @php
+                            $ledgerPartyDisplay = $selectedParty
+                                ? $selectedParty->name . ($selectedParty->pcode ? ' (' . $selectedParty->pcode . ')' : '')
+                                : '';
+                        @endphp
+                        <x-ajax-party-select
+                            name="party_id"
+                            id="party_id"
+                            input-id="party_search_input"
+                            :value="request('party_id')"
+                            :display="$ledgerPartyDisplay"
+                            :required="true"
+                            input-class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            placeholder="Search by name or pcode..."
+                        />
                     </div>
 
                     <div class="form-group date-group">
@@ -506,18 +513,7 @@
         </div>
     </div>
 
-    <!-- jQuery -->
+    <!-- jQuery (for legacy page scripts if any) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Chosen JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
-    @include('partials.chosen-party-pcode-search')
-    
-    <script>
-        $(document).ready(function() {
-            window.initPartyChosen('#party_id', {
-                placeholder_text_single: 'Select a party'
-            });
-        });
-    </script>
 </body>
 </html> 

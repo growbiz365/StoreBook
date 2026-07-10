@@ -52,16 +52,22 @@
                 <!-- Debit Party -->
                 <div>
                     <x-input-label for="debit_party_id">Debit (بنـــام) Party <span class="text-red-500">*</span></x-input-label>
-                    <select id="debit_party_id" name="debit_party_id" required
-                        class="chosen-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                        <option value="">Select Debit Party</option>
-                        @foreach($parties as $party)
-                            <option value="{{ $party->id }}"
-                                {{ old('debit_party_id', $partyTransfer->debit_party_id) == $party->id ? 'selected' : '' }}>
-                                {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
-                            </option>
-                        @endforeach
-                    </select>
+                    @php
+                        $debitParty = $partyTransfer->debitParty;
+                        $debitDisplay = $debitParty
+                            ? $debitParty->name . ($debitParty->pcode ? ' (' . $debitParty->pcode . ')' : '')
+                            : '';
+                    @endphp
+                    <x-ajax-party-select
+                        name="debit_party_id"
+                        id="debit_party_id"
+                        input-id="debit_party_search_input"
+                        :value="old('debit_party_id', $partyTransfer->debit_party_id)"
+                        :display="$debitDisplay"
+                        :required="true"
+                        input-class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                        placeholder="Search debit party..."
+                    />
                     <div id="debit_party_balance" class="mt-1 text-sm hidden">
                         <span class="font-medium">Balance:</span>
                         <span id="debit_balance_amount" class="ml-1"></span>
@@ -72,16 +78,23 @@
                 <!-- Credit Party -->
                 <div>
                     <x-input-label for="credit_party_id">Credit (جمـــع) Party <span class="text-red-500">*</span></x-input-label>
-                    <select id="credit_party_id" name="credit_party_id" required
-                        class="chosen-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                        <option value="">Select Credit Party</option>
-                        @foreach($parties as $party)
-                            <option value="{{ $party->id }}"
-                                {{ old('credit_party_id', $partyTransfer->credit_party_id) == $party->id ? 'selected' : '' }}>
-                                {{ $party->name }}@if($party->pcode) ({{ $party->pcode }})@endif
-                            </option>
-                        @endforeach
-                    </select>
+                    @php
+                        $creditParty = $partyTransfer->creditParty;
+                        $creditDisplay = $creditParty
+                            ? $creditParty->name . ($creditParty->pcode ? ' (' . $creditParty->pcode . ')' : '')
+                            : '';
+                    @endphp
+                    <x-ajax-party-select
+                        name="credit_party_id"
+                        id="credit_party_id"
+                        input-id="credit_party_search_input"
+                        :value="old('credit_party_id', $partyTransfer->credit_party_id)"
+                        :display="$creditDisplay"
+                        :required="true"
+                        :exclude-party-id="old('debit_party_id', $partyTransfer->debit_party_id)"
+                        input-class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                        placeholder="Search credit party..."
+                    />
                     <div id="credit_party_balance" class="mt-1 text-sm hidden">
                         <span class="font-medium">Balance:</span>
                         <span id="credit_balance_amount" class="ml-1"></span>
@@ -181,8 +194,6 @@
     </div>
 </x-app-layout>
 
-@include('general_vouchers._chosen_assets')
-
 <script>
 let attachmentCount = 1;
 
@@ -237,25 +248,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('transferForm');
     const debitPartySelect = document.getElementById('debit_party_id');
     const creditPartySelect = document.getElementById('credit_party_id');
-    const $ = window.jQuery;
 
-    if ($ && $.fn.chosen) {
-        window.initPartyChosen('#debit_party_id', {
-            placeholder_text_single: 'Select Debit Party'
-        });
-        window.initPartyChosen('#credit_party_id', {
-            placeholder_text_single: 'Select Credit Party'
-        });
+    function getCreditPartyContainer() {
+        return creditPartySelect?.closest('[data-ajax-party-select]');
     }
 
-    function refreshChosen(select) {
-        if ($ && $.fn.chosen && select) {
-            $(select).trigger('chosen:updated');
-        }
-    }
-
-    // Add event listeners for party selection
-    $('#debit_party_id').on('change', function() {
+    debitPartySelect?.addEventListener('change', function() {
         if (this.value) {
             fetchPartyBalance(this.value, 'debit');
         } else {
@@ -264,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filterCreditPartyOptions();
     });
 
-    $('#credit_party_id').on('change', function() {
+    creditPartySelect?.addEventListener('change', function() {
         if (this.value) {
             fetchPartyBalance(this.value, 'credit');
         } else {
@@ -273,14 +271,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Load initial balances if parties are already selected
-    if (debitPartySelect.value) {
+    if (debitPartySelect?.value) {
         fetchPartyBalance(debitPartySelect.value, 'debit');
     }
-    if (creditPartySelect.value) {
+    if (creditPartySelect?.value) {
         fetchPartyBalance(creditPartySelect.value, 'credit');
     }
 
-    // Filter Credit Party options on page load
     filterCreditPartyOptions();
 
     // Function to fetch party balance
@@ -336,34 +333,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Filter Credit Party options to exclude selected Debit Party
     function filterCreditPartyOptions() {
-        const debitPartySelect = document.getElementById('debit_party_id');
-        const creditPartySelect = document.getElementById('credit_party_id');
-        const selectedDebitParty = debitPartySelect.value;
-        
-        // Reset all options to visible
-        const creditOptions = creditPartySelect.querySelectorAll('option');
-        creditOptions.forEach(option => {
-            option.style.display = 'block';
-            option.disabled = false;
-        });
-        
-        // Hide and disable the selected Debit Party option
-        if (selectedDebitParty) {
-            const debitOption = creditPartySelect.querySelector(`option[value="${selectedDebitParty}"]`);
-            if (debitOption) {
-                debitOption.style.display = 'none';
-                debitOption.disabled = true;
-            }
-            
-            // If the currently selected Credit Party is the same as Debit Party, clear it
-            if (creditPartySelect.value === selectedDebitParty) {
-                creditPartySelect.value = '';
-                hidePartyBalance('credit');
-                refreshChosen(creditPartySelect);
-            }
+        const selectedDebitParty = debitPartySelect?.value || '';
+        const creditContainer = getCreditPartyContainer();
+
+        if (creditContainer?._partyDropdown) {
+            creditContainer._partyDropdown.setExcludePartyId(selectedDebitParty);
         }
 
-        refreshChosen(creditPartySelect);
+        if (selectedDebitParty && creditPartySelect?.value === selectedDebitParty) {
+            const input = creditContainer?.querySelector('.searchable-input');
+            if (input) {
+                input.value = '';
+            }
+            creditContainer?._partyDropdown?.clearSelection();
+            hidePartyBalance('credit');
+        }
     }
 
     form.addEventListener('submit', function(e) {

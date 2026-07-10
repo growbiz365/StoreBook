@@ -169,13 +169,12 @@ class PurchaseController extends Controller
         }
 
         $purchases = $query->paginate(15)->withQueryString();
-        
-        // Get vendors for filter dropdown
-        $vendors = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
 
-        return view('purchases.index', compact('purchases', 'vendors'));
+        $filterParty = $request->filled('vendor')
+            ? Party::find($request->vendor)
+            : null;
+
+        return view('purchases.index', compact('purchases', 'filterParty'));
     }
 
     /**

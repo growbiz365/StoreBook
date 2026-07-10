@@ -73,12 +73,11 @@ class SaleReturnController extends Controller
 
         $saleReturns = $query->paginate(15)->withQueryString();
 
-        // Get customers for filter dropdown
-        $customers = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
+        $filterParty = $request->filled('customer_id')
+            ? Party::find($request->customer_id)
+            : null;
 
-        return view('sale_returns.index', compact('saleReturns', 'customers'));
+        return view('sale_returns.index', compact('saleReturns', 'filterParty'));
     }
 
     /**

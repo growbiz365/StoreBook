@@ -73,12 +73,11 @@ class QuotationController extends Controller
 
         $quotations = $query->paginate(15)->withQueryString();
 
-        // Get customers for filter dropdown
-        $customers = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
+        $filterParty = $request->filled('customer')
+            ? Party::find($request->customer)
+            : null;
 
-        return view('quotations.index', compact('quotations', 'customers'));
+        return view('quotations.index', compact('quotations', 'filterParty'));
     }
 
     /**

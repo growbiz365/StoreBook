@@ -70,12 +70,11 @@ class ApprovalController extends Controller
 
         $approvals = $query->paginate(15)->withQueryString();
 
-        // Get parties for filter dropdown
-        $parties = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
+        $filterParty = $request->filled('party_id')
+            ? Party::find($request->party_id)
+            : null;
 
-        return view('approvals.index', compact('approvals', 'parties'));
+        return view('approvals.index', compact('approvals', 'filterParty'));
     }
 
     /**
@@ -84,10 +83,6 @@ class ApprovalController extends Controller
     public function create()
     {
         $businessId = session('active_business');
-
-        $parties = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
 
         $generalItems = GeneralItem::where('business_id', $businessId)
             ->active()
@@ -104,7 +99,7 @@ class ApprovalController extends Controller
             ->orderBy('serial_no')
             ->get();
 
-        return view('approvals.create', compact('parties', 'generalItems', 'arms'));
+        return view('approvals.create', compact('generalItems', 'arms'));
     }
 
     /**
@@ -270,10 +265,6 @@ class ApprovalController extends Controller
 
         $businessId = session('active_business');
 
-        $parties = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
-
         $approval->load(['arms.arm', 'generalItems.generalItem']);
 
         $lineItemIds = $approval->generalItems->pluck('general_item_id')->filter()->unique()->values()->all();
@@ -297,7 +288,7 @@ class ApprovalController extends Controller
             ->orderBy('serial_no')
             ->get();
 
-        return view('approvals.edit', compact('approval', 'parties', 'generalItems', 'arms'));
+        return view('approvals.edit', compact('approval', 'generalItems', 'arms'));
     }
 
     /**
@@ -1005,14 +996,11 @@ class ApprovalController extends Controller
         $closedApprovals = $approvals->where('status', 'closed')->count();
         $pendingApprovals = $approvals->where('status', 'pending approval')->count();
 
-        // Get parties for filter dropdown
-        $parties = Party::where('business_id', $businessId)
-            ->orderBy('name')
-            ->get();
+        $filterParty = $partyId ? Party::find($partyId) : null;
 
         return view('approvals.report', compact(
             'approvals',
-            'parties',
+            'filterParty',
             'business',
             'partyId',
             'status',

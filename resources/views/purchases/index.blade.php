@@ -62,17 +62,14 @@
                     </select>
                 </div>
                 <!-- Vendor -->
-                <div class="min-w-[120px]">
+                <div class="min-w-[180px]">
                     <label for="vendor" class="sr-only">Vendor</label>
-                    <select name="vendor" id="vendor"
-                        class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Vendors</option>
-                        @foreach($vendors as $vendor)
-                            <option value="{{ $vendor->id }}" {{ request('vendor') == $vendor->id ? 'selected' : '' }}>
-                                {{ $vendor->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @include('partials.index-party-filter', [
+                        'name' => 'vendor',
+                        'selectedParty' => $filterParty ?? null,
+                        'inputClass' => 'w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500',
+                        'placeholder' => 'Search party...',
+                    ])
                 </div>
                 <!-- Payment Type -->
                 <div class="min-w-[120px]">

@@ -426,13 +426,10 @@ class PartyController extends Controller
         $businessId = session('active_business');
         $business = \App\Models\Business::find($businessId);
         
-        // Always fetch all parties for the dropdown
-        $parties = Party::where('business_id', $businessId)
-            ->where('status', 1) // Only active parties
-            ->orderBy('name')
-            ->get();
-        
-        $selectedParty = null;
+        // Party dropdown uses AJAX search — only load selected party for the report.
+        $selectedParty = $request->filled('party_id')
+            ? Party::find($request->party_id)
+            : null;
         $ledgerEntries = collect();
         $openingBalance = 0;
         $totals = [
@@ -511,7 +508,6 @@ class PartyController extends Controller
     
         return view('parties.ledger-report', compact(
             'business',
-            'parties',
             'selectedParty',
             'ledgerEntries',
             'openingBalance',

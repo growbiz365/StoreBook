@@ -40,12 +40,7 @@ class PartyTransferController extends Controller
 
     public function create()
     {
-        $parties = Party::where('business_id', session('active_business'))
-            ->where('status', 1)
-            ->orderBy('name')
-            ->get();
-            
-        return view('party_transfers.create', compact('parties'));
+        return view('party_transfers.create');
     }
 
     public function store(Request $request)
@@ -259,12 +254,9 @@ class PartyTransferController extends Controller
 
     public function edit(PartyTransfer $partyTransfer)
     {
-        $parties = Party::where('business_id', session('active_business'))
-            ->where('status', 1)
-            ->orderBy('name')
-            ->get();
-            
-        return view('party_transfers.edit', compact('partyTransfer', 'parties'));
+        $partyTransfer->load(['debitParty', 'creditParty']);
+
+        return view('party_transfers.edit', compact('partyTransfer'));
     }
 
     public function update(Request $request, PartyTransfer $partyTransfer)
