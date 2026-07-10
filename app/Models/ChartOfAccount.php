@@ -176,87 +176,96 @@ class ChartOfAccount extends Model
         return $created->id;
     }
 
-    /**
-     * Generate a unique account code for party accounts
-     * Party accounts are created as root accounts in the liability range (2000-2999)
-     * Starts from 2110 and finds next available code sequentially
-     * 
-     * @param int $businessId
-     * @return string
-     */
-    public static function generatePartyAccountCode(int $businessId): string
+    public static function partyAccountStartCode(): int
     {
-        // Start from 2110 (after Accounts Payable 2102)
-        $startCode = 2110;
-        $endCode = 2999; // Full liability range
-        
-        // Get all existing codes in the liability range
-        $existingCodes = self::where('business_id', $businessId)
-            ->where('code', '>=', $startCode)
-            ->where('code', '<=', $endCode)
-            ->pluck('code')
-            ->map(fn($code) => (int) $code)
-            ->sort()
-            ->values()
-            ->toArray();
-        
-        // Find the first available code starting from 2110
-        $nextCode = $startCode;
-        
-        // If there are existing codes, find the next available one
-        if (!empty($existingCodes)) {
-            // Find gaps in the sequence
-            foreach ($existingCodes as $existingCode) {
-                if ($existingCode >= $nextCode) {
-                    if ($existingCode == $nextCode) {
-                        // This code is taken, try next
-                        $nextCode++;
-                    } else {
-                        // Found a gap, use it
-                        break;
-                    }
-                }
-            }
-        }
-        
-        // Ensure we don't exceed the liability range
-        if ($nextCode > $endCode) {
-            throw new \Exception('Maximum number of party accounts reached in liability range (2000-2999). Cannot create more party accounts.');
-        }
-        
-        return str_pad($nextCode, 4, '0', STR_PAD_LEFT);
+        return 2110;
     }
 
     /**
-     * Create chart of account for a party
-     * Creates party accounts as root accounts (no parent) in the liability range (2000-2999)
-     * 
-     * @param string $partyName
-     * @param int $businessId
-     * @return self
+     * Root liability COA rows used by the standard chart (not individual parties).
+     */
+    public static function reservedRootLiabilityCodes(): array
+    {
+        return [2000];
+    }
+
+    public function isPartyLedgerAccount(): bool
+    {
+        $code = (int) $this->code;
+
+        return $this->type === 'liability'
+            && $this->parent_id === null
+            && $code >= self::partyAccountStartCode()
+            && ! in_array($code, self::reservedRootLiabilityCodes(), true);
+    }
+
+    public static function partyAccountCodeQuery($query, int $businessId)
+    {
+        return $query
+            ->where('business_id', $businessId)
+            ->where('type', 'liability')
+            ->whereNull('parent_id')
+            ->whereRaw('CAST(code AS UNSIGNED) >= ?', [self::partyAccountStartCode()]);
+    }
+
+    /**
+     * Generate a unique account code for party accounts.
+     * Party accounts are root liability rows starting at 2110.
+     * Codes continue beyond 2999 when needed (bulk imports may already use higher codes).
+     */
+    public static function generatePartyAccountCode(int $businessId): string
+    {
+        $startCode = self::partyAccountStartCode();
+        $reservedCodes = self::reservedRootLiabilityCodes();
+
+        $existingCodes = self::partyAccountCodeQuery(self::query(), $businessId)
+            ->pluck('code')
+            ->map(fn ($code) => (int) $code)
+            ->filter(fn ($code) => ! in_array($code, $reservedCodes, true))
+            ->sort()
+            ->values()
+            ->toArray();
+
+        $nextCode = $startCode;
+
+        foreach ($existingCodes as $existingCode) {
+            if ($existingCode >= $nextCode) {
+                if ($existingCode === $nextCode) {
+                    $nextCode++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if ($nextCode > 999999) {
+            throw new \Exception('Maximum number of party accounts reached. Cannot create more party accounts.');
+        }
+
+        return (string) $nextCode;
+    }
+
+    /**
+     * Create chart of account for a party.
+     * Creates party accounts as root liability accounts (no parent), starting at 2110.
      */
     public static function createPartyAccount(string $partyName, int $businessId): self
     {
-        // Generate unique code in liability range (starts from 2110)
         $code = self::generatePartyAccountCode($businessId);
 
-        // Check if account with this name already exists (any liability account)
-        $existingAccount = self::where('name', $partyName)
-            ->where('business_id', $businessId)
-            ->where('type', 'liability')
-            ->where('code', '>=', '2110') // Party accounts start from 2110
+        $existingAccount = self::partyAccountCodeQuery(self::query(), $businessId)
+            ->where('name', $partyName)
             ->first();
 
         if ($existingAccount) {
             return $existingAccount;
         }
 
-        // Create the account as a root account (no parent_id)
         return self::create([
             'code' => $code,
-            'name' => $partyName, // Just the party name, no "Party:" prefix
+            'name' => $partyName,
             'type' => 'liability',
-            'parent_id' => null, // Root account, not a child of Accounts Payable
+            'parent_id' => null,
             'business_id' => $businessId,
             'is_default' => false,
             'is_active' => true,

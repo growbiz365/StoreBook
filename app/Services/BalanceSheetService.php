@@ -191,8 +191,7 @@ class BalanceSheetService
             $isOpeningBalanceAdjustment = ($account->code === '2303' || 
                 stripos($account->name, 'Opening Balance Adjustment') !== false);
             
-            // Party accounts (codes 2110-2999, root liability accounts) can have negative balances
-            $isPartyAccount = ($account->code >= '2110' && $account->code <= '2999' && $account->type === 'liability' && $account->parent_id === null);
+            $isPartyAccount = $account->isPartyLedgerAccount();
             
             // Track negative balances for warnings (but don't suppress them)
             if ($balance < 0) {

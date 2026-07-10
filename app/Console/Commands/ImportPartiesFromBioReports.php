@@ -301,20 +301,12 @@ class ImportPartiesFromBioReports extends Command
 
     private function initialPartyCoaCodeCursor(int $businessId): int
     {
-        $maxCode = ChartOfAccount::query()
-            ->where('business_id', $businessId)
-            ->where('type', 'liability')
-            ->whereNull('parent_id')
-            ->pluck('code')
-            ->map(fn ($code) => (int) $code)
-            ->max();
-
-        return max(2110, ($maxCode ?? 2109) + 1);
+        return (int) ChartOfAccount::generatePartyAccountCode($businessId);
     }
 
     private function allocatePartyCoaCode(int &$cursor): string
     {
-        $code = str_pad((string) $cursor, 4, '0', STR_PAD_LEFT);
+        $code = (string) $cursor;
         $cursor++;
 
         return $code;
