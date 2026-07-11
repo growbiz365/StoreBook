@@ -18,6 +18,7 @@
 @endphp
 
 @include('partials.party-searchable-dropdown-script')
+@include('partials.ajax-party-select-styles')
 
 <div
     class="ajax-party-select searchable-select-container relative"

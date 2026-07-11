@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party Ledger Report - {{ $business->business_name }} - Party Management - Arms Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
     <style>
         @page {
             size: A4;
@@ -165,57 +163,19 @@
             box-sizing: border-box;
         }
 
-        /* Chosen Select Styling */
-        .chosen-container {
-            width: 100% !important;
-        }
-
-        .chosen-container-single .chosen-single {
-            height: 36px;
-            line-height: 34px;
-            padding: 0 8px;
+        .ajax-party-select .searchable-input {
+            padding: 8px;
             border: 1px solid #dee2e6;
             border-radius: 4px;
             font-size: 13px;
             font-family: 'Inter', sans-serif;
-            background: white;
+            background: #fff;
         }
 
-        .chosen-container-single .chosen-single:hover {
-            border-color: #0d6efd;
-        }
-
-        .chosen-container-single .chosen-single:focus {
+        .ajax-party-select .searchable-input:focus {
+            outline: none;
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-
-        .chosen-container-single .chosen-single div b {
-            background-position: 0px 2px;
-        }
-
-        .chosen-container-active .chosen-single div b {
-            background-position: -18px 2px;
-        }
-
-        .chosen-drop {
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .chosen-results {
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .chosen-results li {
-            padding: 8px 12px;
-        }
-
-        .chosen-results li.highlighted {
-            background-color: #0d6efd;
-            color: white;
         }
 
         input[type="date"] {
@@ -391,7 +351,7 @@
                             :value="request('party_id')"
                             :display="$ledgerPartyDisplay"
                             :required="true"
-                            input-class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            input-class="searchable-input"
                             placeholder="Search by name or pcode..."
                         />
                     </div>
