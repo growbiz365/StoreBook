@@ -227,7 +227,7 @@ class GeneralVoucherController extends Controller
                 DB::commit();
 
                 return redirect()
-                    ->route('general-vouchers.index')
+                    ->route('general-vouchers.create')
                     ->with('success', 'General voucher created successfully');
 
             } catch (\Exception $e) {
@@ -437,7 +437,7 @@ class GeneralVoucherController extends Controller
                 DB::commit();
 
                 return redirect()
-                    ->route('general-vouchers.index')
+                    ->route('general-vouchers.create')
                     ->with('success', 'General voucher updated successfully');
 
             } catch (\Exception $e) {

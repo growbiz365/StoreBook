@@ -25,6 +25,10 @@
             <x-error-alert message="{{ session('error') }}" />
         @endif
 
+        @if (session('success'))
+            <x-success-alert message="{{ session('success') }}" />
+        @endif
+
         <form method="POST" action="{{ route('general-vouchers.store') }}" enctype="multipart/form-data">
             @csrf
 
