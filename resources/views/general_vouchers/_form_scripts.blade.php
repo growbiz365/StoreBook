@@ -17,34 +17,26 @@
         const bankSelect = document.getElementById('bank_id');
         const amountInput = document.getElementById('amount');
         const entryTypeRadios = document.querySelectorAll('input[name="entry_type"]');
-        if ($partySelect && $partySelect.length) {
-            const partyContainer = document.querySelector('[data-ajax-party-select] #party_id')?.closest('[data-ajax-party-select]')
-                || document.querySelector('[data-ajax-party-select]');
+        const partyHiddenInput = document.getElementById('party_id');
+        const partySelectContainer = document.querySelector('[data-ajax-party-select]');
 
-            function getPartyId() {
-                return document.getElementById('party_id')?.value || '';
-            }
+        function getPartyId() {
+            return partyHiddenInput?.value || '';
+        }
 
-            document.getElementById('party_id')?.addEventListener('change', function () {
-                const partyId = this.value;
-                if (partyId) {
-                    fetchPartyBalance(partyId);
-                } else {
-                    hidePartyBalance();
-                }
-            });
-
-            const initialPartyId = getPartyId();
-            if (initialPartyId) {
-                fetchPartyBalance(initialPartyId);
-            }
-        } else {
-            function getPartyId() {
-                return document.getElementById('party_id')?.value || '';
+        function onPartyChange() {
+            const partyId = getPartyId();
+            if (partyId) {
+                fetchPartyBalance(partyId);
+            } else {
+                hidePartyBalance();
             }
         }
 
-        bankSelect.addEventListener('change', function() {
+        partyHiddenInput?.addEventListener('change', onPartyChange);
+        partySelectContainer?.addEventListener('party-selected', onPartyChange);
+
+        bankSelect?.addEventListener('change', function() {
             if (this.value) {
                 fetchBankBalance(this.value);
             } else {
@@ -54,7 +46,7 @@
 
         entryTypeRadios.forEach(radio => {
             radio.addEventListener('change', function() {
-                if (bankSelect.value) {
+                if (bankSelect?.value) {
                     fetchBankBalance(bankSelect.value);
                 }
                 const partyId = getPartyId();
@@ -157,7 +149,7 @@
             document.getElementById('bank_balance').classList.add('hidden');
         }
 
-        if (bankSelect.value) {
+        if (bankSelect?.value) {
             fetchBankBalance(bankSelect.value);
         }
 
@@ -166,8 +158,8 @@
             fetchPartyBalance(initialPartyId);
         }
 
-        form.addEventListener('submit', function(e) {
-            if (!bankSelect.value || !getPartyId()) {
+        form?.addEventListener('submit', function(e) {
+            if (!bankSelect?.value || !getPartyId()) {
                 e.preventDefault();
                 alert('Please select both Bank Account and Party.');
                 return;
