@@ -54,7 +54,6 @@
     <x-table-wrapper>
         <thead class="bg-gray-50">
             <tr>
-                <x-table-header>#</x-table-header>
                 <x-table-header>Name</x-table-header>
                 <x-table-header>Opening Balance</x-table-header>
                 <x-table-header>Opening Type</x-table-header>
@@ -68,12 +67,19 @@
                     class="cursor-pointer hover:bg-indigo-50 transition duration-150 ease-in-out"
                     title="Click to edit party"
                 >
-                    <x-table-cell>{{ $loop->iteration }}</x-table-cell>
                     <x-table-cell>
                         <div>
-                            <div class="font-medium text-gray-900">{{ $party->name }}</div>
-                            <div class="text-sm text-gray-500">Phone: {{ $party->phone_no ?? '-' }}</div>
-                            <div class="text-sm text-gray-500">PCode: {{ $party->pcode ?? '-' }}</div>
+                            <div class="text-gray-900">
+                                @if($party->pcode)
+                                    <span class="font-bold">{{ $party->pcode }}</span>
+                                    <span class="font-medium"> — {{ $party->name }}</span>
+                                @else
+                                    <span class="font-medium">{{ $party->name }}</span>
+                                @endif
+                            </div>
+                            @if($party->phone_no)
+                                <div class="text-sm text-gray-500">{{ $party->phone_no }}</div>
+                            @endif
                         </div>
                     </x-table-cell>
                     <x-table-cell>{{ number_format($party->opening_balance, 2) }}</x-table-cell>
@@ -86,7 +92,7 @@
                 </tr>
             @empty
                 <tr>
-                    <x-table-cell colspan="6" class="text-center text-gray-500">No parties found</x-table-cell>
+                    <x-table-cell colspan="5" class="text-center text-gray-500">No parties found</x-table-cell>
                 </tr>
             @endforelse
         </tbody>
