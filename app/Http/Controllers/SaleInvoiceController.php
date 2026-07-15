@@ -106,12 +106,16 @@ class SaleInvoiceController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
             $query->where(function ($q) use ($search) {
-                $q->where('id', 'like', '%' . $search . '%')
-                    ->orWhereHas('party', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search . '%');
-                    });
+                $q->whereHas('party', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                });
+
+                $saleNumber = preg_replace('/[^0-9]/', '', str_replace(['SI-', 'si-'], '', $search));
+                if ($saleNumber !== '') {
+                    $q->orWhere('sale_number', 'like', '%' . $saleNumber . '%');
+                }
             });
         }
 

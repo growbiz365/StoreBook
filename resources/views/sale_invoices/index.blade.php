@@ -48,7 +48,7 @@
                     <label for="search" class="sr-only">Search</label>
                     <input type="text" name="search" id="search" value="{{ request('search') }}"
                         class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                        placeholder="Search...">
+                        placeholder="Invoice # or party...">
                 </div>
                 <!-- Status -->
                 <div class="min-w-[120px]">
