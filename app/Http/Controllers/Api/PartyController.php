@@ -51,17 +51,29 @@ class PartyController extends Controller
                 ->where('status', 1); // Only active parties
 
             if (!empty($searchTerm)) {
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('name', 'like', "%{$searchTerm}%")
-                        ->orWhere('pcode', 'like', "%{$searchTerm}%")
-                        ->orWhere('phone_no', 'like', "%{$searchTerm}%")
-                        ->orWhere('cnic', 'like', "%{$searchTerm}%")
-                        ->orWhere('ntn', 'like', "%{$searchTerm}%");
+                $normalizedTerm = strtoupper(trim($searchTerm));
+                $likeTerm = '%'.$normalizedTerm.'%';
+                $prefixTerm = $normalizedTerm.'%';
+
+                $query->where(function ($q) use ($normalizedTerm, $likeTerm) {
+                    $q->where('name', 'like', $likeTerm)
+                        ->orWhere('pcode', 'like', $likeTerm)
+                        ->orWhere('phone_no', 'like', $likeTerm)
+                        ->orWhere('cnic', 'like', $likeTerm)
+                        ->orWhere('ntn', 'like', $likeTerm);
                 });
 
                 $query->orderByRaw(
-                    'CASE WHEN UPPER(pcode) = UPPER(?) THEN 0 WHEN pcode LIKE ? THEN 1 ELSE 2 END',
-                    [$searchTerm, $searchTerm.'%']
+                    'CASE
+                        WHEN UPPER(pcode) = ? THEN 0
+                        WHEN UPPER(name) = ? THEN 1
+                        WHEN UPPER(pcode) LIKE ? THEN 2
+                        WHEN UPPER(name) LIKE ? THEN 3
+                        WHEN pcode LIKE ? THEN 4
+                        WHEN name LIKE ? THEN 5
+                        ELSE 6
+                    END',
+                    [$normalizedTerm, $normalizedTerm, $prefixTerm, $prefixTerm, $likeTerm, $likeTerm]
                 )->orderBy('name');
             } else {
                 $query->latest();

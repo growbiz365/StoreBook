@@ -149,4 +149,16 @@ class Party extends Model
         }
         return 'zero';
     }
+
+    public function getDisplayLabelAttribute(): string
+    {
+        $name = trim((string) $this->name);
+        $pcode = trim((string) ($this->pcode ?? ''));
+
+        if ($pcode !== '' && $name !== '') {
+            return $pcode . ' - ' . $name;
+        }
+
+        return $pcode !== '' ? $pcode : $name;
+    }
 }

@@ -895,6 +895,8 @@
          </tr>
      </template>
 
+    @include('partials.party-search-helpers')
+
     <script>
     // Silence noisy debug logs when opening from quotation convert
     (function() {
@@ -2167,14 +2169,18 @@
         window.selectedGeneralItemIds = window.selectedGeneralItemIds || [];
 
         function formatPartyDisplayText(party) {
-            if (!party || !party.name) {
+            if (typeof window.formatPartyDisplayText === 'function') {
+                return window.formatPartyDisplayText(party);
+            }
+            if (!party) {
                 return '';
             }
-            let text = party.name;
-            if (party.pcode) {
-                text += ` (${party.pcode})`;
+            const name = (party.name || '').trim();
+            const pcode = (party.pcode || '').trim();
+            if (pcode && name) {
+                return `${pcode} - ${name}`;
             }
-            return text;
+            return pcode || name;
         }
 
         // Party Searchable Dropdown
@@ -2361,7 +2367,11 @@
                     return;
                 }
                 
-                parties.forEach((party, index) => {
+                const sortedParties = typeof window.sortPartiesForSearch === 'function'
+                    ? window.sortPartiesForSearch(parties, this.searchTerm)
+                    : parties;
+
+                sortedParties.forEach((party, index) => {
                     if (!party || !party.id || !party.name) {
                         return;
                     }

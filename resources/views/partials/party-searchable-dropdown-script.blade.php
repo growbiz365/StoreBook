@@ -1,20 +1,10 @@
 @once
+@include('partials.party-search-helpers')
 <script>
 (function () {
     if (window.PartySearchableDropdown) {
         return;
     }
-
-    window.formatPartyDisplayText = function (party) {
-        if (!party || !party.name) {
-            return '';
-        }
-        let text = party.name;
-        if (party.pcode) {
-            text += ` (${party.pcode})`;
-        }
-        return text;
-    };
 
     window.PartySearchableDropdown = class PartySearchableDropdown {
         constructor(container, options = {}) {
@@ -145,9 +135,10 @@
         displayResults(parties, meta) {
             this.resultsContainer.innerHTML = '';
 
-            const filtered = (parties || []).filter((party) => {
-                return party && party.id && party.name && String(party.id) !== String(this.excludePartyId);
-            });
+            const filtered = window.sortPartiesForSearch(
+                (parties || []).filter((party) => party && party.id && party.name && String(party.id) !== String(this.excludePartyId)),
+                this.searchTerm
+            );
 
             if (filtered.length === 0) {
                 this.resultsContainer.innerHTML = `

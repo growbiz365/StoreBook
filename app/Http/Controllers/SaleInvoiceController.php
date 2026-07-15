@@ -199,7 +199,7 @@ class SaleInvoiceController extends Controller
                 // Only prefill the relevant side to avoid cash+credit fields both set
                 'party_id' => $prefillQuotation->payment_type === 'credit' ? $prefillQuotation->party_id : null,
                 'party_display' => $prefillQuotation->payment_type === 'credit'
-                    ? (($prefillQuotation->party?->name ?? '') . ($prefillQuotation->party?->pcode ? ' (' . $prefillQuotation->party->pcode . ')' : ''))
+                    ? ($prefillQuotation->party?->display_label ?? '')
                     : '',
                 'bank_id' => $prefillQuotation->payment_type === 'cash' ? $prefillQuotation->bank_id : null,
                 'invoice_date' => optional($prefillQuotation->quotation_date)->format('Y-m-d') ?? date('Y-m-d'),

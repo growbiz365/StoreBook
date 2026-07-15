@@ -48,9 +48,7 @@
         <div>
             <label for="party_id" class="{{ $labelClass }}">Party <span class="text-red-600">*</span></label>
             @php
-                $partyDisplay = $voucher?->party
-                    ? $voucher->party->name . ($voucher->party->pcode ? ' (' . $voucher->party->pcode . ')' : '')
-                    : '';
+                $partyDisplay = $voucher?->party ? $voucher->party->display_label : '';
             @endphp
             <x-ajax-party-select
                 name="party_id"

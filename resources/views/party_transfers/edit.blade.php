@@ -54,9 +54,7 @@
                     <x-input-label for="debit_party_id">Debit (بنـــام) Party <span class="text-red-500">*</span></x-input-label>
                     @php
                         $debitParty = $partyTransfer->debitParty;
-                        $debitDisplay = $debitParty
-                            ? $debitParty->name . ($debitParty->pcode ? ' (' . $debitParty->pcode . ')' : '')
-                            : '';
+                        $debitDisplay = $debitParty ? $debitParty->display_label : '';
                     @endphp
                     <x-ajax-party-select
                         name="debit_party_id"
@@ -80,9 +78,7 @@
                     <x-input-label for="credit_party_id">Credit (جمـــع) Party <span class="text-red-500">*</span></x-input-label>
                     @php
                         $creditParty = $partyTransfer->creditParty;
-                        $creditDisplay = $creditParty
-                            ? $creditParty->name . ($creditParty->pcode ? ' (' . $creditParty->pcode . ')' : '')
-                            : '';
+                        $creditDisplay = $creditParty ? $creditParty->display_label : '';
                     @endphp
                     <x-ajax-party-select
                         name="credit_party_id"

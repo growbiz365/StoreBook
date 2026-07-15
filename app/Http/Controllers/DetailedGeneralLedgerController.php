@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\BankLedgerVoucherHelper;
 use App\Helpers\VoucherDisplayHelper;
 use App\Models\Business;
 use App\Models\ChartOfAccount;
@@ -117,6 +118,7 @@ class DetailedGeneralLedgerController extends Controller
                     'date' => $entry->date_added,
                     'voucher_type' => $entry->voucher_type,
                     'voucher_id' => $entry->display_voucher_id,
+                    'voucher_url' => BankLedgerVoucherHelper::url($entry),
                     'comments' => $entry->comments,
                     'debit' => $debit,
                     'credit' => $credit,

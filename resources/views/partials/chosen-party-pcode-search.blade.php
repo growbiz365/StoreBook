@@ -14,6 +14,10 @@
             }
 
             const text = $option.text().trim();
+            const leadingMatch = text.match(/^([^\s-][^\-]*?)\s*-\s+/);
+            if (leadingMatch) {
+                return leadingMatch[1].trim();
+            }
             const match = text.match(/\(([^)]+)\)\s*$/);
             return match ? match[1].trim() : '';
         }
@@ -37,16 +41,21 @@
                 const index = parseInt(element.getAttribute('data-option-array-index'), 10);
                 const pcode = getOptionPcode($select, index).toUpperCase();
                 const text = $(element).text().trim();
-                let score = 4;
+                const name = text.includes(' - ') ? text.split(' - ').slice(1).join(' - ').trim().toUpperCase() : text.toUpperCase();
+                let score = 6;
 
                 if (pcode !== '' && pcode === upper) {
                     score = 0;
-                } else if (pcode !== '' && pcode.startsWith(upper)) {
+                } else if (name === upper) {
                     score = 1;
-                } else if (pcode !== '' && pcode.includes(upper)) {
+                } else if (pcode !== '' && pcode.startsWith(upper)) {
                     score = 2;
-                } else if (text.toUpperCase().includes(upper)) {
+                } else if (name.startsWith(upper)) {
                     score = 3;
+                } else if (pcode !== '' && pcode.includes(upper)) {
+                    score = 4;
+                } else if (name.includes(upper)) {
+                    score = 5;
                 }
 
                 return { element, score, text };

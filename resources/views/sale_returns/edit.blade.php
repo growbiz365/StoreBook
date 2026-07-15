@@ -434,7 +434,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm focus:border-orange-500 focus:ring-orange-500 searchable-input bg-white @error('party_id') border-red-500 @enderror" 
                                    placeholder="Search parties..."
                                    autocomplete="off"
-                                   value="{{ old('party_search_input', $saleReturn->party->name ?? '') }}">
+                                   value="{{ old('party_search_input', $saleReturn->party?->display_label ?? '') }}">
                             <input type="hidden" name="party_id" id="party_id" class="selected-item-id" value="{{ old('party_id', $saleReturn->party_id) }}">
                             
                             <!-- Dropdown -->
@@ -937,6 +937,8 @@
         </div>
     </form>
 </div>
+
+    @include('partials.party-search-helpers')
 
     <script>
     // Clear data immediately if this is a fresh page load (no flags set)
@@ -1742,13 +1744,9 @@
                 if (party && !party.error) {
                     const partySearchInput = document.getElementById('party_search_input');
                     
-                    // Create display text with name and additional info
-                    let displayText = party.name;
-                    if (party.cnic) {
-                        displayText += ` (CNIC: ${party.cnic})`;
-                    }
-                    
-                    partySearchInput.value = displayText;
+                    partySearchInput.value = typeof window.formatPartyDisplayText === 'function'
+                        ? window.formatPartyDisplayText(party)
+                        : party.name;
                     // Trigger balance fetch
                     fetchCustomerBalance(party.id);
                 }
@@ -2000,26 +1998,79 @@ class PartySearchableDropdown {
             return;
         }
         
-        parties.forEach((party, index) => {
+        const sortedParties = typeof window.sortPartiesForSearch === 'function'
+
+        
+            ? window.sortPartiesForSearch(parties, this.searchTerm)
+
+        
+            : parties;
+
+
+        
+        sortedParties.forEach((party, index) => {
+
+        
             if (!party || !party.id || !party.name) {
+
+        
                 return;
+
+        
             }
+
+        
             
+
+        
             const resultItem = document.createElement('div');
+
+        
             resultItem.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer result-item';
+
+        
             resultItem.dataset.partyId = party.id;
+
+        
             resultItem.dataset.partyName = party.name;
+
+        
+            resultItem.dataset.partyPcode = party.pcode || '';
+
+        
             resultItem.dataset.partyCnic = party.cnic || '';
+
+        
             
-                    resultItem.innerHTML = `
-                        <div class="font-medium text-gray-900">${party.name}</div>
-                        <div class="text-sm text-gray-500">
-                            ${party.cnic ? `CNIC: ${party.cnic}` : ''}
-                        </div>
-                    `;
+
+        
+            resultItem.innerHTML = `
+
+        
+                <div class="font-medium text-gray-900">${typeof window.formatPartyDisplayText === 'function' ? window.formatPartyDisplayText(party) : party.name}</div>
+
+        
+                <div class="text-sm text-gray-500">
+
+        
+                    ${party.phone_no ? `Phone: ${party.phone_no}` : (party.cnic ? `CNIC: ${party.cnic}` : '')}
+
+        
+                </div>
+
+        
+            `;
+
+        
             
+
+        
             resultItem.addEventListener('click', () => {
+
+        
                 this.selectParty(party);
+
+        
             });
             
             this.resultsContainer.appendChild(resultItem);
@@ -2063,12 +2114,9 @@ class PartySearchableDropdown {
         this.selectedItem = party;
         
         // Create display text with name and additional info
-        let displayText = party.name;
-        if (party.cnic) {
-            displayText += ` (CNIC: ${party.cnic})`;
-        }
-        
-        this.input.value = displayText;
+        this.input.value = typeof window.formatPartyDisplayText === 'function'
+            ? window.formatPartyDisplayText(party)
+            : party.name;
         this.hiddenInput.value = party.id;
         // Trigger the change event on the hidden input to fetch balance
         this.hiddenInput.dispatchEvent(new Event('change'));
@@ -2081,6 +2129,7 @@ class PartySearchableDropdown {
             const party = {
                 id: firstResult.dataset.partyId,
                 name: firstResult.dataset.partyName,
+                pcode: firstResult.dataset.partyPcode || '',
                 cnic: firstResult.dataset.partyCnic
             };
             this.selectParty(party);
@@ -2093,6 +2142,7 @@ class PartySearchableDropdown {
             const party = {
                 id: highlightedResult.dataset.partyId,
                 name: highlightedResult.dataset.partyName,
+                pcode: highlightedResult.dataset.partyPcode || '',
                 cnic: highlightedResult.dataset.partyCnic
             };
             this.selectParty(party);

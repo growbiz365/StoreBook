@@ -37,7 +37,7 @@
     <div class="report-header-right">
         <div class="report-title">
             <h2>{{ $title ?? '' }}</h2>
-            {{ $slot }}
+            <div class="meta">{{ $slot }}</div>
         </div>
     </div>
 </div>

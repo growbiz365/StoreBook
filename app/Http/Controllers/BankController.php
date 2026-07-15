@@ -21,10 +21,11 @@ class BankController extends Controller
         
         // Always fetch all active banks for the dropdown
         $banks = Bank::where('business_id', $businessId)
-            ->where('status', 1) // Only active banks
-            ->whereHas('chartOfAccount', function($query) {
+            ->where('status', 1)
+            ->whereHas('chartOfAccount', function ($query) {
                 $query->where('is_active', true);
             })
+            ->with('chartOfAccount:id,name')
             ->orderBy('account_name')
             ->get();
         
@@ -38,7 +39,7 @@ class BankController extends Controller
         ];
     
         if ($request->filled('bank_id')) {
-            $selectedBank = Bank::find($request->bank_id);
+            $selectedBank = Bank::with('chartOfAccount:id,name')->find($request->bank_id);
             
             $query = BankLedger::where('bank_id', $request->bank_id)
                 ->where('business_id', $businessId);
@@ -128,10 +129,11 @@ class BankController extends Controller
         
         // Get all bank accounts with their ledger entries (including inactive)
         $query = Bank::where('business_id', $businessId)
-            ->whereHas('chartOfAccount', function($query) {
+            ->whereHas('chartOfAccount', function ($query) {
                 $query->where('is_active', true);
             })
-            ->withSum(['ledgerEntries as balance' => function($query) use ($asOfDate) {
+            ->with('chartOfAccount:id,name')
+            ->withSum(['ledgerEntries as balance' => function ($query) use ($asOfDate) {
                 $query->where('date', '<=', $asOfDate);
             }], DB::raw('deposit_amount - withdrawal_amount'));
 

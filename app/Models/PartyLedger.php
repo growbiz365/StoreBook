@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Helpers\VoucherDisplayHelper;
 use App\Helpers\PartyLedgerDescriptionHelper;
+use App\Helpers\PartyLedgerVoucherHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -60,5 +61,15 @@ class PartyLedger extends Model
     public function getLedgerDescriptionAttribute(): string
     {
         return PartyLedgerDescriptionHelper::description($this);
+    }
+
+    public function getVoucherUrlAttribute(): ?string
+    {
+        return PartyLedgerVoucherHelper::url($this);
+    }
+
+    public function getTransactionPartyAttribute(): ?string
+    {
+        return PartyLedgerVoucherHelper::transactionParty($this);
     }
 } 

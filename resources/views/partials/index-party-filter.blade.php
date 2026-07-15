@@ -8,9 +8,7 @@
 
 @php
     $fieldId = $id ?: $name;
-    $partyDisplay = $selectedParty
-        ? $selectedParty->name . ($selectedParty->pcode ? ' (' . $selectedParty->pcode . ')' : '')
-        : '';
+    $partyDisplay = $selectedParty ? $selectedParty->display_label : '';
 @endphp
 
 <x-ajax-party-select
