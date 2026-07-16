@@ -43,7 +43,7 @@
                         <input type="text" name="item_code" id="item_code" value="{{ old('item_code', '') }}"
                                placeholder="Auto-generated if empty"
                                class="block w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm py-1.5" />
-                        <p class="text-[11px] text-gray-500 leading-tight">Clear the field to regenerate a code.</p>
+                        <p class="text-[11px] text-gray-500 leading-tight">Used for barcode scanning and labels.</p>
                         @error('item_code')
                             <p class="text-xs text-red-600">{{ $message }}</p>
                         @enderror
@@ -90,7 +90,7 @@
                         <input type="text" id="item_code_goods" value="{{ old('item_code', '') }}"
                                placeholder="Auto-generated if empty"
                                class="shared-item-code block w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm py-1.5" />
-                        <p class="text-[11px] text-gray-500 leading-tight">Clear the field to regenerate a code.</p>
+                        <p class="text-[11px] text-gray-500 leading-tight">Used for barcode scanning and labels.</p>
                         @error('item_code')
                             <p class="text-xs text-red-600">{{ $message }}</p>
                         @enderror

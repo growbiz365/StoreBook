@@ -14,7 +14,7 @@
     <!-- Header Section -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 mt-5">
         <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex justify-between items-start">
+            <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div class="flex-1">
                     <div class="flex items-center space-x-3">
                         <div class="flex-shrink-0">
@@ -31,7 +31,7 @@
                     </div>
                 </div>
         
-        <div class="flex gap-3">
+        <div class="flex flex-wrap gap-3 justify-end shrink-0">
             <a href="{{ route('general-items.edit', $generalItem) }}" 
                         class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,11 +182,11 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 mb-1">Created</label>
                                 <p class="text-sm text-gray-600">{{ $generalItem->created_at->format('M d, Y h:i A') }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
             <!-- Pricing Information Card -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -236,7 +236,6 @@
                     @endif
                 </div>
             </div>
-        </div>
 
             @unless($generalItem->isService())
             <!-- Journal Entries Card -->
@@ -321,11 +320,11 @@
                                 <p class="mt-1 text-sm text-gray-500">No journal entries found for this item.</p>
                             </div>
                     @endif
+                    </div>
                 </div>
             </div>
-        </div>
-        </div>
             @endunless
+        </div>
 
         <!-- Right Column - Sidebar -->
         <div class="space-y-6">
@@ -397,6 +396,57 @@
             </div>
             @endif
 
+            @unless($generalItem->isService())
+            @include('partials.barcode-label-styles')
+            <!-- Barcode Label Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                        </svg>
+                        Barcode Label
+                    </h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="barcode-labels-root--thermal">
+                        @include('partials.barcode-label-card', [
+                            'itemCode' => $generalItem->item_code,
+                            'itemName' => $generalItem->item_name,
+                            'formattedPrice' => formatBusinessCurrency($generalItem->sale_price, true, 2),
+                            'barcodeId' => 'item-show-barcode',
+                            'preview' => true,
+                        ])
+                    </div>
+
+                    <form method="GET" action="{{ route('general-items.barcode-labels') }}" target="_blank" class="space-y-3 pt-1 border-t border-gray-100">
+                        <input type="hidden" name="ids" value="{{ $generalItem->id }}">
+                        <input type="hidden" name="auto_print" value="1">
+                        <div>
+                            <label for="show_barcode_layout" class="block text-xs font-medium text-gray-600 mb-1">Label layout</label>
+                            <select name="layout" id="show_barcode_layout" class="w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="thermal">Thermal (50×30 mm)</option>
+                                <option value="a4">A4 sheet (3× grid)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="show_barcode_copies" class="block text-xs font-medium text-gray-600 mb-1">Copies</label>
+                            <input type="number" name="copies" id="show_barcode_copies" value="1" min="1" max="50"
+                                class="w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <button type="submit"
+                            class="w-full inline-flex items-center justify-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                            </svg>
+                            Print Label
+                        </button>
+                    </form>
+                    <p class="text-[11px] text-gray-500">Label includes code, name, and sale price.</p>
+                </div>
+            </div>
+            @endunless
+
             <!-- Quick Actions Card -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
@@ -434,9 +484,9 @@
                             </svg>
                             View All Items
                         </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
             <!-- Additional Information Card -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200" x-data="{ additionalInfoOpen: false }">
@@ -473,4 +523,19 @@
             </div>
         </div>
     </div>
+    @unless($generalItem->isService())
+        @include('partials.jsbarcode-assets')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const el = document.getElementById('item-show-barcode');
+                if (el && el.dataset.barcodeCode) {
+                    window.renderBarcode(el, el.dataset.barcodeCode, {
+                        width: 1.75,
+                        height: 38,
+                        margin: 2,
+                    });
+                }
+            });
+        </script>
+    @endunless
 </x-app-layout>

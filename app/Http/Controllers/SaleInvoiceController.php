@@ -435,12 +435,15 @@ class SaleInvoiceController extends Controller
             // Clear any old input data from session
             $request->session()->forget('_old_input');
 
-            $flash = ['success' => 'Sale invoice created successfully.'];
-            if ($request->action === 'post_print') {
-                $flash['open_print_dialog'] = true;
+            if ($request->action === 'post' || $request->action === 'post_print') {
+                return $this->redirectAfterSalePosted(
+                    $saleInvoice,
+                    $request->action === 'post_print'
+                );
             }
 
-            return redirect()->route('sale-invoices.show', $saleInvoice)->with($flash);
+            return redirect()->route('sale-invoices.show', $saleInvoice)
+                ->with(['success' => 'Sale invoice created successfully.']);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -808,14 +811,30 @@ class SaleInvoiceController extends Controller
 
             DB::commit();
 
-            return redirect()->route('sale-invoices.show', $saleInvoice)
-                ->with('success', 'Sale invoice posted successfully.');
+            return $this->redirectAfterSalePosted($saleInvoice);
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Sale invoice posting failed: ' . $e->getMessage());
             return back()->with('error', 'Failed to post sale invoice. Please try again.');
         }
+    }
+
+    /**
+     * Redirect after posting a sale invoice (POS workflow → fresh create form).
+     */
+    private function redirectAfterSalePosted(SaleInvoice $saleInvoice, bool $withPrint = false)
+    {
+        $flash = ['success' => 'Sale invoice posted successfully.'];
+
+        if ($withPrint) {
+            $flash['open_print_dialog'] = true;
+            $flash['redirect_to_create_after_print'] = true;
+
+            return redirect()->route('sale-invoices.show', $saleInvoice)->with($flash);
+        }
+
+        return redirect()->route('sale-invoices.create')->with($flash);
     }
 
     /**

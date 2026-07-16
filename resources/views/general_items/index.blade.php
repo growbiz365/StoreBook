@@ -95,14 +95,52 @@
         <x-success-alert message="{{ Session::get('success') }}" />
     @endif
 
+    @if (Session::has('error'))
+        <x-error-alert message="{{ Session::get('error') }}" />
+    @endif
+
     @if ($errors->has('delete_error'))
         <x-error-alert message="{{ $errors->first('delete_error') }}" />
     @endif
+
+            <form id="bulk-barcode-print-form" method="GET" action="{{ route('general-items.barcode-labels') }}" target="_blank">
+                <input type="hidden" name="auto_print" value="1">
+                <div id="bulk-label-toolbar"
+                    class="hidden px-4 py-2 border-b border-emerald-100 bg-emerald-50/60 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    <span id="bulk-selection-count" class="font-medium text-emerald-800 tabular-nums">0 selected</span>
+                    <div class="flex flex-wrap items-center gap-2 ml-auto">
+                        <label class="inline-flex items-center gap-1.5 text-xs text-gray-600">
+                            <span>Layout</span>
+                            <select name="layout" class="rounded-md border-gray-300 py-1 pl-2 pr-7 text-xs focus:border-emerald-500 focus:ring-emerald-500">
+                                <option value="thermal">Thermal</option>
+                                <option value="a4">A4 sheet</option>
+                            </select>
+                        </label>
+                        <label class="inline-flex items-center gap-1.5 text-xs text-gray-600">
+                            <span>Copies</span>
+                            <input type="number" name="copies" value="1" min="1" max="50"
+                                class="w-14 rounded-md border-gray-300 py-1 text-xs focus:border-emerald-500 focus:ring-emerald-500">
+                        </label>
+                        <button type="submit"
+                            class="inline-flex items-center px-3 py-1.5 rounded-md bg-emerald-600 text-xs font-semibold text-white hover:bg-emerald-700">
+                            Print labels
+                        </button>
+                        <button type="button" id="bulk-selection-clear"
+                            class="text-xs text-gray-500 hover:text-gray-800 underline underline-offset-2">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </form>
 
             <div class="overflow-hidden">
             <table class="w-full table-fixed divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="px-2 py-3 w-9">
+                            <input type="checkbox" id="select_all_items" class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                title="Select all goods on this page">
+                        </th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">
                             <a href="{{ route('general-items.index', array_merge(request()->query(), ['sort_by' => 'item_code', 'sort_order' => request('sort_by') == 'item_code' && request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" 
                                class="flex items-center space-x-1 hover:text-gray-700">
@@ -172,6 +210,12 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($generalItems as $item)
                         <tr class="hover:bg-gray-50 cursor-pointer {{ $item->is_active ? '' : 'bg-gray-50/80' }}" onclick="window.location.href='{{ route('general-items.show', $item->id) }}'">
+                            <td class="px-2 py-3 align-middle" onclick="event.stopPropagation()">
+                                @if($item->isGoods())
+                                    <input type="checkbox" name="ids[]" value="{{ $item->id }}" form="bulk-barcode-print-form"
+                                        class="item-print-checkbox rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                                @endif
+                            </td>
                             <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $item->item_code }}</div>
                             </td>
@@ -305,6 +349,50 @@
             search_contains: true,
             allow_single_deselect: true,
             placeholder_text_single: 'All Item Types'
+        });
+
+        const toolbar = document.getElementById('bulk-label-toolbar');
+        const countEl = document.getElementById('bulk-selection-count');
+        const selectAll = document.getElementById('select_all_items');
+        const clearBtn = document.getElementById('bulk-selection-clear');
+        const printForm = document.getElementById('bulk-barcode-print-form');
+        const itemChecks = () => Array.from(document.querySelectorAll('.item-print-checkbox'));
+
+        function updateBulkToolbar() {
+            const checked = itemChecks().filter(cb => cb.checked);
+            const count = checked.length;
+            if (countEl) {
+                countEl.textContent = count === 1 ? '1 item selected' : `${count} items selected`;
+            }
+            if (toolbar) {
+                toolbar.classList.toggle('hidden', count === 0);
+            }
+            if (selectAll) {
+                const goods = itemChecks();
+                selectAll.indeterminate = count > 0 && count < goods.length;
+                selectAll.checked = goods.length > 0 && count === goods.length;
+            }
+        }
+
+        itemChecks().forEach(cb => cb.addEventListener('change', updateBulkToolbar));
+        selectAll?.addEventListener('change', function () {
+            itemChecks().forEach(cb => { cb.checked = selectAll.checked; });
+            updateBulkToolbar();
+        });
+        clearBtn?.addEventListener('click', function () {
+            itemChecks().forEach(cb => { cb.checked = false; });
+            if (selectAll) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            }
+            updateBulkToolbar();
+        });
+        printForm?.addEventListener('submit', function (e) {
+            if (itemChecks().some(cb => cb.checked)) {
+                return;
+            }
+            e.preventDefault();
+            alert('Select at least one goods item to print labels.');
         });
     });
 </script>

@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function () {
     // API routes for searchable dropdown
     Route::prefix('api')->group(function () {
         Route::get('/general-items/search', [App\Http\Controllers\Api\GeneralItemController::class, 'search']);
+        Route::get('/general-items/lookup-by-code', [App\Http\Controllers\Api\GeneralItemController::class, 'lookupByCode']);
         Route::get('/general-items/{id}', [App\Http\Controllers\GeneralItemController::class, 'getItemData'])->name('api.general-items.show');
         Route::get('/general-items/{generalItem}', [App\Http\Controllers\Api\GeneralItemController::class, 'show']);
         Route::get('/general-items', [App\Http\Controllers\Api\GeneralItemController::class, 'index']);
@@ -301,6 +302,7 @@ Route::middleware('auth')->group(function () {
 
         Route::middleware([CheckModuleAndPermission::class . ':view items'])->group(function () {
             Route::get('/general-items/export', [App\Http\Controllers\GeneralItemController::class, 'exportCsv'])->name('general-items.export');
+            Route::match(['get', 'post'], '/general-items/barcode-labels', [App\Http\Controllers\GeneralItemController::class, 'printBarcodeLabels'])->name('general-items.barcode-labels');
             Route::patch('/general-items/{generalItem}/status', [App\Http\Controllers\GeneralItemController::class, 'updateStatus'])->name('general-items.update-status');
             Route::resource('general-items', App\Http\Controllers\GeneralItemController::class);
         });

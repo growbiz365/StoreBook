@@ -559,6 +559,9 @@
         });
         window.addEventListener('afterprint', function() {
             console.log('Print completed');
+            @if (session('redirect_to_create_after_print'))
+            window.location.href = @json(route('sale-invoices.create'));
+            @endif
         });
     </script>
     @if (session('open_print_dialog'))
@@ -570,6 +573,11 @@
                     window.print();
                 }
             });
+        </script>
+    @endif
+    @if (session('redirect_to_create_after_print') && ! session('open_print_dialog'))
+        <script>
+            window.location.href = @json(route('sale-invoices.create'));
         </script>
     @endif
 </x-app-layout>

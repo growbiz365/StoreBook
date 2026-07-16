@@ -558,9 +558,7 @@
     </style>
 
         @if (Session::has('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ Session::get('success') }}</span>
-        </div>
+        <x-success-alert message="{{ Session::get('success') }}" />
         @endif
 
         @if ($errors->any())
@@ -591,13 +589,8 @@
     @endphp
     <script>
         window.__POS_ITEM_CATALOG = @json($posCatalog);
-        window.__POS_ITEM_BY_CODE = {};
-        (window.__POS_ITEM_CATALOG || []).forEach(function (it) {
-            if (it.item_code && String(it.item_code).trim() !== '') {
-                window.__POS_ITEM_BY_CODE[String(it.item_code).trim().toLowerCase()] = it;
-            }
-        });
     </script>
+    @include('partials.barcode-scan-script')
 
     <form method="POST" action="{{ route('sale-invoices.update', $saleInvoice) }}" id="saleInvoiceForm">
             @csrf
@@ -2179,30 +2172,17 @@
             }
         });
 
-        document.getElementById('pos_barcode')?.addEventListener('keydown', function(e) {
-            if (e.key !== 'Enter') {
-                return;
-            }
-            e.preventDefault();
-            const raw = (this.value || '').trim();
-            if (!raw) {
-                return;
-            }
-            const map = window.__POS_ITEM_BY_CODE || {};
-            const item = map[raw.toLowerCase()];
-            if (!item) {
-                alert('No item matches this code.');
-                return;
-            }
-            const typeSel = document.getElementById('pos_item_type_id');
-            const selectedType = typeSel && typeSel.value ? String(typeSel.value) : '';
-            if (selectedType && String(item.item_type_id ?? '') !== selectedType) {
-                alert('This code does not match the selected item type. Change item type to "All types" or pick another item.');
-                return;
-            }
-            window.addOrBumpItemLine(item);
-            this.value = '';
-            this.focus();
+        BarcodeScan.init({
+            inputId: 'pos_barcode',
+            itemTypeSelectId: 'pos_item_type_id',
+            enableF8: false,
+            refocus: false,
+            onItemFound(item) {
+                window.addOrBumpItemLine(item);
+            },
+            onNotFound(message) {
+                alert(message);
+            },
         });
 
         document.getElementById('check_all_lines')?.addEventListener('change', function() {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\GeneralItem;
 use App\Models\GeneralItemStockLedger;
+use App\Support\GeneralItemBarcode;
 use App\Support\StockQuantity;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -218,6 +219,73 @@ class GeneralItemController extends Controller
             return response()->json([
                 'error' => 'Failed to load items',
                 'message' => 'An error occurred while loading items'
+            ], 500);
+        }
+    }
+
+    /**
+     * Exact lookup by item code for barcode scanners (goods only).
+     */
+    public function lookupByCode(Request $request): JsonResponse
+    {
+        try {
+            $businessId = session('active_business');
+            if (! $businessId) {
+                return response()->json([
+                    'error' => 'No active business found',
+                    'message' => 'Please select an active business',
+                ], 400);
+            }
+
+            $request->validate([
+                'code' => 'required|string|max:255',
+                'item_type_id' => [
+                    'nullable',
+                    'integer',
+                    Rule::exists('item_types', 'id')->where('business_id', $businessId),
+                ],
+            ]);
+
+            $code = GeneralItemBarcode::normalizeCode($request->get('code'));
+            if ($code === '') {
+                return response()->json([
+                    'error' => 'Invalid code',
+                    'message' => 'Please scan or enter a valid item code.',
+                ], 422);
+            }
+
+            $item = GeneralItem::query()
+                ->where('business_id', $businessId)
+                ->active()
+                ->goods()
+                ->whereRaw('LOWER(item_code) = ?', [mb_strtolower($code)])
+                ->first();
+
+            if (! $item) {
+                return response()->json([
+                    'error' => 'Not found',
+                    'message' => 'No active goods item matches this code.',
+                ], 404);
+            }
+
+            if ($request->filled('item_type_id') && (int) $item->item_type_id !== (int) $request->item_type_id) {
+                return response()->json([
+                    'error' => 'Type mismatch',
+                    'message' => 'This code does not match the selected item type.',
+                ], 422);
+            }
+
+            return response()->json(GeneralItemBarcode::toScanPayload($item));
+        } catch (\Exception $e) {
+            \Log::error('GeneralItem barcode lookup error: '.$e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'error' => 'Lookup failed',
+                'message' => 'An error occurred while looking up the item code.',
+                'debug' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }

@@ -160,14 +160,16 @@ class GeneralItemController extends Controller
             return redirect()->route('general-items.create')->withErrors($validator)->withInput();
         }
 
-        DB::transaction(function () use ($request, $businessId, $itemKind) {
+        $createdItem = null;
+
+        DB::transaction(function () use ($request, $businessId, $itemKind, &$createdItem) {
             $itemCode = $request->item_code;
             if (empty($itemCode)) {
                 $itemCode = 'ITM-' . strtoupper(Str::random(8));
             }
 
             if ($itemKind === GeneralItem::KIND_SERVICE) {
-                GeneralItem::create([
+                $createdItem = GeneralItem::create([
                     'item_name' => $request->item_name,
                     'item_kind' => GeneralItem::KIND_SERVICE,
                     'item_type_id' => $this->resolveServiceItemTypeId((int) $businessId),
@@ -203,6 +205,7 @@ class GeneralItemController extends Controller
                 'business_id' => $businessId,
                 'is_active' => true,
             ]);
+            $createdItem = $item;
 
             // Create initial batch if opening stock provided
             if ($openingStock > 0) {
@@ -274,7 +277,71 @@ class GeneralItemController extends Controller
             }
         });
 
+        if ($createdItem) {
+            return redirect()->route('general-items.show', $createdItem)
+                ->with('success', 'General Item created successfully.');
+        }
+
         return redirect()->route('general-items.index')->with('success', 'General Item created successfully.');
+    }
+
+    /**
+     * Print barcode labels for one or more goods items.
+     */
+    public function printBarcodeLabels(Request $request)
+    {
+        $businessId = session('active_business');
+        if (! $businessId) {
+            return redirect()->route('dashboard')->with('error', 'No active business selected.');
+        }
+
+        $request->validate([
+            'ids' => 'required',
+            'layout' => 'nullable|in:thermal,a4',
+            'copies' => 'nullable|integer|min:1|max:50',
+            'auto_print' => 'nullable|boolean',
+        ]);
+
+        $rawIds = $request->input('ids');
+        $ids = is_array($rawIds)
+            ? $rawIds
+            : array_filter(array_map('trim', explode(',', (string) $rawIds)));
+
+        $ids = array_values(array_unique(array_filter($ids, fn ($id) => is_numeric($id))));
+        if ($ids === []) {
+            return redirect()->back()->with('error', 'Select at least one item to print.');
+        }
+
+        $items = GeneralItem::query()
+            ->where('business_id', $businessId)
+            ->whereIn('id', $ids)
+            ->goods()
+            ->orderBy('item_name')
+            ->get();
+
+        if ($items->isEmpty()) {
+            return redirect()->back()->with('error', 'No printable goods items were found.');
+        }
+
+        $layout = $request->input('layout', 'thermal');
+        $copies = max(1, min(50, (int) $request->input('copies', 1)));
+        $autoPrint = $request->boolean('auto_print');
+
+        $labels = [];
+        foreach ($items as $item) {
+            for ($copy = 0; $copy < $copies; $copy++) {
+                $labels[] = [
+                    'item' => $item,
+                    'formatted_price' => formatBusinessCurrency($item->sale_price, true, 2),
+                ];
+            }
+        }
+
+        return view('general_items.barcode_labels', [
+            'labels' => $labels,
+            'layout' => $layout,
+            'autoPrint' => $autoPrint,
+        ]);
     }
 
     /**
