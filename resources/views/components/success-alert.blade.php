@@ -1,16 +1,22 @@
-<div x-data="{ show: true }" x-show="show" role="alert"
-    class="alert-success inline-flex w-fit max-w-md rounded-md border border-green-200 bg-green-50 px-3 py-2 mt-3 mb-3">
-    <div class="flex items-center gap-2">
-        <svg class="size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
-        </svg>
-        <p class="text-sm font-medium text-green-800 pr-1">{{ $message }}</p>
-        <button @click="show = false" type="button"
-            class="ml-1 inline-flex shrink-0 rounded p-0.5 text-green-500 hover:bg-green-100 hover:text-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
-            aria-label="Dismiss">
-            <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+<div x-data="{ show: true }" x-show="show" class="rounded-md mt-3 mb-3 bg-green-50 p-4 w-full">
+    <div class="flex">
+        <div class="shrink-0">
+            <svg class="size-5 text-green-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
             </svg>
-        </button>
+        </div>
+        <div class="ml-3">
+            <p class="text-sm font-medium text-green-800">{{ $message }}</p>
+        </div>
+        <div class="ml-auto pl-3">
+            <div class="-mx-1.5 -my-1.5">
+                <button @click="show = false" type="button" class="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50">
+                    <span class="sr-only">Dismiss</span>
+                    <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                        <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
