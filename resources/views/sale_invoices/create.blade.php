@@ -735,12 +735,15 @@
                                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
+                            @php
+                                $defaultCashBankId = $banks->firstWhere('account_type', 'cash')?->id ?? $banks->first()?->id;
+                            @endphp
                             <div id="bank_field" class="form-group">
                                 <label for="bank_id">Bank <span class="text-red-600">*</span></label>
                                 <select name="bank_id" id="bank_id" class="ci-form-control @error('bank_id') border-red-500 @enderror">
                                     <option value="">Select bank</option>
                                     @foreach($banks as $bank)
-                                        <option value="{{ $bank->id }}" {{ (string) old('bank_id', $banks->first()?->id) === (string) $bank->id ? 'selected' : '' }}>
+                                        <option value="{{ $bank->id }}" {{ (string) old('bank_id', $defaultCashBankId) === (string) $bank->id ? 'selected' : '' }}>
                                             {{ $bank->chartOfAccount->name ?? $bank->account_name }}
                                         </option>
                                     @endforeach
