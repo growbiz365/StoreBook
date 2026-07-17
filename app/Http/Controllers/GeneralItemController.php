@@ -332,7 +332,6 @@ class GeneralItemController extends Controller
             for ($copy = 0; $copy < $copies; $copy++) {
                 $labels[] = [
                     'item' => $item,
-                    'formatted_price' => formatBusinessCurrency($item->sale_price, true, 2),
                 ];
             }
         }

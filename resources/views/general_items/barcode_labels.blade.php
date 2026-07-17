@@ -116,7 +116,6 @@
         @include('partials.barcode-label-card', [
             'itemCode' => $label['item']->item_code,
             'itemName' => $label['item']->item_name,
-            'formattedPrice' => $label['formatted_price'],
         ])
     @endforeach
 </div>
@@ -125,15 +124,16 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const isThermal = @json($layout === 'thermal');
-        document.querySelectorAll('[data-barcode-code]').forEach(function (el) {
-            window.renderBarcode(el, el.getAttribute('data-barcode-code'), {
-                width: isThermal ? 1.75 : 1.65,
-                height: isThermal ? 34 : 38,
-                margin: 2,
-            });
-        });
+        const barcodeOptions = {
+            width: isThermal ? 2.2 : 2,
+            height: isThermal ? 42 : 46,
+            margin: 10,
+        };
+
+        window.renderBarcodesIn(document, barcodeOptions);
+
         @if($autoPrint)
-        setTimeout(function () { window.print(); }, 400);
+        setTimeout(function () { window.print(); }, 900);
         @endif
     });
 </script>

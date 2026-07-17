@@ -5,6 +5,12 @@
         return;
     }
 
+    function normalizeScanInput(value) {
+        return String(value || '')
+            .replace(/[\x00-\x1f\x7f]/g, '')
+            .trim();
+    }
+
     window.BarcodeScan = {
         init(options) {
             const inputId = options.inputId || 'pos_barcode';
@@ -15,17 +21,19 @@
 
             const itemTypeSelectId = options.itemTypeSelectId || 'pos_item_type_id';
             const lookupUrl = options.lookupUrl || '/api/general-items/lookup-by-code';
+            let lookupInFlight = false;
 
-            input.addEventListener('keydown', async function (event) {
-                if (event.key !== 'Enter') {
+            async function runLookup() {
+                if (lookupInFlight) {
                     return;
                 }
 
-                event.preventDefault();
-                const raw = (input.value || '').trim();
+                const raw = normalizeScanInput(input.value);
                 if (!raw) {
                     return;
                 }
+
+                lookupInFlight = true;
 
                 const params = new URLSearchParams({ code: raw });
                 const typeSelect = document.getElementById(itemTypeSelectId);
@@ -38,6 +46,7 @@
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                         },
                         credentials: 'same-origin',
@@ -71,7 +80,19 @@
                     } else {
                         alert(message);
                     }
+                } finally {
+                    lookupInFlight = false;
                 }
+            }
+
+            input.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter') {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                runLookup();
             });
 
             if (options.enableF8 !== false) {

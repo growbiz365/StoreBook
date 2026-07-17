@@ -1,22 +1,27 @@
 @props([
     'itemCode',
     'itemName',
-    'formattedPrice',
     'barcodeId' => null,
     'preview' => false,
 ])
 
+@php
+    $barcodeValue = \App\Support\GeneralItemBarcode::codeForBarcode($itemCode);
+@endphp
+
 <div @class(['barcode-label', 'barcode-label--preview' => $preview])>
     <div class="barcode-label__scan">
-        <svg
+        <canvas
             @if($barcodeId) id="{{ $barcodeId }}" @endif
-            data-barcode-code="{{ $itemCode }}"
-            @if($preview) data-barcode-height="38" data-barcode-width="1.75" @endif
+            data-barcode-code="{{ $barcodeValue }}"
+            @if($preview) data-barcode-height="44" data-barcode-width="2" data-barcode-margin="10" @endif
             role="img"
             aria-label="Barcode {{ $itemCode }}"
-        ></svg>
+        ></canvas>
     </div>
-    <div class="barcode-label__code">{{ $itemCode }}</div>
-    <div class="barcode-label__name" title="{{ $itemName }}">{{ $itemName }}</div>
-    <div class="barcode-label__price">{{ $formattedPrice }}</div>
+    <div class="barcode-label__caption" title="{{ $itemCode }} — {{ $itemName }}">
+        <span class="barcode-label__code">{{ $itemCode }}</span>
+        <span class="barcode-label__sep" aria-hidden="true">·</span>
+        <span class="barcode-label__name">{{ $itemName }}</span>
+    </div>
 </div>

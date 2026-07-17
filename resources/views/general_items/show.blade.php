@@ -413,7 +413,6 @@
                         @include('partials.barcode-label-card', [
                             'itemCode' => $generalItem->item_code,
                             'itemName' => $generalItem->item_name,
-                            'formattedPrice' => formatBusinessCurrency($generalItem->sale_price, true, 2),
                             'barcodeId' => 'item-show-barcode',
                             'preview' => true,
                         ])
@@ -442,7 +441,7 @@
                             Print Label
                         </button>
                     </form>
-                    <p class="text-[11px] text-gray-500">Label includes code, name, and sale price.</p>
+                    <p class="text-[11px] text-gray-500">Label includes barcode, item code, and name.</p>
                 </div>
             </div>
             @endunless
@@ -530,9 +529,9 @@
                 const el = document.getElementById('item-show-barcode');
                 if (el && el.dataset.barcodeCode) {
                     window.renderBarcode(el, el.dataset.barcodeCode, {
-                        width: 1.75,
-                        height: 38,
-                        margin: 2,
+                        width: 2,
+                        height: 44,
+                        margin: 10,
                     });
                 }
             });

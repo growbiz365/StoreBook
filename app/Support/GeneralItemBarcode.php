@@ -12,7 +12,18 @@ class GeneralItemBarcode
      */
     public static function normalizeCode(?string $code): string
     {
-        return trim((string) $code);
+        $code = (string) $code;
+        $code = preg_replace('/[\x00-\x1F\x7F]/u', '', $code) ?? $code;
+
+        return trim($code);
+    }
+
+    /**
+     * Value encoded into printed/scanned barcodes.
+     */
+    public static function codeForBarcode(?string $code): string
+    {
+        return self::normalizeCode($code);
     }
 
     /**
