@@ -226,7 +226,7 @@ class ExpenseController extends Controller
                 DB::commit();
 
                 return redirect()
-                    ->route('expenses.index')
+                    ->route('expenses.create')
                     ->with('success', 'Expense created successfully');
 
             } catch (\Exception $e) {

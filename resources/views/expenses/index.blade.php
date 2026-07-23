@@ -31,6 +31,7 @@
                 <x-table-header>Expense Head</x-table-header>
                 <x-table-header>Bank</x-table-header>
                 <x-table-header>Amount</x-table-header>
+                <x-table-header>Details</x-table-header>
                 <x-table-header>Created By</x-table-header>
                 <x-table-header>Actions</x-table-header>
             </tr>
@@ -47,6 +48,9 @@
                     <x-table-cell class="font-medium text-gray-900">{{ $expense->expenseHead->expense_head }}</x-table-cell>
                     <x-table-cell>{{ strtoupper($expense->bank->chartOfAccount->name ?? $expense->bank->account_name) }}</x-table-cell>
                     <x-table-cell>@currency($expense->amount)</x-table-cell>
+                    <x-table-cell class="max-w-xs truncate text-gray-600" title="{{ $expense->details }}">
+                        {{ $expense->details ?: '—' }}
+                    </x-table-cell>
                     <x-table-cell>{{ $expense->user->name }}</x-table-cell>
                     <x-table-cell>
                         <div class="flex items-center space-x-3" onclick="event.stopPropagation()">
@@ -68,7 +72,7 @@
                 </tr>
             @empty
                 <tr>
-                    <x-table-cell colspan="7" class="text-center text-gray-500 py-6">No expenses found</x-table-cell>
+                    <x-table-cell colspan="8" class="text-center text-gray-500 py-6">No expenses found</x-table-cell>
                 </tr>
             @endforelse
         </tbody>

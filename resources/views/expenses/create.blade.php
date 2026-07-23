@@ -29,6 +29,10 @@
             <x-error-alert message="{{ session('error') }}" />
         @endif
 
+        @if (session('success'))
+            <x-success-alert message="{{ session('success') }}" />
+        @endif
+
         <form method="POST" action="{{ route('expenses.store') }}" enctype="multipart/form-data" id="createExpenseForm">
             @csrf
 
